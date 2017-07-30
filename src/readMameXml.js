@@ -5,15 +5,13 @@ const
   , readline      = require('readline')
   , XmlStream     = require(`xml-stream`)
 
-const mameXMLInPath    = `inputs/mame187.xml`
- , jsonOutPath      = `outputs/systems.json`
-
-  , stream           = fs.createReadStream(mameXMLInPath)
-  , xml              = new XmlStream(stream)
-//Parse the mame xml pulling out the fields we need but only from systems which actually work
-module.exports = function makeSystems(callback) {
+ //Parse the mame xml pulling out the fields we need but only from systems which actually work
+module.exports = function makeSystems(mameXMLInPath, callback) {
   const systems = []
-  
+   , stream           = fs.createReadStream(mameXMLInPath)
+   , xml              = new XmlStream(stream)
+
+
   //xml stream 'collects' these meaning it deals with repeating xml keys rather than overwriting each time
   xml.collect('device')
   xml.collect('softwarelist')
