@@ -3,12 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "config": {
+    "getSpecs": "find specs -name '*spec.js'"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "xml-stream": "^0.4.5"
+  },
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^3.4.2",
+    "sinon": "^2.4.1"
   }
 }
