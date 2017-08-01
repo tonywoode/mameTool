@@ -7,7 +7,8 @@
     "getSpecs": "find specs -name '*spec.js'"
   },
   "scripts": {
-    "test": "mocha --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
+    "start": "node index.js",
+    "test": "mocha --timeout 15000000 --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +18,7 @@
   "devDependencies": {
     "chai": "^4.1.0",
     "chai-as-promised": "^7.1.1",
+    "into-stream": "^3.1.0",
     "mocha": "^3.4.2",
     "sinon": "^2.4.1"
   }

@@ -1,17 +1,13 @@
 "use strict"
 
-const 
-    fs            = require(`fs`)
-  , readline      = require('readline')
-  , XmlStream     = require(`xml-stream`)
 
+const  XmlStream     = require(`xml-stream`)
 
 
  //Parse the mame xml pulling out the fields we need but only from systems which actually work
-function makeSystems(mameXMLInPath, nodeback) {
+function makeSystems(mameXMLStream, nodeback) {
   const systems = []
-   , stream           = fs.createReadStream(mameXMLInPath)
-   , xml              = new XmlStream(stream)
+  const xml              = new XmlStream(mameXMLStream)
 
 
   //xml stream 'collects' these meaning it deals with repeating xml keys rather than overwriting each time
@@ -58,11 +54,11 @@ function makeSystems(mameXMLInPath, nodeback) {
 const makeSystemsAsync = mameXMLInPath => {
   return new Promise( (resolve, reject) => {
     makeSystems(mameXMLInPath, (err, systems) => {
-        if (!err) resolve(systems)
-        else reject(err)
-      })
+      if (!err) resolve(systems)
+      else reject(err)
     })
-  }
+  })
+}
 
 
 module.exports = makeSystemsAsync
