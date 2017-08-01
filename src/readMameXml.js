@@ -49,6 +49,10 @@ function makeSystems(mameXMLInPath, nodeback) {
     nodeback(null, systems)
   })
 
+  xml.on('error', (message) => {
+    nodeback(console.error(`XML parsing failed with ${message}`), null)
+  })
+
 }
 
 const makeSystemsAsync = mameXMLInPath => {
