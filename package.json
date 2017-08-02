@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --timeout 15000000 --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
+    "test": "mocha --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
   },
   "author": "",
   "license": "ISC",
