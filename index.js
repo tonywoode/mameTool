@@ -1,8 +1,9 @@
 const makeSystemsAsync = require('./src/readMameXml.js')
-const makeRomdata     = require('./src/makeRomdata.js')
+const makeRomdata      = require('./src/makeRomdata.js')
+//const printRomdata     = require('./src/printRomdata.js')
 const mameXMLInPath    = `./inputs/mame187.xml`
 const jsonOutPath      = `./outputs/mame.json`
-
+const romdataOutPath   = `./outputs/romdata.dat`
 const fs               = require(`fs`)
 const mameXMLStream    = fs.createReadStream(mameXMLInPath)
 
@@ -10,16 +11,17 @@ const mameXMLStream    = fs.createReadStream(mameXMLInPath)
 //flow
 makeSystemsAsync(mameXMLStream)
   .then( systems => { 
-    print(systems) 
+    printJsonToFile(systems) 
     const romdata = makeRomdata(systems)
-    console.log(romdata)
-  }
-)
+    printRomdata(romdata)
+  })
 
-const print = (systems) => {
-//print out the json we made, romdatamaker.js uses it
+const printJsonToFile = systems => {
   const pretty = JSON.stringify(systems, null, `\t`)
-  console.log(`Printing systems JSON to ${jsonOutPath}`)
   fs.writeFileSync(jsonOutPath, pretty)
-  console.log(`done`)
+}
+
+const printRomdata = romdata => { 
+    console.log(romdata)
+    fs.writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
 }
