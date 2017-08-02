@@ -1,9 +1,19 @@
-const makeSystemsAsync = require('./src/readMameXML.js')
+const makeSystemsAsync = require('./src/readMameXml.js')
+const printRomdata     = require('./src/printRomdata.js')
 const mameXMLInPath    = `./inputs/mame187.xml`
 const jsonOutPath      = `./outputs/mame.json`
 
 const fs               = require(`fs`)
 const mameXMLStream    = fs.createReadStream(mameXMLInPath)
+
+
+//flow
+makeSystemsAsync(mameXMLStream)
+  .then( systems => { 
+    print(systems) 
+    printRomdata(systems)
+  }
+)
 
 const print = (systems) => {
 //print out the json we made, romdatamaker.js uses it
@@ -12,5 +22,3 @@ const print = (systems) => {
   fs.writeFileSync(jsonOutPath, pretty)
   console.log(`done`)
 }
-
-makeSystemsAsync(mameXMLStream).then( systems => print(systems) )
