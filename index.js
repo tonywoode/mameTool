@@ -1,5 +1,5 @@
 const makeSystemsAsync = require('./src/readMameXml.js')
-const printRomdata     = require('./src/printRomdata.js')
+const makeRomdata     = require('./src/makeRomdata.js')
 const mameXMLInPath    = `./inputs/mame187.xml`
 const jsonOutPath      = `./outputs/mame.json`
 
@@ -11,7 +11,8 @@ const mameXMLStream    = fs.createReadStream(mameXMLInPath)
 makeSystemsAsync(mameXMLStream)
   .then( systems => { 
     print(systems) 
-    printRomdata(systems)
+    const romdata = makeRomdata(systems)
+    console.log(romdata)
   }
 )
 
