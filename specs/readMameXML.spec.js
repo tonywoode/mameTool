@@ -1,12 +1,7 @@
-
-const fs               = require(`fs`)
 const intoStream       = require('into-stream')
-const mameXMLInPath    = `./inputs/mame187.xml`
-
 const makeSystemsAsync = require('../src/readMameXML.js')
 
 const mockXml          = 
-
 `<?xml version="1.0"?>
 <!DOCTYPE mame [
 <!ELEMENT mame (machine+)>
