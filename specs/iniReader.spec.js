@@ -1,6 +1,3 @@
-const fs               = require(`fs`)
-const intoStream       = require('into-stream')
-
 const iniReader = require('../src/iniReader.js')
 
 const mockIni = 
@@ -21,9 +18,13 @@ const mockIni =
 1392apvs=Non-arcade
 18w=1P`
 
+const ini = iniReader(mockIni)
+
 describe('iniReader', () => {
-    it('should parse my ini into json and return it to me', () => {
-      const ini = iniReader(mockIni)
+    it('when parsing my ini into json,return something to me', () => {
         return expect(ini).to.not.be.null
   })
+    it(`when passed a setting for a key, return it as an object`, () => {
+      return expect(ini.NPlayers[`10yard`]).to.equal(`2P alt`)
+    })
 })

@@ -68,10 +68,16 @@ const mockXml          =
 
 var mockMameXMLStream = intoStream(mockXml)
 
-describe('makeSystems', () => {
-    it('should convert an item in mameXML format to a js object', () => {
-      return makeSystemsAsync(mockMameXMLStream).then( systems => {
-        return expect(systems).to.not.be.null
+makeSystemsAsync(mockMameXMLStream).then( systems => {
+
+  describe('makeSystems', () => {
+    it('should convert an item in mameXML format to a js object', () => { 
+      return expect(systems).to.not.be.null
+    })
+
+    it(`should return a correct value for a given key`, () => {
+      return expect(systems[0].year).to.equal(`1981`)
     })
   })
+
 })
