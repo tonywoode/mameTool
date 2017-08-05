@@ -1,24 +1,29 @@
-const makeSystemsAsync = require('./src/readMameXml.js')
-const makeRomdata      = require('./src/makeRomdata.js')
-const { printJsonToFile, printRomdata, printIconFile}  = require('./src/printers.js')
+'use strict'
 
-const mameXMLInPath    = `./inputs/mame187.xml`
-const jsonOutPath      = `./outputs/mame.json`
-const romdataOutDir    = `./outputs/mame`
-const romdataOutName   = `romdata.dat`
-const mameExtrasDir    = `F:\\Mame\\Extras\\Icons`
-const mameEmu          = `Mame64`
+const {readFileSync, createReadStream } = require(`fs`)
+const {fillNumPlayers}   = require(`./src/fillNumPlayers.js`)
+const iniReader          = require(`./src/iniReader.js`)
+const makeSystemsAsync   = require(`./src/readMameXml.js`)
+const makeRomdata        = require(`./src/makeRomdata.js`)
+const {printJsonToFile, printRomdata 
+        , printIconFile} = require(`./src/printers.js`)
 
-const mameXMLStream    = require(`fs`).createReadStream(mameXMLInPath)
+const mameXMLInPath      = `./inputs/mame187.xml`
+const jsonOutPath        = `./outputs/mame.json`
+const romdataOutDir      = `./outputs/mame`
+const mameExtrasDir      = `F:\\Mame\\Extras\\Icons`
+const iniDir             = `/Volumes/GAMES/MAME/EXTRAs/folders/`
+const nplayers           = iniReader(readFileSync(`${iniDir}/nplayers.ini`, `utf-8`) )
+const mameXMLStream      = createReadStream(mameXMLInPath)
 
 //flow
 makeSystemsAsync(mameXMLStream).then( systems => { 
-  printJsonToFile(systems, jsonOutPath) 
-  const romdata = makeRomdata(systems, mameEmu)
-  printRomdata(romdata, romdataOutDir, romdataOutName)
+  const systemsWithPlayers = fillNumPlayers(systems, nplayers)
+  const romdata = makeRomdata(systemsWithPlayers, `Mame64`)
+  
+  printJsonToFile(systemsWithPlayers, jsonOutPath) 
+  printRomdata(romdata, romdataOutDir, `romdata.dat`)
   printIconFile(romdataOutDir, mameExtrasDir, `mame`)
 })
 
-// const config = ini.parse(fs.readFileSync(iniPath, 'utf-8') )
-//const iniDir = `/Volumes/GAMES/MAME/EXTRAs/folders/`
 
