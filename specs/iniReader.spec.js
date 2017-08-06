@@ -16,7 +16,9 @@ const mockIni =
 136094_0072=Device
 136095_0072=Device
 1392apvs=Non-arcade
-18w=1P`
+18w=1P
+[NPlayersWithDot.]
+`
 
 const ini = iniReader(mockIni)
 
@@ -26,5 +28,9 @@ describe('iniReader', () => {
   })
     it(`when passed a setting for a key, return it as an object`, () => {
       return expect(ini.NPlayers[`10yard`]).to.equal(`2P alt`)
+    })
+
+    it('when passed a section name with a dot in it, preserve the dot, rather than turn it into an object separator', () => {
+      return expect(ini[`NPlayersWithDot.`]).to.not.be.undefined
     })
 })
