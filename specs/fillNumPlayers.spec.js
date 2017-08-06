@@ -2,8 +2,7 @@
 
 const { getNumPlayers, fillNumPlayers } = require(`../src/fillNumPlayers.js`)
 
-const mockJson = 
-[
+const mockJson = [
      {
 		"call": "005",
 		"system": "005",
@@ -28,8 +27,8 @@ const mockJson =
 ]
 
 const mockIni = { 
-  "NPlayers":
-   { "005": "2P alt",
+  "NPlayers":{ 
+     "005": "2P alt",
      "100lions": "???",
      "10yard": "2P alt",
      "10yard85": "2P alt",
@@ -44,8 +43,8 @@ const mockIni = {
 }
 
 const mockFalseIni ={ 
-  "NPlayers":
-   { "lalala": "2P alt",
+  "NPlayers": { 
+     "lalala": "2P alt",
      "wowowo": "???"
     } 
 }

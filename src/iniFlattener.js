@@ -7,7 +7,7 @@
  */
 
 const R = require('ramda')
-const {readFileSync} = require(`fs`)
+const {readFileSync}     = require(`fs`)
 const iniReader          = require(`./iniReader.js`)
 const iniDir             = `/Volumes/GAMES/MAME/EXTRAs/folders/`
 const categories         = readFileSync(`${iniDir}/category.ini`, `utf-8`)
@@ -23,8 +23,6 @@ const flatInvert = {}
   }, R.keys(value))
   
   R.forEachObjIndexed(sectionedIniToKV, ini)
-  
-  console.log(flatInvert)
   
   return flatInvert
 }
