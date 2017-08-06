@@ -13,16 +13,20 @@ const iniDir             = `/Volumes/GAMES/MAME/EXTRAs/folders/`
 const categories         = readFileSync(`${iniDir}/category.ini`, `utf-8`)
 const parsedCategories   = iniReader(categories)
 
+
+const iniFlattener = ini => {
 const flatInvert = {}
 
-//key is the section, value is the object of that section, and game is each key in that object
-const blessValuesWithParentKeyName = ( value, key ) => R.map( game => {
-  flatInvert[game] = key 
-}, R.keys(value))
+  //key is the section, value is the object of that section, and game is each key in that object
+  const sectionedIniToKV = ( value, key ) => R.map( game => {
+    flatInvert[game] = key 
+  }, R.keys(value))
+  
+  R.forEachObjIndexed(sectionedIniToKV, ini)
+  
+  console.log(flatInvert)
+  
+  return flatInvert
+}
 
-R.forEachObjIndexed(blessValuesWithParentKeyName, parsedCategories)
-
-console.log(flatInvert)
-
-return flatInvert
-
+module.exports = iniFlattener

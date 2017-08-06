@@ -2,8 +2,8 @@
 
 const { getNumPlayers, fillNumPlayers } = require(`../src/fillNumPlayers.js`)
 
-const mockJson = JSON.parse( 
-`[
+const mockJson = 
+[
      {
 		"call": "005",
 		"system": "005",
@@ -25,12 +25,10 @@ const mockJson = JSON.parse(
 		"company": "Irem",
 		"status": "good"
     }
-]`
-)
+]
 
-//do make sure your output is valid json
-const mockIni = JSON.parse(
-`{ "NPlayers":
+const mockIni = { 
+  "NPlayers":
    { "005": "2P alt",
      "100lions": "???",
      "10yard": "2P alt",
@@ -43,16 +41,14 @@ const mockIni = JSON.parse(
      "1392apvs": "Non-arcade",
      "18w": "1P" 
     } 
-}`
-)
+}
 
-const mockFalseIni = JSON.parse(
-`{ "NPlayers":
+const mockFalseIni ={ 
+  "NPlayers":
    { "lalala": "2P alt",
      "wowowo": "???"
     } 
-}`
-)
+}
 
 describe('fillNumPlayers', () => {
 describe('#getNumPlayers', () => {
