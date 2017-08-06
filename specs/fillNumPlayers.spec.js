@@ -26,8 +26,7 @@ const mockJson = [
     }
 ]
 
-const mockIni = { 
-  "NPlayers":{ 
+var mockIni = { 
      "005": "2P alt",
      "100lions": "???",
      "10yard": "2P alt",
@@ -39,14 +38,11 @@ const mockIni = {
      "136095_0072": "Device",
      "1392apvs": "Non-arcade",
      "18w": "1P" 
-    } 
 }
 
-const mockFalseIni ={ 
-  "NPlayers": { 
+var mockFalseIni ={ 
      "lalala": "2P alt",
      "wowowo": "???"
-    } 
 }
 
 describe('fillNumPlayers', () => {

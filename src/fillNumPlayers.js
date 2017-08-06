@@ -3,7 +3,7 @@
 const R = require(`ramda`)
 
 // I think its faster to search the ini for a each mame game than to search for each ini entry in the mame json
-const getNumPlayers = ini => call => ini.NPlayers[call]
+const getNumPlayers = ini => call => ini[call]
 
 const fillNumPlayers = (mameJson, ini) => {
 
