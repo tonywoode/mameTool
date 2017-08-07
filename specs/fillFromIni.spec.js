@@ -1,6 +1,6 @@
 'use strict'
 
-const { getNumPlayers, fillNumPlayers } = require(`../src/fillNumPlayers.js`)
+const { getEntryFromIni, fillFromIni } = require(`../src/fillFromIni.js`)
 
 const mockJson = [
      {
@@ -26,7 +26,7 @@ const mockJson = [
     }
 ]
 
-var mockIni = { 
+var mockNPlayersIni = { 
      "005": "2P alt",
      "100lions": "???",
      "10yard": "2P alt",
@@ -40,29 +40,30 @@ var mockIni = {
      "18w": "1P" 
 }
 
-var mockFalseIni ={ 
+var mockFalseNPlayersIni ={ 
      "lalala": "2P alt",
      "wowowo": "???"
 }
 
-describe('fillNumPlayers', () => {
-describe('#getNumPlayers', () => {
-    const loadedNumPlayers = getNumPlayers(mockIni) 
+describe('fillFromIni', () => {
+describe('#getEntryFromIni', () => {
+    const loadedGetEntryFromIni = getEntryFromIni(mockNPlayersIni) 
     it('should be falsey if the game isnt found', () => {
-        return expect(loadedNumPlayers(`123456789`)).to.not.be.ok
+        return expect(loadedGetEntryFromIni(`123456789`)).to.not.be.ok
   })
     it(`should give me the value for a valid key in the ini`, () => {
-      return expect(loadedNumPlayers(`1292apvs`)).to.equal(`Non-arcade`)
+      return expect(loadedGetEntryFromIni(`1292apvs`)).to.equal(`Non-arcade`)
     })
 })
 
-describe('#fillNumPlayers', () => {
+describe('#fillFromIni', () => {
     it('should return the same object if no matches are found in the ini', () => {
-        return expect(fillNumPlayers(mockJson, mockFalseIni)).to.deep.equal(mockJson)
+        return expect(fillFromIni(mockJson, mockFalseNPlayersIni, `players`)).to.deep.equal(mockJson)
   })
     it(`should fill in the number of players of a key from the input`, () => {
-      const newJson = fillNumPlayers(mockJson, mockIni)
-      return expect(newJson[0].players).to.equal(`2P alt`)
+      const typeOfIni = `players`
+      const newJson = fillFromIni(mockJson, mockNPlayersIni, typeOfIni)
+      return expect(newJson[0][typeOfIni]).to.equal(`2P alt`)
     })
-})
+  })
 })

@@ -3,8 +3,7 @@
 const R = require(`ramda`)
 
 const {readFileSync, createReadStream } = require(`fs`)
-const {fillNumPlayers}   = require(`./src/fillNumPlayers.js`)
-const {fillCategories}   = require(`./src/fillCategories.js`)
+const {fillFromIni}      = require(`./src/fillFromIni.js`)
 const iniReader          = require(`./src/iniReader.js`)
 const makeSystemsAsync   = require(`./src/readMameXml.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
@@ -25,8 +24,8 @@ const mameXMLStream      = createReadStream(mameXMLInPath)
 
 //flow
 makeSystemsAsync(mameXMLStream).then( systems => { 
-  const systemsWithPlayers = fillNumPlayers(systems, nplayersFlat)
-  const systemsWithCategories = fillCategories(systemsWithPlayers, categoriesFlat) 
+  const systemsWithPlayers = fillFromIni(systems, nplayersFlat, `players`)
+  const systemsWithCategories = fillFromIni(systemsWithPlayers, categoriesFlat, `category`) 
   const romdata = makeRomdata(systemsWithCategories, `Mame64`)
   
   printJsonToFile(systemsWithCategories, jsonOutPath) 
