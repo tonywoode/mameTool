@@ -14,7 +14,6 @@ const mockIni = {
 }
 
 const ini = iniFlattener(mockIni)
-console.log(ini)
 describe('iniReader', () => {
     it(`when flattening my ini file,return something to me`, () => {
         return expect(ini).to.not.be.null

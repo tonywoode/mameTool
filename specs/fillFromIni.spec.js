@@ -58,11 +58,11 @@ describe('#getEntryFromIni', () => {
 
 describe('#fillFromIni', () => {
     it('should return the same object if no matches are found in the ini', () => {
-        return expect(fillFromIni(mockJson, mockFalseNPlayersIni, `players`)).to.deep.equal(mockJson)
+        return expect(fillFromIni(mockFalseNPlayersIni, `players`, mockJson)).to.deep.equal(mockJson)
   })
     it(`should fill in the number of players of a key from the input`, () => {
       const typeOfIni = `players`
-      const newJson = fillFromIni(mockJson, mockNPlayersIni, typeOfIni)
+      const newJson = fillFromIni(mockNPlayersIni, typeOfIni, mockJson)
       return expect(newJson[0][typeOfIni]).to.equal(`2P alt`)
     })
   })

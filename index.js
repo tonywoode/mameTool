@@ -33,13 +33,17 @@ const loadSectionIni = (iniDir, iniName) =>
 const nplayers       = loadKVIni(iniDir, `nplayers`, `NPlayers`)
 const categories     = loadSectionIni( iniDir, `category`)
 
+const curriedFillFromIni = R.curry(fillFromIni)
+const curriedMakeRomdata = R.curry(makeRomdata)
+
 //flow
-makeSystemsAsync(mameXMLStream).then( systems => { 
-  const systemsWithPlayers = fillFromIni(systems, nplayers, `players`)
-  const systemsWithCategories = fillFromIni(systemsWithPlayers, categories, `category`) 
-  const romdata = makeRomdata(systemsWithCategories, `Mame64`)
-  
-  printJsonToFile(systemsWithCategories, jsonOutPath) 
+makeSystemsAsync(mameXMLStream).then( systems => {
+  const romdata = R.pipe(
+     curriedFillFromIni(nplayers, `players`)
+   , curriedFillFromIni(categories, `category`)
+   , curriedMakeRomdata(`Mame64`)
+  )(systems) 
+  //printJsonToFile(finishedSystems, jsonOutPath) 
   printRomdata(romdata, romdataOutDir, `romdata.dat`)
   printIconFile(romdataOutDir, mameExtrasDir, `mame`)
 })

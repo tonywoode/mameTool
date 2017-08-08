@@ -28,7 +28,7 @@ const mockJson  = JSON.parse(
 )
 describe('makeRomdata', () => {
     it('should accept a mame json string and turn it into romdata', () => {
-      const systems = makeRomdata(mockJson, `Mame64`)
+      const systems = makeRomdata(`Mame64`, mockJson)
       return expect(systems).to.not.be.null
     })
   })
