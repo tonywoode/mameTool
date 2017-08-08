@@ -12,20 +12,31 @@ const {printJsonToFile, printRomdata
 const iniFlattener       = require('./src/iniFlattener.js')
 
 const mameXMLInPath      = `./inputs/mame187.xml`
+const mameXMLStream      = createReadStream(mameXMLInPath)
+
 const jsonOutPath        = `./outputs/mame.json`
 const romdataOutDir      = `./outputs/mame`
 const mameExtrasDir      = `F:\\Mame\\Extras\\Icons`
 const iniDir             = `/Volumes/GAMES/MAME/EXTRAs/folders/`
-const nplayers           = iniReader(readFileSync(`${iniDir}/nplayers.ini`, `utf-8`) )
-const nplayersFlat       = R.prop(`NPlayers`, nplayers)
-const categories         = iniReader(readFileSync(`${iniDir}/category.ini`, `utf-8`) )
-const categoriesFlat     = iniFlattener(categories)
-const mameXMLStream      = createReadStream(mameXMLInPath)
+
+// this will load an ini file using the ini reader...
+const loadIni = (iniDir, iniName) => 
+  iniReader(readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) )
+// BUT, either that ini will have an annoying section header preventing it from being generic....
+// (sectionName is the top-level-key to remove, since its different to the filename..sigh...)
+const loadKVIni = (iniDir, iniName, sectionName) => 
+  R.prop(sectionName, loadIni(iniDir, iniName) )
+// OR, it will be section-to-key addressable, a nightmare to look up against....
+const loadSectionIni = (iniDir, iniName) => 
+  iniFlattener(loadIni(iniDir, iniName) )
+
+const nplayers       = loadKVIni(iniDir, `nplayers`, `NPlayers`)
+const categories     = loadSectionIni( iniDir, `category`)
 
 //flow
 makeSystemsAsync(mameXMLStream).then( systems => { 
-  const systemsWithPlayers = fillFromIni(systems, nplayersFlat, `players`)
-  const systemsWithCategories = fillFromIni(systemsWithPlayers, categoriesFlat, `category`) 
+  const systemsWithPlayers = fillFromIni(systems, nplayers, `players`)
+  const systemsWithCategories = fillFromIni(systemsWithPlayers, categories, `category`) 
   const romdata = makeRomdata(systemsWithCategories, `Mame64`)
   
   printJsonToFile(systemsWithCategories, jsonOutPath) 
