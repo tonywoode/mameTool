@@ -3,15 +3,18 @@
 const mkdirp = require(`mkdirp`)
 const writeFileSync = require('fs').writeFileSync
 
-exports.printJsonToFile = (systems, jsonOutPath) => writeFileSync(
-  jsonOutPath, JSON.stringify(systems, null, `\t`) 
-)
+exports.printJson = jsonOutPath => systems => {
+  writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`)) 
+  return systems
+}
 
-exports.printRomdata = (romdata, romdataOutDir, romdataOutName) => {
+exports.printRomdata = (romdataOutDir, romdataOutName) => romdata => {
   mkdirp.sync(romdataOutDir)
   const romdataOutPath = `${romdataOutDir}/${romdataOutName}`
   writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
   console.log(romdata)
+
+  return romdata
 }
 
 exports.printIconFile = (romdataOutDir, mameExtrasDir, iconName) => {

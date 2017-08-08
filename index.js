@@ -7,8 +7,8 @@ const {fillFromIni}      = require(`./src/fillFromIni.js`)
 const iniReader          = require(`./src/iniReader.js`)
 const makeSystemsAsync   = require(`./src/readMameXml.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
-const {printJsonToFile, printRomdata 
-        , printIconFile} = require(`./src/printers.js`)
+const {printJson, printRomdata, printIconFile} 
+                         = require(`./src/printers.js`)
 const iniFlattener       = require('./src/iniFlattener.js')
 
 const mameXMLInPath      = `./inputs/mame187.xml`
@@ -33,18 +33,17 @@ const loadSectionIni = (iniDir, iniName) =>
 const nplayers       = loadKVIni(iniDir, `nplayers`, `NPlayers`)
 const categories     = loadSectionIni( iniDir, `category`)
 
-const curriedFillFromIni = R.curry(fillFromIni)
-const curriedMakeRomdata = R.curry(makeRomdata)
-
 //flow
 makeSystemsAsync(mameXMLStream).then( systems => {
   const romdata = R.pipe(
-     curriedFillFromIni(nplayers, `players`)
-   , curriedFillFromIni(categories, `category`)
-   , curriedMakeRomdata(`Mame64`)
+     fillFromIni(nplayers, `players`)
+   , fillFromIni(categories, `category`)
+   , printJson(jsonOutPath) 
+   , makeRomdata(`Mame64`)
+   , printRomdata(romdataOutDir, `romdata.dat`)
   )(systems) 
-  //printJsonToFile(finishedSystems, jsonOutPath) 
-  printRomdata(romdata, romdataOutDir, `romdata.dat`)
+
   printIconFile(romdataOutDir, mameExtrasDir, `mame`)
+
 })
 
