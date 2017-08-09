@@ -7,15 +7,9 @@
  */
 
 const R = require('ramda')
-const {readFileSync}     = require(`fs`)
-const iniReader          = require(`./iniReader.js`)
-const iniDir             = `/Volumes/GAMES/MAME/EXTRAs/folders/`
-const categories         = readFileSync(`${iniDir}/category.ini`, `utf-8`)
-const parsedCategories   = iniReader(categories)
-
 
 const iniFlattener = ini => {
-const flatInvert = {}
+  const flatInvert = {}
 
   //key is the section, value is the object of that section, and game is each key in that object
   const sectionedIniToKV = ( value, key ) => R.map( game => {

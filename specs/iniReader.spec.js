@@ -1,4 +1,4 @@
-const iniReader = require('../src/iniReader.js')
+const { parseIni } = require('../src/iniReader.js')
 
 const mockIni = 
 `;; a mock ini file ;;
@@ -20,7 +20,7 @@ const mockIni =
 [NPlayersWithDot.]
 `
 
-const ini = iniReader(mockIni)
+const ini = parseIni(mockIni)
 
 describe('iniReader', () => {
     it('when parsing my ini into json,return something to me', () => {
