@@ -5,9 +5,9 @@ const  R  = require(`ramda`)
 const makeRomdata = mameEmu => systems => {
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
-  const mameRomdataLine = ({name, MAMEName, parentName, path, emu, company, year, players, gameType, comment}) => ( 
+  const mameRomdataLine = ({name, MAMEName, parentName, path, emu, company, year, players, rating, gameType, comment}) => ( 
       `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${emu}`
-    + `¬${company}¬${year}¬${gameType}¬${players}¬¬¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬`
+    + `¬${company}¬${year}¬${gameType}¬${players}¬¬${rating}¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬`
   )
   /*  1)  Display name, 2) _MAMEName, 3) _ParentName, 4) _ZipName, //Used Internally to store which file inside a zip file is the ROM
    *  5) _rom path //the path to the rom, 6) _emulator,7) _Company, 8) _Year, 9) _GameType, 10) _MultiPlayer, 11)  _Language
@@ -20,13 +20,14 @@ const makeRomdata = mameEmu => systems => {
     const romParams = {
         name        : obj.system.replace(/[^\x00-\x7F]/g, "") //in case of japanese
       , MAMEName    : obj.call
-      , parentName  : obj.cloneof?  obj.cloneof : ``
+      , parentName  : obj.cloneof || ``
       , path
       , emu         : `${mameEmu} Win32` //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
       , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
       , year        : obj.year
       , gameType    : obj.category
       , players     : obj.players
+      , rating      : obj.rating || ``
       , comment     : obj.status
     }
 

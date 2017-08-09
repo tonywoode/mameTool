@@ -25,20 +25,21 @@ const mockJson = [
 ]
 
 const expected = [ 'ROM DataFile Version : 1.1',
-  '005¬005¬¬¬./qp.exe¬Mame64 Win32¬Sega¬1981¬undefined¬undefined¬¬¬imperfect¬0¬1¬<IPS>¬</IPS>¬¬¬',
-  '100 Lions (10219211, NSW/ACT)¬100lions¬¬¬./qp.exe¬Mame64 Win32¬Aristocrat¬2006¬undefined¬undefined¬¬¬preliminary¬0¬1¬<IPS>¬</IPS>¬¬¬',
-  '10-Yard Fight (World, set 1)¬10yard¬¬¬./qp.exe¬Mame64 Win32¬Irem¬1983¬undefined¬undefined¬¬¬good¬0¬1¬<IPS>¬</IPS>¬¬¬'
+  '005¬005¬¬¬./qp.exe¬Mame64 Win32¬Sega¬1981¬¬¬¬¬imperfect¬0¬1¬<IPS>¬</IPS>¬¬¬',
+  '100 Lions (10219211, NSW/ACT)¬100lions¬¬¬./qp.exe¬Mame64 Win32¬Aristocrat¬2006¬¬¬¬¬preliminary¬0¬1¬<IPS>¬</IPS>¬¬¬',
+  '10-Yard Fight (World, set 1)¬10yard¬¬¬./qp.exe¬Mame64 Win32¬Irem¬1983¬¬¬¬¬good¬0¬1¬<IPS>¬</IPS>¬¬¬'
 ]
 
 describe('makeRomdata', () => {
-  it('should accept a mame json string and turn it into romdata', () => {
+  it('should accept a mame json string and return something', () => {
     const systems = makeRomdata(`Mame64`)(mockJson)
     return expect(systems).to.not.be.null
   })
 
-  it('should return back the whole expected test romdata result', () => {
+  it('should convert the input data to expected romdata lines, regardless of other ini filling of the romdata that also occurs', () => {
     const systems = makeRomdata(`Mame64`)(mockJson)
-    return expect(systems).to.deep.equal(expected)
+    const systemsWithoutUndef = systems.map( element => element.replace(/undefined/g, ``) )
+    return expect(systemsWithoutUndef).to.deep.equal(expected)
   })
 
 })
