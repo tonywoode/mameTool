@@ -5,14 +5,15 @@ const  R  = require(`ramda`)
 const makeRomdata = mameEmu => systems => {
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
-  const mameRomdataLine = ({name, MAMEName, parentName, path, emu, company, year, players, rating, gameType, comment}) => ( 
+  const mameRomdataLine = ({name, MAMEName, parentName, path, emu, company, year, gameType, rating, language, comment, players}) => ( 
       `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${emu}`
-    + `¬${company}¬${year}¬${gameType}¬${players}¬¬${rating}¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬`
+    + `¬${company}¬${year}¬${gameType}¬${rating}¬${language}¬¬${comment}¬0¬1¬<IPS>¬</IPS>¬${players}¬¬`
   )
-  /*  1)  Display name, 2) _MAMEName, 3) _ParentName, 4) _ZipName, //Used Internally to store which file inside a zip file is the ROM
-   *  5) _rom path //the path to the rom, 6) _emulator,7) _Company, 8) _Year, 9) _GameType, 10) _MultiPlayer, 11)  _Language
-   * 12)  _Parameters : String, 13)  _Comment, 14)  _ParamMode : TROMParametersMode; //type of parameter mode
-   * 15)  _Rating, 16)  _NumPlay, 17)  IPS start, 18)  IPS end, 19)  _DefaultGoodMerge : String; //The user selected default GoodMerge ROM */
+
+/*  1) name, 2) MAMEName, 3) parentName, 4) zipName (which file inside a zip file is the ROM), 
+ *  5) path, 6) emu, 7) company, 8) year, 9) gameType, 10) rating, 11) language,
+ *  12) parameters, 13) comment, 14) # times played, 15) paramMode (number), 16) '<IPS>' (IPSName,IPSPath,IsDefault), 17) '</IPS>',
+ *  18) # players, 19) defaultGoodMerge (The user selected default GoodMerge ROM). (there should ALWAYS be an extra ¬ at the end of the string) */
 
  //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = systems  => R.map( obj => {
@@ -27,6 +28,7 @@ const makeRomdata = mameEmu => systems => {
       , year        : obj.year
       , gameType    : obj.category
       , players     : obj.players
+      , language    : obj.language || ``
       , rating      : obj.rating || ``
       , comment     : obj.status
     }

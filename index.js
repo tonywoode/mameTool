@@ -20,6 +20,7 @@ const mameExtrasDir      = `F:\\Mame\\Extras\\Icons`
 const iniDir             = `/Volumes/GAMES/MAME/EXTRAs/folders/`
 
 const nplayers           = loadKVIni(iniDir, `nplayers`, `NPlayers`)
+const languages          = loadSectionIni( iniDir, `languages`)
 const categories         = loadSectionIni( iniDir, `category`)
 const bestGames          = loadSectionIni( iniDir, `bestgames`)
 
@@ -27,6 +28,7 @@ const bestGames          = loadSectionIni( iniDir, `bestgames`)
 makeSystemsAsync(mameXMLStream).then( systems => {
   const romdata = R.pipe(
      fillFromIni(nplayers, `players`)
+   , fillFromIni(languages, `language`)
    , fillFromIni(categories, `category`)
    , fillFromIni(bestGames, `rating`)
    , printJson(jsonOutPath) 
