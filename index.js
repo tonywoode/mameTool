@@ -2,15 +2,13 @@
 
 const R = require(`ramda`)
 
-const {readFile,readFileSync, createReadStream } = require(`fs`)
+const {readFile, createReadStream } = require(`fs`)
 const {fillFromIni}      = require(`./src/fillFromIni.js`)
 const {loadKVIni, loadSectionIni, loadBareIni} = require(`./src/iniReader.js`)
 const makeSystemsAsync   = require(`./src/readMameXml.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
 const {printJson, printRomdata, printIconFile} 
                          = require(`./src/printers.js`)
-const iniFlattener       = require('./src/iniFlattener.js')
-
 const mameXMLInPath      = `./inputs/mame187.xml`
 const mameXMLStream      = createReadStream(mameXMLInPath)
 
@@ -28,17 +26,14 @@ const categories         = loadSectionIni( iniDir, `category`)
 const bestGames          = loadSectionIni( iniDir, `bestgames`)
 
 // If there's an xml that parses in the json out location, use that, don't parse it all again
-const decideWhetherToXMLAsync = (jsonOutPath, mameXMLStream) => {
-  return new Promise( resolve => {
-    readFile(jsonOutPath, 'utf8', (err, data) => {
-      if (!err) resolve(JSON.parse(data))  
-      else resolve(makeSystemsAsync(mameXMLStream))
-    })
-  })
-}
+const decideWhetherToXMLAsync = () => new Promise( resolve =>
+  readFile(jsonOutPath, (err, data) =>
+    err? resolve(makeSystemsAsync(mameXMLStream) ) : resolve(JSON.parse(data) )  
+  )
+)
 
 //flow
-decideWhetherToXMLAsync(jsonOutPath, mameXMLStream).then( systems => {
+decideWhetherToXMLAsync().then( systems => {
   const romdata = R.pipe(
      fillFromIni(nplayers, `players`)
    , fillFromIni(languages, `language`)

@@ -10,7 +10,7 @@ const iniFlattener   = require('./iniFlattener.js')
  *  really borne by the spec? I tried some other ini libraries, best to stick with this
  *  ...and escape dots, always (there's lots of 'Misc.' in mame ini files)....
  */
-const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`))
+const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
 // this will load an ini file using the ini reader...
 const loadIni = (iniDir, iniName) => 
