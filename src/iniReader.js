@@ -1,5 +1,5 @@
 'use strict'
-const {readFileSync} = require(`fs`)
+let fs               = require(`fs`) //rewired in test, don't try and destructure
 const ini            = require('ini')
 const R              = require(`ramda`)
 const iniFlattener   = require('./iniFlattener.js')
@@ -14,7 +14,7 @@ const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
 // this will load an ini file using the ini reader...
 const loadIni = (iniDir, iniName) => 
-  parseIni(readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) )
+  parseIni(fs.readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) )
 
 // BUT, either that ini will have an annoying section header preventing it from being generic....
 // (sectionName is the top-level-key to remove, since its different to the filename..sigh...)

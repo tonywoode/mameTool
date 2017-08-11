@@ -1,6 +1,8 @@
-const { parseIni } = require('../src/iniReader.js')
+const rewire = require("rewire")
+const iniReader = rewire('../src/iniReader.js')
+const { parseIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
 
-const mockIni = 
+const mockKVIni = 
 `;; a mock ini file ;;
 
 ;; with two comments up top ;;
@@ -20,17 +22,73 @@ const mockIni =
 [NPlayersWithDot.]
 `
 
-const ini = parseIni(mockIni)
+const mockBareIni =
+` [FOLDER_SETTINGS]
+RootFolderIcon mame
+SubFolderIcon folder
 
-describe('iniReader', () => {
+;; ARCADE_NOBIOS.ini 0.187 / 28-jun-17 / MAME 0.187 ;;
+
+[ROOT_FOLDER]
+005
+100lions
+10yard
+10yard85
+10yardj`
+
+const mockSectionIni =
+`[FOLDER_SETTINGS]
+RootFolderIcon mame
+SubFolderIcon folder
+
+;; LANGUAGES.ini 0.187 / 30-jun-17 / MAME 0.187 ;;
+
+[ROOT_FOLDER]
+
+[Brazilian Portuguese]
+bazookabr
+bsuertev
+indianbtbr
+invadpt2br`
+
+describe(`iniReader`, () => {
+
+  describe(`#parseIni`, () => {
+    const ini = parseIni(mockKVIni)
     it('when parsing my ini into json,return something to me', () => {
         return expect(ini).to.not.be.null
-  })
+    i})
     it(`when passed a setting for a key, return it as an object`, () => {
       return expect(ini.NPlayers[`10yard`]).to.equal(`2P alt`)
     })
-
     it('when passed a section name with a dot in it, preserve the dot, rather than turn it into an object separator', () => {
       return expect(ini[`NPlayersWithDot.`]).to.not.be.undefined
     })
+  })
+
+  describe(`#loadKVIni`, () => {
+    it(`when passed a KV-style ini, treat it generically and hence return an expected kv`, () => {
+      iniReader.__set__("fs", { readFileSync: () => mockKVIni })
+      const kvIni = loadKVIni(`fakeDir`, `fakeName`, `NPlayers`)
+      return expect(kvIni[`10yard`]).to.equal(`2P alt`)
+    })
+  })
+
+  describe(`#loadBareIni`, () => {
+    it(`when passed a Bare-style ini, treat it generically and hence return an expected kv`, () => {
+    iniReader.__set__("fs", { readFileSync: () => mockBareIni })
+    const bareIni = loadBareIni(`fakeDir`, `fakeName` )
+    return expect(bareIni[`10yard`]).to.equal(`fakeName`)
+    })
+  })
+
+  describe(`#loadSectionIni`, () => {
+    it(`when passed a Section-style ini, treat it generically and hence return an expected kv`, () => {
+    iniReader.__set__("fs", { readFileSync: () => mockSectionIni })
+    const sectionIni = loadSectionIni(`fakeDir`, `fakeName`)
+    return expect(sectionIni[`bazookabr`]).to.equal(`Brazilian Portuguese`)
+    })
+  })
+
+
 })
