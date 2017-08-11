@@ -39,14 +39,11 @@ function makeSystems(mameXMLStream, nodeback) {
 
 }
 
-const makeSystemsAsync = mameXMLInPath => {
-  return new Promise( (resolve, reject) => {
-    makeSystems(mameXMLInPath, (err, systems) => {
-      if (!err) resolve(systems)
-      else reject(err)
-    })
-  })
-}
+const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) => 
+    makeSystems(mameXMLInPath, (err, systems) =>
+      !err? resolve(systems) : reject(err)
+    )
+  )
 
 
 module.exports = makeSystemsAsync
