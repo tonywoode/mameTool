@@ -69,7 +69,7 @@ describe(`iniReader`, () => {
   describe(`#loadKVIni`, () => {
     it(`when passed a KV-style ini, treat it generically and hence return an expected kv`, () => {
       iniReader.__set__("fs", { readFileSync: () => mockKVIni })
-      const kvIni = loadKVIni(`fakeDir`, `fakeName`, `NPlayers`)
+      const kvIni = loadKVIni(`fakeName`, `NPlayers`)
       return expect(kvIni[`10yard`]).to.equal(`2P alt`)
     })
   })
@@ -77,7 +77,7 @@ describe(`iniReader`, () => {
   describe(`#loadBareIni`, () => {
     it(`when passed a Bare-style ini, treat it generically and hence return an expected kv`, () => {
     iniReader.__set__("fs", { readFileSync: () => mockBareIni })
-    const bareIni = loadBareIni(`fakeDir`, `fakeName` )
+    const bareIni = loadBareIni(`fakeName` )
     return expect(bareIni[`10yard`]).to.equal(true)
     })
   })
@@ -85,7 +85,7 @@ describe(`iniReader`, () => {
   describe(`#loadSectionIni`, () => {
     it(`when passed a Section-style ini, treat it generically and hence return an expected kv`, () => {
     iniReader.__set__("fs", { readFileSync: () => mockSectionIni })
-    const sectionIni = loadSectionIni(`fakeDir`, `fakeName`)
+    const sectionIni = loadSectionIni(`fakeName`)
     return expect(sectionIni[`bazookabr`]).to.equal(`Brazilian Portuguese`)
     })
   })

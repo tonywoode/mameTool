@@ -4,29 +4,29 @@ const { getEntryFromIni, fillFromIni } = require(`../src/fillFromIni.js`)
 
 const mockJson = [
      {
-		"call": "005",
-		"system": "005",
-		"year": "1981",
-		"company": "Sega",
-		"status": "imperfect"
+		call: "005",
+		system: "005",
+		year: "1981",
+		company: "Sega",
+		status: "imperfect"
 	},
 	{
-		"call": "100lions",
-		"system": "100 Lions (10219211, NSW/ACT)",
-		"year": "2006",
-		"company": "Aristocrat",
-		"status": "preliminary"
+		call: "100lions",
+		system: "100 Lions (10219211, NSW/ACT)",
+		year: "2006",
+		company: "Aristocrat",
+		status: "preliminary"
 	},
 	{
-		"call": "10yard",
-		"system": "10-Yard Fight (World, set 1)",
-		"year": "1983",
-		"company": "Irem",
-		"status": "good"
+		call: "10yard",
+		system: "10-Yard Fight (World, set 1)",
+		year: "1983",
+		company: "Irem",
+		status: "good"
     }
 ]
 
-var mockNPlayersIni = { 
+const mockNPlayersIni = { 
      "005": "2P alt",
      "100lions": "???",
      "10yard": "2P alt",
@@ -40,9 +40,9 @@ var mockNPlayersIni = {
      "18w": "1P" 
 }
 
-var mockFalseNPlayersIni ={ 
-     "lalala": "2P alt",
-     "wowowo": "???"
+const mockFalseNPlayersIni = { 
+     lalala: "2P alt",
+     wowowo: "???"
 }
 
 describe('fillFromIni', () => {
@@ -58,11 +58,11 @@ describe('#getEntryFromIni', () => {
 
 describe('#fillFromIni', () => {
     it('should return the same object if no matches are found in the ini', () => {
-        return expect(fillFromIni(mockFalseNPlayersIni, `players`)(mockJson)).to.deep.equal(mockJson)
+        return expect(fillFromIni(`players`, mockFalseNPlayersIni)(mockJson)).to.deep.equal(mockJson)
   })
     it(`should fill in the number of players of a key from the input`, () => {
       const typeOfIni = `players`
-      const newJson = fillFromIni(mockNPlayersIni, typeOfIni)(mockJson)
+      const newJson = fillFromIni(typeOfIni, mockNPlayersIni)(mockJson)
       return expect(newJson[0][typeOfIni]).to.equal(`2P alt`)
     })
   })
