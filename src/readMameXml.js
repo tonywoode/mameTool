@@ -5,12 +5,16 @@ const R = require(`ramda`)
 
 const cleanKey = (key, systems) => {
   const cleanDollar = subobj  => R.prop( "$", subobj)
-  const cleanedKey = R.map(obj => obj[key]? 
-    obj[key] = R.assoc(`${key}`, cleanDollar(obj[key]), obj) : obj
+  return R.map(obj => obj[key]? 
+    R.assoc(`${key}`, cleanDollar(obj[key]), obj) : obj
   , systems )
-
-  return cleanedKey
 }
+
+const omitFromDisplay = [`pixclock`, `htotal`, `hbend`, `hbstart`, `vtotal`, `vbend`, `vbstart`]
+
+const shortenDisplay = systems => R.map( obj => obj.display? 
+  R.assoc(`display`, R.omit(omitFromDisplay, obj.display), obj) : obj
+, systems)
 
 //Parse the mame xml pulling out the fields we need but only from systems which actually work
 function makeSystems(mameXMLStream, nodeback) {
@@ -50,7 +54,8 @@ function makeSystems(mameXMLStream, nodeback) {
 
   xml.on(`end`, () => {
     const cleanedDisplay = cleanKey(`display`, systems)
-    const cleanedControl = cleanKey(`control`, cleanedDisplay)
+    const shortenedDisplay = shortenDisplay(cleanedDisplay)
+    const cleanedControl = cleanKey(`control`, shortenedDisplay)
     nodeback(null, cleanedControl)
   })
 
