@@ -1,8 +1,18 @@
 "use strict"
 
 const XmlStream = require(`xml-stream`)
+const R = require(`ramda`)
 
- //Parse the mame xml pulling out the fields we need but only from systems which actually work
+const cleanKey = (key, systems) => {
+  const cleanDollar = subobj  => R.prop( "$", subobj)
+  const cleanedKey = R.map(obj => obj[key]? 
+    obj[key] = R.assoc(`${key}`, cleanDollar(obj[key]), obj) : obj
+  , systems )
+
+  return cleanedKey
+}
+
+//Parse the mame xml pulling out the fields we need but only from systems which actually work
 function makeSystems(mameXMLStream, nodeback) {
   const systems = []
   const xml     = new XmlStream(mameXMLStream)
@@ -18,19 +28,30 @@ function makeSystems(mameXMLStream, nodeback) {
       //&& machine.driver.$.sound   === `good`
       //&& machine.driver.$.graphic === `good` //remember 'nes' doesn't have good graphic so be careful
     ) {
-      const node    = {}
-      node.call     = machine.$.name
-      node.cloneof  = machine.$.cloneof
-      node.system   = machine.description
-      node.year     = machine.year
-      node.company  = machine.manufacturer
-      node.status   = machine.driver.$.status
+      const node          = {}
+      node.call           = machine.$.name
+      node.isbios         = machine.$.isbios
+      node.isdevice       = machine.$.isdevice
+      node.ismechanical   = machine.$.ismechanical
+      //node.runnable   = machine.runnable
+      node.cloneof        = machine.$.cloneof
+      node.romof          = machine.$.romof
+      node.system         = machine.description
+      node.year           = machine.year
+      node.company        = machine.manufacturer
+      node.display        = machine.display
+      node.control        = machine.input.control
+      node.status         = machine.driver.$.status
+      node.savestate      = machine.driver.$.savestate
+      if (machine.softwarelist) node.hasSoftwarelist = true
       systems.push(node)
     }
   })
 
   xml.on(`end`, () => {
-    nodeback(null, systems)
+    const cleanedDisplay = cleanKey(`display`, systems)
+    const cleanedControl = cleanKey(`control`, cleanedDisplay)
+    nodeback(null, cleanedControl)
   })
 
   xml.on('error', (message) => {
@@ -38,6 +59,7 @@ function makeSystems(mameXMLStream, nodeback) {
   })
 
 }
+
 
 const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) => 
     makeSystems(mameXMLInPath, (err, systems) =>

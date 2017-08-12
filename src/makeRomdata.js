@@ -19,14 +19,14 @@ const makeRomdata = mameEmu => systems => {
   const applyRomdata = systems  => R.map( obj => {
 
     const romParams = {
-        name        : obj.system.replace(/[^\x00-\x7F]/g, "") //in case of japanese
+        name        : obj.system.replace(/[^\x00-\x7F]/g, ``) //in case of japanese
       , MAMEName    : obj.call
       , parentName  : obj.cloneof || ``
       , path
-      , emu         : `${mameEmu} Win32` //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
-      , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
+      , emu         : `${mameEmu} Win32` 
+      , company     : obj.company.replace(/[^\x00-\x7F]/g, ``)
       , year        : obj.year
-      , gameType    : obj.category
+      , gameType    : obj.catlist
       , players     : obj.players
       , language    : obj.language || ``
       , rating      : obj.rating || ``
