@@ -78,7 +78,7 @@ describe(`iniReader`, () => {
     it(`when passed a Bare-style ini, treat it generically and hence return an expected kv`, () => {
     iniReader.__set__("fs", { readFileSync: () => mockBareIni })
     const bareIni = loadBareIni(`fakeDir`, `fakeName` )
-    return expect(bareIni[`10yard`]).to.equal(`fakeName`)
+    return expect(bareIni[`10yard`]).to.equal(true)
     })
   })
 

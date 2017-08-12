@@ -35,7 +35,8 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 //flow
 decideWhetherToXMLAsync().then( systems => {
   const romdata = R.pipe(
-     fillFromIni(nplayers, `players`)
+     fillFromIni(arcade, `arcade`)
+   , fillFromIni(nplayers, `players`)
    , fillFromIni(languages, `language`)
    , fillFromIni(categories, `category`)
    , fillFromIni(bestGames, `rating`)
