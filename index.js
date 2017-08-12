@@ -20,10 +20,19 @@ const iniDir             = `/Volumes/GAMES/MAME/EXTRAs/folders/`
 // To add an ini, it must be loaded here as one of the two types, 
 // then filled in the pipe below, then added to makeRomdata
 const arcade             = loadBareIni(iniDir, `arcade`)
-const nplayers           = loadKVIni(iniDir, `nplayers`, `NPlayers`)
-const languages          = loadSectionIni( iniDir, `languages`)
-const categories         = loadSectionIni( iniDir, `category`)
+const arcadeNoBios       = loadBareIni(iniDir, `arcade_NOBIOS`)
 const bestGames          = loadSectionIni( iniDir, `bestgames`)
+const category           = loadSectionIni( iniDir, `category`)
+const catlist            = loadSectionIni( iniDir, `catlist`)
+const genre              = loadSectionIni( iniDir, `genre`)
+const languages          = loadSectionIni( iniDir, `languages`)
+const mamescore          = loadKVIni(iniDir, `mamescore`, `MAMESCORE`)
+const mess               = loadBareIni(iniDir, `mess`)
+const monochrome         = loadSectionIni(iniDir, `monochrome`)
+const nplayers           = loadKVIni(iniDir, `nplayers`, `NPlayers`)
+const screenless         = loadBareIni(iniDir, `screenless`)
+const series             = loadSectionIni(iniDir, `series`)
+const version            = loadSectionIni(iniDir, `version`)
 
 // If there's an xml that parses in the json out location, use that, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
@@ -36,10 +45,19 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 decideWhetherToXMLAsync().then( systems => {
   const romdata = R.pipe(
      fillFromIni(arcade, `arcade`)
-   , fillFromIni(nplayers, `players`)
-   , fillFromIni(languages, `language`)
-   , fillFromIni(categories, `category`)
+   , fillFromIni(arcadeNoBios, `arcadeNoBios`)
    , fillFromIni(bestGames, `rating`)
+   , fillFromIni(category, `category`)
+   , fillFromIni(catlist, `catlist`)
+   , fillFromIni(genre, `genre`)
+   , fillFromIni(languages, `language`)
+   , fillFromIni(mamescore, `mamescore`)
+   , fillFromIni(mess, `mess`)
+   , fillFromIni(monochrome, `monochrome`)
+   , fillFromIni(nplayers, `players`)
+   , fillFromIni(screenless, `screenless`)
+   , fillFromIni(series, `series`)
+   , fillFromIni(version, `version`)
    , printJson(jsonOutPath) 
    , makeRomdata(`Mame64`)
    , printRomdata(romdataOutDir, `romdata.dat`)
