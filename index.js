@@ -2,10 +2,10 @@
 
 const R = require(`ramda`)
 
-const {readFile, createReadStream } = require(`fs`)
+const {readFile, createReadStream} = require(`fs`)
 const {fillFromIni}      = require(`./src/fillFromIni.js`)
 const {loadKVIni, loadSectionIni, loadBareIni} = require(`./src/iniReader.js`)
-const makeSystemsAsync   = require(`./src/readMameXml.js`)
+const {makeSystemsAsync}  = require(`./src/readMameXml.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
 const {printJson, printRomdata, printIconFile} 
                          = require(`./src/printers.js`)

@@ -1,5 +1,5 @@
-const intoStream       = require('into-stream')
-const makeSystemsAsync = require('../src/readMameXML.js')
+const intoStream           = require('into-stream')
+const { makeSystemsAsync, cleanKey, shortenDisplay } = require('../src/readMameXML.js')
 
 const mockXml          = 
 `<?xml version="1.0"?>
@@ -66,18 +66,158 @@ const mockXml          =
 	</machine>
 </mame>`
 
-var mockMameXMLStream = intoStream(mockXml)
+const mockMameXMLStream = intoStream(mockXml)
+
+const mockDollarList = [
+	{
+		call: "005",
+		isbios: "no",
+		isdevice: "no",
+		ismechanical: "no",
+		system: "005",
+		year: "1981",
+		company: "Sega",
+		display: {
+			$: {
+				tag: "screen",
+				type: "raster",
+				rotate: "270",
+				width: "256",
+				height: "224",
+				refresh: "59.998138",
+				pixclock: "5156000",
+				htotal: "328",
+				hbend: "0",
+				hbstart: "256",
+				vtotal: "262",
+				vbend: "0",
+				vbstart: "224",
+				flipx: "no"
+			},
+			$name: "display"
+		},
+		control: {
+			$: {
+				type: "joy",
+				player: "2",
+				buttons: "1",
+				ways: "4",
+				reverse: "no"
+			},
+			$name: "control"
+		},
+		status: "imperfect",
+		savestate: "unsupported",
+		arcade: true,
+		arcadeNoBios: true,
+		rating: "10 to 20 (Horrible)",
+		category: "Maze / Shooter Small",
+		catlist: "Maze / Shooter Small",
+		genre: "Maze",
+		language: "English",
+		mamescore: true,
+		players: "2P alt",
+		version: "0.030"
+	}
+]
+
+const mockCleanedDollarList = [
+	{
+		call: "005",
+		isbios: "no",
+		isdevice: "no",
+		ismechanical: "no",
+		system: "005",
+		year: "1981",
+		company: "Sega",
+		display: {
+			 flipx: "no",
+             hbend: "0",
+             hbstart: "256",
+             height: "224",
+             htotal: "328",
+             pixclock: "5156000",
+             refresh: "59.998138",
+             rotate: "270",
+             tag: "screen",
+             type: "raster",
+             vbend: "0",
+             vbstart: "224",
+             vtotal: "262",
+             width: "256"
+		},
+		control: {
+			type: "joy",
+			player: "2",
+			buttons: "1",
+			ways: "4",
+			reverse: "no"
+		},
+		status: "imperfect",
+		savestate: "unsupported",
+		arcade: true,
+		arcadeNoBios: true,
+		rating: "10 to 20 (Horrible)",
+		category: "Maze / Shooter Small",
+		catlist: "Maze / Shooter Small",
+		genre: "Maze",
+		language: "English",
+		mamescore: true,
+		players: "2P alt",
+		version: "0.030"
+	}
+]
 
 makeSystemsAsync(mockMameXMLStream).then( systems => {
+  describe(`readMameXML`, () => {
 
-  describe('makeSystems', () => {
-    it('should convert an item in mameXML format to a js object', () => { 
-      return expect(systems).to.not.be.null
+    describe('#makeSystems', () => {
+      it(`should convert an item in mameXML format to a js object`, () => { 
+        return expect(systems).to.not.be.null
+      })
+  
+      it(`should return a correct value for a given key`, () => {
+        return expect(systems[0].year).to.equal(`1981`)
+      })
+    })
+    
+    describe(`#cleanKey`, () => {
+     it(`should flatten $-style object key in a list (removing $ and $name keys)`, () => {
+       const cleanedDollarList = cleanKey(`display`, mockDollarList)
+       return expect(cleanedDollarList[0].display).to.deep.equal( {
+         flipx: "no",
+         hbend: "0",
+         hbstart: "256",
+         height: "224",
+         htotal: "328",
+         pixclock: "5156000",
+         refresh: "59.998138",
+         rotate: "270",
+         tag: "screen",
+         type: "raster",
+         vbend: "0",
+         vbstart: "224",
+         vtotal: "262",
+         width: "256"
+       })
+     })
+   })
+
+    describe(`#shortenDisplay`, () => {
+      it(`should remove the properties I decided weren't important to filtering roms from the display object`, () => {
+        const shortenedMockDisplayList = shortenDisplay(mockCleanedDollarList)
+        return expect(shortenedMockDisplayList[0].display).to.deep.equal( {
+          tag: "screen",
+          type: "raster",
+          rotate: "270",
+          width: "256",
+          height: "224",
+          refresh: "59.998138",
+          flipx: "no"
+        })
+      })
     })
 
-    it(`should return a correct value for a given key`, () => {
-      return expect(systems[0].year).to.equal(`1981`)
-    })
-  })
 
+  }) 
 })

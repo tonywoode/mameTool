@@ -26,11 +26,6 @@ function makeSystems(mameXMLStream, nodeback) {
   xml.on(`updateElement: machine`, machine => {
     if ( 
        machine.$.runnable  !== `no`
-      //&& machine.driver.$.status  !== `preliminary` //this is a calculated intersection of all of the below
-      //&& machine.driver.$.emulation !== `preliminary`
-      //&& machine.driver.$.color   === `good`
-      //&& machine.driver.$.sound   === `good`
-      //&& machine.driver.$.graphic === `good` //remember 'nes' doesn't have good graphic so be careful
     ) {
       const node          = {}
       node.call           = machine.$.name
@@ -53,6 +48,7 @@ function makeSystems(mameXMLStream, nodeback) {
   })
 
   xml.on(`end`, () => {
+    //todo: unit test for makeSystems is running these too
     const cleanedDisplay = cleanKey(`display`, systems)
     const shortenedDisplay = shortenDisplay(cleanedDisplay)
     const cleanedControl = cleanKey(`control`, shortenedDisplay)
@@ -72,6 +68,6 @@ const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) =>
     )
   )
 
-
-module.exports = makeSystemsAsync
+//last two for unit tests
+module.exports = { makeSystemsAsync, cleanKey, shortenDisplay }
 
