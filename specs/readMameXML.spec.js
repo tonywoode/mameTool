@@ -71,9 +71,9 @@ const mockMameXMLStream = intoStream(mockXml)
 const mockDollarList = [
 	{
 		call: "005",
-		isbios: "no",
-		isdevice: "no",
-		ismechanical: "no",
+		isbios: false,
+		isdevice: false,
+		ismechanical: false,
 		system: "005",
 		year: "1981",
 		company: "Sega",
@@ -92,7 +92,7 @@ const mockDollarList = [
 				vtotal: "262",
 				vbend: "0",
 				vbstart: "224",
-				flipx: "no"
+				flipx: false
 			},
 			$name: "display"
 		},
@@ -102,7 +102,7 @@ const mockDollarList = [
 				player: "2",
 				buttons: "1",
 				ways: "4",
-				reverse: "no"
+				reverse: false
 			},
 			$name: "control"
 		},
@@ -124,14 +124,14 @@ const mockDollarList = [
 const mockCleanedDollarList = [
 	{
 		call: "005",
-		isbios: "no",
-		isdevice: "no",
-		ismechanical: "no",
+		isbios: false,
+		isdevice: false,
+		ismechanical: false,
 		system: "005",
 		year: "1981",
 		company: "Sega",
 		display: {
-			 flipx: "no",
+			 flipx: false,
              hbend: "0",
              hbstart: "256",
              height: "224",
@@ -151,7 +151,7 @@ const mockCleanedDollarList = [
 			player: "2",
 			buttons: "1",
 			ways: "4",
-			reverse: "no"
+			reverse: false
 		},
 		status: "imperfect",
 		savestate: "unsupported",
@@ -185,7 +185,7 @@ makeSystemsAsync(mockMameXMLStream).then( systems => {
      it(`should flatten $-style object key in a list (removing $ and $name keys)`, () => {
        const cleanedDollarList = cleanKey(`display`, mockDollarList)
        return expect(cleanedDollarList[0].display).to.deep.equal( {
-         flipx: "no",
+         flipx: false,
          hbend: "0",
          hbstart: "256",
          height: "224",
@@ -213,7 +213,7 @@ makeSystemsAsync(mockMameXMLStream).then( systems => {
           width: "256",
           height: "224",
           refresh: "59.998138",
-          flipx: "no"
+          flipx: false
         })
       })
     })

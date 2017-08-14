@@ -3,6 +3,14 @@
 const XmlStream = require(`xml-stream`)
 const R = require(`ramda`)
 
+// boolean logic isn't well served by 'no' and 'yes', change them all
+const convertToBool = systems => {
+  const yesNoToTrueFalse = key => key===`no`? false : (key===`yes`? true : key)
+  return R.map( obj => R.map( yesNoToTrueFalse, obj), systems)
+}
+
+
+// get rid of $ and $name keys, they aren't needed
 const cleanKey = (key, systems) => {
   const cleanDollar = subobj  => R.prop( "$", subobj)
   return R.map(obj => obj[key]? 
@@ -10,8 +18,8 @@ const cleanKey = (key, systems) => {
   , systems )
 }
 
+// none of these props of 'display' will help us make a list of games to play
 const omitFromDisplay = [`pixclock`, `htotal`, `hbend`, `hbstart`, `vtotal`, `vbend`, `vbstart`]
-
 const shortenDisplay = systems => R.map( obj => obj.display? 
   R.assoc(`display`, R.omit(omitFromDisplay, obj.display), obj) : obj
 , systems)
@@ -48,7 +56,8 @@ function makeSystems(mameXMLStream, nodeback) {
 
   xml.on(`end`, () => {
     //todo: unit test for makeSystems is running these too
-    const cleanedDisplay = cleanKey(`display`, systems)
+    const convertedBools = convertToBool(systems)
+    const cleanedDisplay = cleanKey(`display`, convertedBools)
     const shortenedDisplay = shortenDisplay(cleanedDisplay)
     const cleanedControl = cleanKey(`control`, shortenedDisplay)
     nodeback(null, cleanedControl)
