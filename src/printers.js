@@ -48,3 +48,10 @@ CmbIcon=${iconName}.ico
   writeFileSync(`${romdataOutDir}/folders.ini`, iconTemplate)
 
 }
+
+//we're going to put all our romdatas in a base directory, probably called mame
+//it will also need an icon, doesn't need anything else
+exports.prepareBaseDir = (baseDirPath, iconName) => {
+  mkdirp.sync(baseDirPath)
+  exports.printIconFile(baseDirPath, ``, iconName)
+}

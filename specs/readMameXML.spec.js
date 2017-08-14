@@ -1,4 +1,4 @@
-const intoStream           = require('into-stream')
+const intoStream = require('into-stream')
 const { makeSystemsAsync, cleanKey, shortenDisplay } = require('../src/readMameXML.js')
 
 const mockXml          = 

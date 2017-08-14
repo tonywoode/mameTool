@@ -21,7 +21,6 @@ function makeSystems(mameXMLStream, nodeback) {
   const systems = []
   const xml     = new XmlStream(mameXMLStream)
 
-  //xml stream 'collects' these meaning it deals with repeating xml keys rather than overwriting each time
   console.log(`Reading a very large xml file, patience...`)
   xml.on(`updateElement: machine`, machine => {
     if ( 
@@ -32,7 +31,7 @@ function makeSystems(mameXMLStream, nodeback) {
       node.isbios         = machine.$.isbios
       node.isdevice       = machine.$.isdevice
       node.ismechanical   = machine.$.ismechanical
-      //node.runnable   = machine.runnable
+      //node.runnable       = machine.runnable
       node.cloneof        = machine.$.cloneof
       node.romof          = machine.$.romof
       node.system         = machine.description
