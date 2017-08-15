@@ -9,6 +9,11 @@ const convertToBool = systems => {
   return R.map( obj => R.map( yesNoToTrueFalse, obj), systems)
 }
 
+// then, what's the point in false keys in mame anyway?
+const removeFalse = systems => {
+  const isFalse = key => key === false
+  return R.map( obj => R.reject(isFalse, obj), systems)
+}
 
 // get rid of $ and $name keys, they aren't needed
 const cleanKey = (key, systems) => {
@@ -57,7 +62,8 @@ function makeSystems(mameXMLStream, nodeback) {
   xml.on(`end`, () => {
     //todo: unit test for makeSystems is running these too
     const convertedBools = convertToBool(systems)
-    const cleanedDisplay = cleanKey(`display`, convertedBools)
+    const noFalse = removeFalse(convertedBools)
+    const cleanedDisplay = cleanKey(`display`, noFalse)
     const shortenedDisplay = shortenDisplay(cleanedDisplay)
     const cleanedControl = cleanKey(`control`, shortenedDisplay)
     nodeback(null, cleanedControl)
@@ -76,6 +82,6 @@ const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) =>
     )
   )
 
-//last two for unit tests
-module.exports = { makeSystemsAsync, cleanKey, shortenDisplay }
+//most of these just for unit tests
+module.exports = { makeSystemsAsync, convertToBool, removeFalse, cleanKey, shortenDisplay }
 
