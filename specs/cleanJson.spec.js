@@ -4,20 +4,12 @@ const mockDollarList = [
   {
 	call: "005",
 	isbios: "no",
-	isdevice: "no",
 	ismechanical: "yes",
-	system: "005",
-	year: "1981",
 	company: "Sega",
 	display: {
 		$: {
-			tag: "screen",
-			type: "raster",
-			rotate: "270",
 			width: "256",
 			height: "224",
-			refresh: "59.998138",
-			pixclock: "5156000",
 		},
 		$name: "display"
 	},
@@ -25,23 +17,13 @@ const mockDollarList = [
 		$: {
 			type: "joy",
 			player: "2",
-			buttons: "1",
-			ways: "4",
 			reverse: "yes"
 		},
 		$name: "control"
 	},
-	status: "imperfect",
-	savestate: "unsupported",
-	arcade: true,
 	arcadeNoBios: true,
 	rating: "10 to 20 (Horrible)",
-	category: "Maze / Shooter Small",
 	catlist: "Maze / Shooter Small",
-	genre: "Maze",
-	language: "English",
-	mamescore: true,
-	players: "2P alt",
 	version: "0.030"
   }
 ]
@@ -49,11 +31,6 @@ const mockDollarList = [
 const mockCleanedDollarList = [
   {
 	call: "005",
-	isbios: false,
-	isdevice: false,
-	ismechanical: false,
-	system: "005",
-	year: "1981",
 	company: "Sega",
 	display: {
          height: "224",
@@ -63,24 +40,13 @@ const mockCleanedDollarList = [
          type: "raster",
          width: "256"
 	},
-	control: {
-		type: "joy",
-		player: "2",
-		buttons: "1",
-		ways: "4",
-		reverse: false
+    control: {
+         refresh: "59.998138",
 	},
-	status: "imperfect",
 	savestate: "unsupported",
-	arcade: true,
 	arcadeNoBios: true,
 	rating: "10 to 20 (Horrible)",
-	category: "Maze / Shooter Small",
-	catlist: "Maze / Shooter Small",
-	genre: "Maze",
-	language: "English",
 	mamescore: true,
-	players: "2P alt",
 	version: "0.030"
   }
 ]
@@ -94,7 +60,7 @@ describe(`cleanJson`, () => {
     it(`should convert 'yes' values in a list to true`, () => {
       return expect(boolConvertedList[0].ismechanical).to.equal(true)     
     })
-    it(`should convert 'no' values in a list to false in a nested object`, () => {
+    it(`should convert values in deeply nested objects in a list`, () => {
       return expect(boolConvertedList[0].control.$.reverse).to.equal(true)  
     })
   })
@@ -104,11 +70,6 @@ describe(`cleanJson`, () => {
      const cleanedDollarList = cleanKey(`display`)(mockDollarList)
      return expect(cleanedDollarList[0].display).to.deep.equal( {
        height: "224",
-       pixclock: "5156000",
-       refresh: "59.998138",
-       rotate: "270",
-       tag: "screen",
-       type: "raster",
        width: "256"
      })
    })
@@ -125,6 +86,14 @@ describe(`cleanJson`, () => {
         height: "224",
       })
     })
+
+    it(`shouldn't remove a property from the wrong subtree`, () => {
+      const shortenedMockDisplayList = shortenSubObject(`display`)(mockCleanedDollarList)
+      return expect(shortenedMockDisplayList[0].control).to.deep.equal( {
+         refresh: "59.998138"
+      })
+    })
+
   })
 
 
