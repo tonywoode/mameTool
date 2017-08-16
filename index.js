@@ -1,31 +1,32 @@
 'use strict'
 
 const R = require(`ramda`)
-
 const {readFile, createReadStream} = require(`fs`)
+
+const {cleanJson}        = require(`./src/cleanJson.js`)
 const {fillFromIni}      = require(`./src/fillFromIni.js`)
 const {loadKVIni, loadSectionIni, loadBareIni} = require(`./src/iniReader.js`)
-const {makeSystemsAsync}  = require(`./src/readMameXml.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
+const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {printJson, printRomdata, printIconFile, prepareBaseDir} 
                          = require(`./src/printers.js`)
+
 const mameXMLInPath      = `./inputs/mame187.xml`
 const mameXMLStream      = createReadStream(mameXMLInPath)
-
 const jsonOutPath        = `./outputs/mame.json`
-const romdataOutBaseDir      = `./outputs/mame`
+const romdataOutBaseDir  = `./outputs/mame`
 const winIconDir         = require(`./src/getDir.js`).getWinIconDir()
-const {cleanJson} = require(`./src/cleanJson.js`)
-// If there's an xml that parses in the json out location, use that, don't parse it all again
+
+// If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(jsonOutPath, (err, data) =>
     err? resolve(makeSystemsAsync(mameXMLStream) ) : resolve(JSON.parse(data) )  
   )
 )
 
-//LHS = fills json with named kv, RHS = resolves to a parsed ini file,
-// there are three types of ini file (see iniReader.js)
-// n.b.: to add an ini to romdata, also populate it in makeRomdata
+// LHS = fills json with named kv, RHS = resolves to a parsed ini file,
+//   there are three types of ini file (see iniReader.js)
+//   n.b.: to add an ini to romdata, also populate it in makeRomdata
 decideWhetherToXMLAsync()
   
   .then( systems => {
