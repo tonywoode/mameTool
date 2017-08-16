@@ -1,35 +1,6 @@
 "use strict"
 
 const XmlStream = require(`xml-stream`)
-const R = require(`ramda`)
-
-// boolean logic isn't well served by 'no' and 'yes', record only 'true'
-const convertToBool = systems => {
-  const mapDeep = obj => {
-    for ( const prop in obj ) {
-        if ( obj[prop] === Object(obj[prop]) ) mapDeep( obj[prop] )
-        if ( obj[prop] === 'no'  ) delete obj[prop]
-        if ( obj[prop] === 'yes' ) obj[prop] = true
-    }
-    return obj
-  }
- return R.map( obj => mapDeep(obj), systems)
-}
-
-// get rid of $ and $name keys, they aren't needed
-const cleanKey = (key, systems) => {
-  const cleanDollar = subobj  => R.prop( "$", subobj)
-  return R.map(obj => obj[key]? 
-    R.assoc(`${key}`, cleanDollar(obj[key]), obj) : obj
-  , systems )
-}
-
-// none of these props of 'display' will help us make a list of games to play
-const omitFromDisplay = [`pixclock`, `htotal`, `hbend`, `hbstart`, `vtotal`, `vbend`, `vbstart`]
-const shortenDisplay = systems => R.map( obj => obj.display? 
-  R.assoc(`display`, R.omit(omitFromDisplay, obj.display), obj) : obj
-, systems)
-
 //Parse the mame xml pulling out the fields we need but only from systems which actually work
 function makeSystems(mameXMLStream, nodeback) {
   const systems = []
@@ -61,12 +32,7 @@ function makeSystems(mameXMLStream, nodeback) {
   })
 
   xml.on(`end`, () => {
-    //todo: unit test for makeSystems is running these too
-    const convertedBools = convertToBool(systems)
-    const cleanedDisplay = cleanKey(`display`, convertedBools)
-    const shortenedDisplay = shortenDisplay(cleanedDisplay)
-    const cleanedControl = cleanKey(`control`, shortenedDisplay)
-    nodeback(null, cleanedControl)
+    nodeback(null, systems)
   })
 
   xml.on('error', (message) => {
@@ -83,5 +49,5 @@ const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) =>
   )
 
 //most of these just for unit tests
-module.exports = { makeSystemsAsync, convertToBool, cleanKey, shortenDisplay }
+module.exports = { makeSystemsAsync}
 

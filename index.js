@@ -15,7 +15,7 @@ const mameXMLStream      = createReadStream(mameXMLInPath)
 const jsonOutPath        = `./outputs/mame.json`
 const romdataOutBaseDir      = `./outputs/mame`
 const winIconDir         = require(`./src/getDir.js`).getWinIconDir()
-
+const {cleanJson} = require(`./src/cleanJson.js`)
 // If there's an xml that parses in the json out location, use that, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(jsonOutPath, (err, data) =>
@@ -44,6 +44,7 @@ decideWhetherToXMLAsync()
      , fillFromIni(`screenless`  , loadBareIni(   `screenless`) )
      , fillFromIni(`series`      , loadSectionIni(`series`) )
      , fillFromIni(`version`     , loadSectionIni(`version`) )
+     , cleanJson
      , printJson(jsonOutPath) 
     )(systems) 
   
