@@ -1,5 +1,5 @@
 const intoStream = require('into-stream')
-const { makeSystemsAsync, convertToBool, removeFalse, cleanKey, shortenDisplay } = require('../src/readMameXML.js')
+const { makeSystemsAsync, convertToBool, cleanKey, shortenDisplay } = require('../src/readMameXML.js')
 
 const mockXml          = 
 `<?xml version="1.0"?>
@@ -95,7 +95,7 @@ const mockDollarList = [
 			player: "2",
 			buttons: "1",
 			ways: "4",
-			reverse: false
+			reverse: "yes"
 		},
 		$name: "control"
 	},
@@ -136,6 +136,7 @@ const mockCleanedDollarList = [
 		player: "2",
 		buttons: "1",
 		ways: "4",
+		reverse: false
 	},
 	status: "imperfect",
 	savestate: "unsupported",
@@ -166,52 +167,16 @@ makeSystemsAsync(mockMameXMLStream).then( systems => {
     
     describe(`#convertToBool`, () => {
       const boolConvertedList = convertToBool(mockDollarList)
-      it(`should convert 'no' values in a list to false`, () => {
-        return expect(boolConvertedList[0].isbios).to.equal(false)  
+      it(`should remove any 'no' keys`, () => {
+        return expect(boolConvertedList[0].isbios).to.equal(undefined)  
       })
       it(`should convert 'yes' values in a list to true`, () => {
         return expect(boolConvertedList[0].ismechanical).to.equal(true)     
       })
-    })
-
-    describe(`#removeFalse`, () => {
-      const falseRemovedList = removeFalse(mockCleanedDollarList)
-      it(`should remove any false keys`, () => {
-        return expect(falseRemovedList).to.deep.equal( 
-          [{
-            call: "005",
-            system: "005",
-            year: "1981",
-            company: "Sega",
-            display: {
-              height: "224",
-              refresh: "59.998138",
-              rotate: "270",
-              tag: "screen",
-              type: "raster",
-              width: "256"
-            },
-            control: {
-              type: "joy",
-              player: "2",
-              buttons: "1",
-              ways: "4",
-            },
-            status: "imperfect",
-            savestate: "unsupported",
-            arcade: true,
-            arcadeNoBios: true,
-            rating: "10 to 20 (Horrible)",
-            category: "Maze / Shooter Small",
-            catlist: "Maze / Shooter Small",
-            genre: "Maze",
-            language: "English",
-            mamescore: true,
-            players: "2P alt",
-            version: "0.030"
-    	  }] )
-        })
+      it(`should convert 'no' values in a list to false in a nested object`, () => {
+        return expect(boolConvertedList[0].control.$.reverse).to.equal(true)  
       })
+    })
 
     describe(`#cleanKey`, () => {
      it(`should flatten $-style object key in a list (removing $ and $name keys)`, () => {

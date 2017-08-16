@@ -3,16 +3,17 @@
 const XmlStream = require(`xml-stream`)
 const R = require(`ramda`)
 
-// boolean logic isn't well served by 'no' and 'yes', change them all
+// boolean logic isn't well served by 'no' and 'yes', record only 'true'
 const convertToBool = systems => {
-  const yesNoToTrueFalse = key => key===`no`? false : (key===`yes`? true : key)
-  return R.map( obj => R.map( yesNoToTrueFalse, obj), systems)
-}
-
-// then, what's the point in false keys in mame anyway?
-const removeFalse = systems => {
-  const isFalse = key => key === false
-  return R.map( obj => R.reject(isFalse, obj), systems)
+  const mapDeep = obj => {
+    for ( const prop in obj ) {
+        if ( obj[prop] === Object(obj[prop]) ) mapDeep( obj[prop] )
+        if ( obj[prop] === 'no'  ) delete obj[prop]
+        if ( obj[prop] === 'yes' ) obj[prop] = true
+    }
+    return obj
+  }
+ return R.map( obj => mapDeep(obj), systems)
 }
 
 // get rid of $ and $name keys, they aren't needed
@@ -62,8 +63,7 @@ function makeSystems(mameXMLStream, nodeback) {
   xml.on(`end`, () => {
     //todo: unit test for makeSystems is running these too
     const convertedBools = convertToBool(systems)
-    const noFalse = removeFalse(convertedBools)
-    const cleanedDisplay = cleanKey(`display`, noFalse)
+    const cleanedDisplay = cleanKey(`display`, convertedBools)
     const shortenedDisplay = shortenDisplay(cleanedDisplay)
     const cleanedControl = cleanKey(`control`, shortenedDisplay)
     nodeback(null, cleanedControl)
@@ -83,5 +83,5 @@ const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) =>
   )
 
 //most of these just for unit tests
-module.exports = { makeSystemsAsync, convertToBool, removeFalse, cleanKey, shortenDisplay }
+module.exports = { makeSystemsAsync, convertToBool, cleanKey, shortenDisplay }
 
