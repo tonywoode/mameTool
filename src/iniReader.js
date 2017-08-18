@@ -3,12 +3,11 @@ let fs               = require(`fs`) //rewired in test, don't try and destructur
 const ini            = require('ini')
 const R              = require(`ramda`)
 const iniFlattener   = require('./iniFlattener.js')
-const iniDir         = require(`./getDir.js`).getIniDir() 
 
-if (!iniDir) throw(`You need to set the Extras Dir`)
-
-// need throw in statement position ahead. https://stackoverflow.com/questions/9370606/
+// need throw in statement position >=3 x ahead. https://stackoverflow.com/questions/9370606/
 const _throw = m => { throw new Error(m) }
+
+const iniDir         = require(`./getDir.js`).getIniDir() || _throw(`You need to set the Extras Dir`)
 
 /* 
  * https://github.com/npm/ini/issues/60i, https://github.com/npm/ini/issues/22
@@ -24,7 +23,9 @@ const loadGenericIni = iniName =>
 
 // BUT, either that ini will have an annoying section header preventing it from being generic....
 // (sectionName is the top-level-key to remove, since its different to the filename..sigh...)
-const loadKVIni = (iniName, sectionName = _throw(`you didn't supply a section name`) ) => R.prop(sectionName, loadGenericIni(iniName) )
+const loadKVIni = (
+  iniName, sectionName = _throw(`you didn't supply a section name`) 
+) => R.prop(sectionName, loadGenericIni(iniName) )
 
 // OR it will have a header of only 'ROOT FOLDER' and then have just keys, this type of
 //   ini needs a boolean value, and when used the key needs to be the name of the ini (which we do anyway)
@@ -44,7 +45,7 @@ const loadIni = (iniType, iniName, sectionName) => {
   }
 
   return iniTypes[iniType]? iniTypes[iniType]() : 
-    _throw(`Can't choose an ini type, did you supply correct parameters e.g.bare/kv/section`)
+    _throw(`Can't choose an ini type, you need to supply a first param of e.g."bare"/"kv"/"section"`)
 
 }
 
