@@ -7,6 +7,9 @@ const iniDir         = require(`./getDir.js`).getIniDir()
 
 if (!iniDir) throw(`You need to set the Extras Dir`)
 
+// need throw in statement position ahead. https://stackoverflow.com/questions/9370606/
+const _throw = m => { throw new Error(m) }
+
 /* 
  * https://github.com/npm/ini/issues/60i, https://github.com/npm/ini/issues/22
  *  they are adament that dots are valid separators in ini file format, but is that 
@@ -16,12 +19,12 @@ if (!iniDir) throw(`You need to set the Extras Dir`)
 const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
 // this will load an ini file using the ini reader...
-const loadIni = iniName => 
+const loadGenericIni = iniName => 
   parseIni(fs.readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) )
 
 // BUT, either that ini will have an annoying section header preventing it from being generic....
 // (sectionName is the top-level-key to remove, since its different to the filename..sigh...)
-const loadKVIni = (iniName, sectionName) => R.prop(sectionName, loadIni(iniName) )
+const loadKVIni = (iniName, sectionName = _throw(`you didn't supply a section name`) ) => R.prop(sectionName, loadGenericIni(iniName) )
 
 // OR it will have a header of only 'ROOT FOLDER' and then have just keys, this type of
 //   ini needs a boolean value, and when used the key needs to be the name of the ini (which we do anyway)
@@ -29,7 +32,21 @@ const loadBareIni = iniName =>
    R.map(game => !!game, loadKVIni(iniName, `ROOT_FOLDER`) )
 
 // OR, it will be section-to-key addressable, a nightmare to look up against....
-const loadSectionIni = iniName => iniFlattener(loadIni(iniName) )
+const loadSectionIni = iniName => iniFlattener(loadGenericIni(iniName) )
+
+
+// Main function which chooses between the above https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/
+const loadIni = (iniType, iniName, sectionName) => {
+  const iniTypes = {
+      bare    : () => loadBareIni(iniName)
+    , kv      : () => loadKVIni(iniName, sectionName )
+    , section : () => loadSectionIni(iniName)
+  }
+
+  return iniTypes[iniType]? iniTypes[iniType]() : 
+    _throw(`Can't choose an ini type, did you supply correct parameters e.g.bare/kv/section`)
+
+}
 
 // parseIni for unit testing
-module.exports = { parseIni, loadKVIni, loadBareIni, loadSectionIni }
+module.exports = { loadIni, parseIni, loadKVIni, loadBareIni, loadSectionIni }
