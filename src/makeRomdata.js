@@ -27,9 +27,9 @@ const makeRomdata = mameEmu => systems => {
       , company     : obj.company.replace(/[^\x00-\x7F]/g, ``)
       , year        : obj.year
       , gameType    : obj.catlist
-      , players     : obj.players
-      , language    : obj.language || ``
-      , rating      : obj.rating || ``
+      , players     : obj.nplayers
+      , language    : obj.languages || ``
+      , rating      : obj.bestgames || ``
       , comment     : obj.status
     }
 
