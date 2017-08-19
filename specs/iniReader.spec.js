@@ -1,6 +1,6 @@
 const rewire = require("rewire")
 const iniReader = rewire('../src/iniReader.js')
-const { loadIni, parseIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
+const { loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
 
 const mockBareIni =
 ` [FOLDER_SETTINGS]
@@ -54,11 +54,12 @@ invadpt2br`
 describe(`iniReader`, () => {
 
   describe(`#loadIni`, () => {
-    iniReader.__set__("fs", { readFileSync: () => mockBareIni })
+    const revert = iniReader.__set__("fs", { readFileSync: () => mockBareIni })
     const ini = loadIni(`anything`, `bare`)
+    revert()
     it(`routes an ini type to the correct function to handle it`, () => {
         return expect(ini[`005`]).to.be.true
-    i})
+    })
     it(`throws on a non-existant ini type`, () => {
       //wrap throw in function - don't execute right away, give the test framework an opportunity to handle the error - stack 18925884
       return expect( () => loadIni(`anything`, `fake`)).to.throw(
@@ -79,6 +80,19 @@ describe(`iniReader`, () => {
       return expect(ini[`NPlayersWithDot.`]).to.not.be.undefined
     })
   })
+
+
+  describe(`#loadGenericIni`, () => {
+    // its disconcerting to have console errors when npm test runs - stack question 29469213
+    const realConsoleError = console.error
+    it(`when asked to load an ini that doesn't exist at the output dir, return an empty object back`, () => {
+      console.error = content => ``
+      return expect(loadGenericIni(`fakefile`)).to.deep.equal( ({}) )
+    })
+    console.error = realConsoleError
+  })
+
+
 
   describe(`#loadKVIni`, () => {
     it(`when passed a KV-style ini, treat it generically and hence return an expected kv`, () => {

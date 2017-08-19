@@ -1,4 +1,5 @@
 'use strict'
+
 let fs               = require(`fs`) //rewired in test, don't try and destructure
 const ini            = require('ini')
 const R              = require(`ramda`)
@@ -22,6 +23,7 @@ const loadGenericIni = iniName => {
   try { return parseIni(fs.readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) ) }
   catch(err) { console.error(`PROBLEM: iniReader: "${iniName}" doesn't exist at "${iniDir}"`); return {}  }
 }
+
 // BUT, either that ini will have an annoying section header preventing it from being generic....
 // (sectionName is the top-level-key to remove, since its unpredictably different to the filename..sigh...)
 const loadKVIni = (
@@ -50,5 +52,5 @@ const loadIni = (iniName, iniType, sectionName) => {
 
 }
 
-// parseIni for unit testing
-module.exports = { loadIni, parseIni, loadKVIni, loadBareIni, loadSectionIni }
+// most of these for unit tests only
+module.exports = { loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni }
