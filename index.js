@@ -5,8 +5,7 @@ const {readFile, createReadStream} = require(`fs`)
 const _throw             = m => { throw new Error(m) }
 
 const {cleanJson}        = require(`./src/cleanJson.js`)
-const {fillFromIni}      = require(`./src/fillFromIni.js`)
-const {loadIni}          = require(`./src/iniReader.js`)
+const {iniToJson}        = require(`./src/fillFromIni.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {printJson, printRomdata, printIconFile, prepareBaseDir} 
@@ -25,13 +24,6 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
     err? resolve(makeSystemsAsync(mameXMLStream) ) : resolve(JSON.parse(data) )  
   )
 )
-
-// parse, format and incorporate an ini into our mame JSON,
-//   note this works by the ini name being the same as they key in the json
-const iniToJson = (iniName, iniType, sectionName) => {
-  const parsedIni = loadIni(iniName, iniType, sectionName)
-  return fillFromIni(iniName, parsedIni) 
-}
 
 // these are the available inis, specifying their type (and their internal name if necessary)
 //   there are three types of ini file (see iniReader.js)

@@ -18,9 +18,10 @@ const iniDir         = require(`./getDir.js`).getIniDir() || _throw(`You need to
 const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
 // this will load an ini file using the ini reader...
-const loadGenericIni = iniName => 
-  parseIni(fs.readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) )
-
+const loadGenericIni = iniName => {
+  try { return parseIni(fs.readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) ) }
+  catch(err) { console.error(`PROBLEM: iniReader: "${iniName}" doesn't exist at "${iniDir}"`); return {}  }
+}
 // BUT, either that ini will have an annoying section header preventing it from being generic....
 // (sectionName is the top-level-key to remove, since its unpredictably different to the filename..sigh...)
 const loadKVIni = (
