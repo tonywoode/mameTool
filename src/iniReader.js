@@ -22,7 +22,7 @@ const loadGenericIni = iniName =>
   parseIni(fs.readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) )
 
 // BUT, either that ini will have an annoying section header preventing it from being generic....
-// (sectionName is the top-level-key to remove, since its different to the filename..sigh...)
+// (sectionName is the top-level-key to remove, since its unpredictably different to the filename..sigh...)
 const loadKVIni = (
   iniName, sectionName = _throw(`you didn't supply a section name`) 
 ) => R.prop(sectionName, loadGenericIni(iniName) )
