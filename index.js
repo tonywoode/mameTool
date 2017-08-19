@@ -2,6 +2,7 @@
 
 const R = require(`ramda`)
 const {readFile, createReadStream} = require(`fs`)
+const _throw             = m => { throw new Error(m) }
 
 const {cleanJson}        = require(`./src/cleanJson.js`)
 const {fillFromIni}      = require(`./src/fillFromIni.js`)
@@ -17,6 +18,7 @@ const jsonOutPath        = `./outputs/mame.json`
 const romdataOutBaseDir  = `./outputs/mame`
 const winIconDir         = require(`./src/getDir.js`).getWinIconDir()
 
+
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(jsonOutPath, (err, data) =>
@@ -24,30 +26,43 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
   )
 )
 
-// LHS = fills json with named kv, RHS = resolves to a parsed ini file,
+// parse, format and incorporate an ini into our mame JSON,
+//   note this works by the ini name being the same as they key in the json
+const iniToJson = (iniType, iniName, sectionName) => {
+  const parsedIni = loadIni(iniType, iniName, sectionName)
+  return fillFromIni(iniName, parsedIni) 
+}
+
+// these are the available inis, specifying their type (and their internal name if necessary)
 //   there are three types of ini file (see iniReader.js)
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
+const inis = [
+    [`bare`,    `arcade`]
+  , [`bare`,    `arcade_NOBIOS`]
+  , [`section`, `bestgames`]
+  , [`section`, `category`]
+  , [`section`, `catlist`]
+  , [`section`, `genre`]
+  , [`section`, `languages`]
+  , [`kv`,      `mamescore`, `MAMESCORE`]
+  , [`bare`,    `mess`]
+  , [`section`, `monochrome`]
+  , [`kv`,      `nplayers`,   `NPlayers`]
+  , [`bare`,    `screenless`]
+  , [`section`, `series`]
+  , [`section`, `version`]
+]
+
 decideWhetherToXMLAsync()
   
   .then( systems => {
+    // process all the inis into the json
+    const filledSystems = inis.reduce( (systems, ini) => iniToJson(ini[0], ini[1], ini[2])(systems), systems ) 
+    // post-process the data-complete json
     const mameJson = R.pipe(
-       fillFromIni(`arcade`       , loadIni(`bare`,    `arcade`) )
-     , fillFromIni(`arcade_NOBIOS`, loadIni(`bare`,    `arcade_NOBIOS`) )
-     , fillFromIni(`bestgames`    , loadIni(`section`, `bestgames`) )
-     , fillFromIni(`category`     , loadIni(`section`, `category`) )
-     , fillFromIni(`catlist`      , loadIni(`section`, `catlist`) )
-     , fillFromIni(`genre`        , loadIni(`section`, `genre`) )
-     , fillFromIni(`languages`    , loadIni(`section`, `languages`))
-     , fillFromIni(`mamescore`    , loadIni(`kv`,      `mamescore`, `MAMESCORE`) )
-     , fillFromIni(`mess`         , loadIni(`bare`,    `mess`) )
-     , fillFromIni(`monochrome`   , loadIni(`section`, `monochrome`) )
-     , fillFromIni(`nplayers`     , loadIni(`kv`,      `nplayers`, `NPlayers`) )
-     , fillFromIni(`screenless`   , loadIni(`bare`,    `screenless`) )
-     , fillFromIni(`series`       , loadIni(`section`, `series`) )
-     , fillFromIni(`version`      , loadIni(`section`, `version`) )
-     , cleanJson
+       cleanJson
      , printJson(jsonOutPath) 
-    )(systems) 
+    )(filledSystems) 
   
    return mameJson
   })
@@ -57,5 +72,7 @@ decideWhetherToXMLAsync()
     const romdata = makeRomdata(`Mame64`)(mameJson)
     printRomdata(`${romdataOutBaseDir}/full`, `romdata.dat`)(romdata)
     printIconFile(`${romdataOutBaseDir}/full`, winIconDir, `mame`)
+    return romdata
   })
-  
+
+  .catch(err => _throw(err) )
