@@ -28,8 +28,8 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 
 // parse, format and incorporate an ini into our mame JSON,
 //   note this works by the ini name being the same as they key in the json
-const iniToJson = (iniType, iniName, sectionName) => {
-  const parsedIni = loadIni(iniType, iniName, sectionName)
+const iniToJson = (iniName, iniType, sectionName) => {
+  const parsedIni = loadIni(iniName, iniType, sectionName)
   return fillFromIni(iniName, parsedIni) 
 }
 
@@ -37,27 +37,28 @@ const iniToJson = (iniType, iniName, sectionName) => {
 //   there are three types of ini file (see iniReader.js)
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
 const inis = [
-    [`bare`,    `arcade`]
-  , [`bare`,    `arcade_NOBIOS`]
-  , [`section`, `bestgames`]
-  , [`section`, `category`]
-  , [`section`, `catlist`]
-  , [`section`, `genre`]
-  , [`section`, `languages`]
-  , [`kv`,      `mamescore`, `MAMESCORE`]
-  , [`bare`,    `mess`]
-  , [`section`, `monochrome`]
-  , [`kv`,      `nplayers`,   `NPlayers`]
-  , [`bare`,    `screenless`]
-  , [`section`, `series`]
-  , [`section`, `version`]
+    { iniName: `arcade`,        iniType: `bare`}
+  , { iniName: `arcade_NOBIOS`, iniType: `bare`}
+  , { iniName: `bestgames`,     iniType: `section`}
+  , { iniName: `category`,      iniType: `section`}
+  , { iniName: `catlist`,       iniType: `section`}
+  , { iniName: `genre`,         iniType: `section`}
+  , { iniName: `languages`,     iniType: `section`}
+  , { iniName: `mamescore`,     iniType: `kv`,     sectionName: `MAMESCORE`}
+  , { iniName: `mess`,          iniType: `bare`}
+  , { iniName: `monochrome`,    iniType: `section`}
+  , { iniName: `nplayers`,      iniType: `kv`,     sectionName: `NPlayers`}
+  , { iniName: `screenless`,    iniType: `bare`}
+  , { iniName: `series`,        iniType: `section`}
+  , { iniName: `version`,       iniType: `section`}
 ]
 
 decideWhetherToXMLAsync()
   
   .then( systems => {
     // process all the inis into the json
-    const filledSystems = inis.reduce( (systems, ini) => iniToJson(ini[0], ini[1], ini[2])(systems), systems ) 
+    const filledSystems = inis.reduce( (systems, ini) => 
+      iniToJson(ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
     // post-process the data-complete json
     const mameJson = R.pipe(
        cleanJson
