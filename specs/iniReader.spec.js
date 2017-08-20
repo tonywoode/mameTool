@@ -58,11 +58,11 @@ describe(`iniReader`, () => {
     const ini = loadIni(`anything`, `bare`)
     revert()
     it(`routes an ini type to the correct function to handle it`, () => {
-        return expect(ini[`005`]).to.be.true
+      expect(ini[`005`]).to.be.true
     })
     it(`throws on a non-existant ini type`, () => {
       //wrap throw in function - don't execute right away, give the test framework an opportunity to handle the error - stack 18925884
-      return expect( () => loadIni(`anything`, `fake`)).to.throw(
+      expect( () => loadIni(`anything`, `fake`)).to.throw(
         `iniType "fake" not defined, you need to supply a first param of e.g."bare"/"kv"/"section"`)
     })
     
@@ -71,37 +71,41 @@ describe(`iniReader`, () => {
   describe(`#parseIni`, () => {
     const ini = parseIni(mockKVIni)
     it(`when parsing my ini into json,return something to me`, () => {
-        return expect(ini).to.not.be.null
-    i})
+      expect(ini).to.not.be.null
+    })
     it(`when passed a setting for a key, return it as an object`, () => {
-      return expect(ini.NPlayers[`10yard`]).to.equal(`2P alt`)
+      expect(ini.NPlayers[`10yard`]).to.equal(`2P alt`)
     })
     it(`when passed a section name with a dot in it, preserve the dot, rather than turn it into an object separator`, () => {
-      return expect(ini[`NPlayersWithDot.`]).to.not.be.undefined
+      expect(ini[`NPlayersWithDot.`]).to.not.be.undefined
     })
   })
 
 
   describe(`#loadGenericIni`, () => {
-    // its disconcerting to have console errors when npm test runs - stack question 29469213
-    const realConsoleError = console.error
-    it(`when asked to load an ini that doesn't exist at the output dir, return an empty object back`, () => {
+    it(`when asked to load an ini that doesn't exist at the output, print a console error`, () => {
+      sinon.stub(console, 'error');
+      loadGenericIni(`fakefile`)
+      expect( console.error.calledOnce ).to.be.true;
+    })
+
+    const realConsoleError = console.error // its disconcerting to have console errors when npm test runs - stack question 29469213
+    it(`when asked to load an ini that doesn't exist at the output dir, return an empty object`, () => {
       console.error = content => ``
-      return expect(loadGenericIni(`fakefile`)).to.deep.equal( ({}) )
+      expect(loadGenericIni(`fakefile`)).to.deep.equal( ({}) )
     })
     console.error = realConsoleError
   })
-
 
 
   describe(`#loadKVIni`, () => {
     it(`when passed a KV-style ini, treat it generically and hence return an expected kv`, () => {
       iniReader.__set__("fs", { readFileSync: () => mockKVIni })
       const kvIni = loadKVIni(`fakeName`, `NPlayers`)
-      return expect(kvIni[`10yard`]).to.equal(`2P alt`)
+      expect(kvIni[`10yard`]).to.equal(`2P alt`)
     })
     it('throws if you ask for a kv ini converter without specifying the name of the section header ', () => {
-      return expect( () => loadIni(`anything`, `kv`)).to.throw(`you didn't supply a section name`) 
+      expect( () => loadIni(`anything`, `kv`)).to.throw(`you didn't supply a section name`) 
     })
   })
 
@@ -109,7 +113,7 @@ describe(`iniReader`, () => {
     it(`when passed a Bare-style ini, treat it generically and hence return an expected kv`, () => {
     iniReader.__set__("fs", { readFileSync: () => mockBareIni })
     const bareIni = loadBareIni(`fakeName` )
-    return expect(bareIni[`10yard`]).to.equal(true)
+    expect(bareIni[`10yard`]).to.equal(true)
     })
   })
 
@@ -117,7 +121,7 @@ describe(`iniReader`, () => {
     it(`when passed a Section-style ini, treat it generically and hence return an expected kv`, () => {
     iniReader.__set__("fs", { readFileSync: () => mockSectionIni })
     const sectionIni = loadSectionIni(`fakeName`)
-    return expect(sectionIni[`bazookabr`]).to.equal(`Brazilian Portuguese`)
+    expect(sectionIni[`bazookabr`]).to.equal(`Brazilian Portuguese`)
     })
   })
 
