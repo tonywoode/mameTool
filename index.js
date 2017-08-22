@@ -51,7 +51,7 @@ decideWhetherToXMLAsync()
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
       iniToJson(ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
-    // post-process the data-complete json
+    // post-process the data-complete json, printing it becomes a gatepost
     const mameJson = R.pipe(
        cleanJson
      , printJson(jsonOutPath) 

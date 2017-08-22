@@ -50,21 +50,21 @@ describe('fillFromIni', () => {
   describe('#getEntryFromIni', () => {
     const loadedGetEntryFromIni = getEntryFromIni(mockNPlayersIni) 
     it('should be falsey if the game isnt found', () => {
-      return expect(loadedGetEntryFromIni(`123456789`)).to.not.be.ok
+      expect(loadedGetEntryFromIni(`123456789`)).to.not.be.ok
     })
     it(`should give me the value for a valid key in the ini`, () => {
-      return expect(loadedGetEntryFromIni(`1292apvs`)).to.equal(`Non-arcade`)
+      expect(loadedGetEntryFromIni(`1292apvs`)).to.equal(`Non-arcade`)
     })
   })
 
   describe('#fillFromIni', () => {
     it('should return the same object if no matches are found in the ini', () => {
-      return expect(fillFromIni(`players`, mockFalseNPlayersIni)(mockJson)).to.deep.equal(mockJson)
+      expect(fillFromIni(`players`, mockFalseNPlayersIni)(mockJson)).to.deep.equal(mockJson)
     })
     it(`should fill in the number of players of a key from the input`, () => {
       const typeOfIni = `players`
       const newJson = fillFromIni(typeOfIni, mockNPlayersIni)(mockJson)
-      return expect(newJson[0][typeOfIni]).to.equal(`2P alt`)
+      expect(newJson[0][typeOfIni]).to.equal(`2P alt`)
     })
   })
 

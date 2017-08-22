@@ -35,6 +35,18 @@ const shortenSubObject = type => systems => R.map( obj => obj[type]?
   R.assoc(type, R.pick(Enumeration[type], obj[type]), obj) : obj
 , systems)
 
+// savestate can be 'unsupported' or 'supported', its the only binary choice
+//   in the whole schema that isn't yes or no - convert and keep true
+const savestateToBool = systems => {
+  const savestateLens = R.lensProp('savestate')
+  const savestateToYesNo = R.map( system => {
+    return R.view(savestateLens, system) === `supported`?
+    R.set(savestateLens, "yes", system ) :
+    R.set(savestateLens, "no",  system ) 
+  }, systems)
+    return convertToBool(savestateToYesNo)
+}
+
 const cleanJson = systems => {
   return R.pipe(
       convertToBool
@@ -42,7 +54,8 @@ const cleanJson = systems => {
     , shortenSubObject(`display`)
     , cleanKey(`control`)
     , shortenSubObject(`control`)
+    , savestateToBool
   )(systems)
 }
 
-module.exports = { cleanJson, convertToBool, cleanKey, shortenSubObject}
+module.exports = { cleanJson, convertToBool, cleanKey, shortenSubObject, savestateToBool}

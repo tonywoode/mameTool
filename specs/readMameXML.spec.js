@@ -73,11 +73,11 @@ makeSystemsAsync(mockMameXMLStream).then( systems => {
   describe(`readMameXML`, () => {
     describe('#makeSystems', () => {
       it(`should convert an item in mameXML format to a js object`, () => { 
-        return expect(systems).to.not.be.null
+        expect(systems).to.not.be.null
       })
   
       it(`should return a correct value for a given key`, () => {
-        return expect(systems[0].year).to.equal(`1981`)
+        expect(systems[0].year).to.equal(`1981`)
       })
     })
     

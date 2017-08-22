@@ -16,21 +16,21 @@ const mockIni = {
 const ini = iniFlattener(mockIni)
 describe('iniFlattener', () => {
     it(`when flattening my ini file,return something to me`, () => {
-        return expect(ini).to.not.be.null
+      expect(ini).to.not.be.null
   })
     it(`should convert the value of a game in a section to be the name of the section`, () => {
-      return expect(ini.metamaq2).to.equal(`3D`)
+      expect(ini.metamaq2).to.equal(`3D`)
     })
 
     it(`should convert sections to values, even if they have spaces in them`, () => {
-      return expect(ini[`3dobios`]).to.not.be.undefined
+      expect(ini[`3dobios`]).to.not.be.undefined
     })
 
     it(`should convert sections to values, even if they have dots in them`, () => {
-      return expect(ini.wontmuch).to.equal(`Rhythm / Misc.`)
+      expect(ini.wontmuch).to.equal(`Rhythm / Misc.`)
     })
   
     it(`should convert sections to values, even if they have multiple stars in them`, () => {
-      return expect(ini.alphaone).to.equal(`Tabletop / Othello * Mature *`)
+      expect(ini.alphaone).to.equal(`Tabletop / Othello * Mature *`)
    })
 })
