@@ -3,17 +3,18 @@
 const R = require(`ramda`)
 
 // boolean logic isn't well served by 'no' and 'yes', record only 'true'
-const convertToBool = systems => {
-  const mapDeep = obj => {
-    for ( const prop in obj ) {
-        if ( obj[prop] === Object(obj[prop]) ) mapDeep( obj[prop] )
-        if ( obj[prop] === `no`  ) delete obj[prop]
-        if ( obj[prop] === `yes` ) obj[prop] = true
-    }
-    return obj
-  }
- return R.map( obj => mapDeep(obj), systems)
+// https://stackoverflow.com/a/29904340/3536094 for how to improve to handle falsey generally
+const deepYesNoToBool = obj => {
+  const yesNoToTrueFalse = key => key === `no`? false : key === `yes`? true : key
+  return R.is(Object, obj)? R.map(deepYesNoToBool, R.map(yesNoToTrueFalse, obj)) : obj
 }
+
+const deepRemoveFalsey = obj => {
+  const isFalse = prop => prop === false
+  return R.is(Object, obj)? R.map(deepRemoveFalsey, R.reject(isFalse, obj)) : obj
+}
+
+const convertToBool = systems => R.pipe(deepYesNoToBool, deepRemoveFalsey)(systems)
 
 // get rid of $ and $name keys, they aren't needed
 const cleanKey = key => systems => {
