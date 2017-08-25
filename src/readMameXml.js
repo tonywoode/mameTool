@@ -2,7 +2,7 @@
 
 const XmlStream = require(`xml-stream`)
 //Parse the mame xml pulling out the fields we need but only from systems which actually work
-function makeSystems(mameXMLStream, nodeback) {
+const makeSystems = (mameXMLStream, nodeback) => {
   const systems = []
   const xml     = new XmlStream(mameXMLStream)
 
@@ -31,16 +31,12 @@ function makeSystems(mameXMLStream, nodeback) {
     }
   })
 
-  xml.on(`end`, () => {
-    nodeback(null, systems)
-  })
-
-  xml.on('error', (message) => {
-    nodeback(console.error(`XML parsing failed with ${message}`), null)
-  })
+  xml.on(`end`, () => nodeback(null, systems) )
+  xml.on('error', (message) => nodeback(
+    console.error(`XML parsing failed with ${message}`), null)
+  )
 
 }
-
 
 const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) => 
     makeSystems(mameXMLInPath, (err, systems) =>
@@ -48,6 +44,5 @@ const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) =>
     )
   )
 
-//most of these just for unit tests
 module.exports = { makeSystemsAsync}
 
