@@ -1,6 +1,5 @@
 'use strict'
 
-//const mameJson = require(`../outputs/mame.json`)
 const R = require(`ramda`)
 
 // getUniqueProps:: (string, list) => [set]
@@ -18,9 +17,9 @@ const rejectBool = (keyPath, systems) => R.reject( getProp(keyPath), systems)
 
 // remove those systems which have a property, nested if necessary 
 // filterProp:: [path] => value => object => object
-const filterProp = (keyPath, value, systems) => { 
-  return R.filter(doesPropHaveThisValue(keyPath, value), systems) 
-}
+const filterProp = (keyPath, value, systems) =>  
+  R.filter(doesPropHaveThisValue(keyPath, value), systems) 
+
 
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?
 
