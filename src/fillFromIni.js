@@ -6,13 +6,13 @@ const {loadIni} = require(`./iniReader.js`)
 // I think its faster to search the ini for a each mame game than to search for each ini entry in the mame json
 const getEntryFromIni = ini => call => ini[call]
 
-const fillFromIni = (typeOfIni, ini) =>  mameJson => {
+// pointfree takes the mame json
+const fillFromIni = (typeOfIni, ini) => {
 
-  const loadedGetEntryFromIni = getEntryFromIni(ini)
   const mameJsonFilled = R.map( game => {
-    const settingForThisGame = loadedGetEntryFromIni(game.call)
+    const settingForThisGame = getEntryFromIni(ini)(game[`call`])
     return settingForThisGame? R.assoc(typeOfIni, settingForThisGame, game) : game
-  }, mameJson)
+  })
   
   return mameJsonFilled
 }
