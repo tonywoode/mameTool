@@ -1,4 +1,4 @@
-const rewire = require("rewire")
+const rewire = require(`rewire`)
 const iniReader = rewire('../src/iniReader.js')
 const { loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
 

@@ -15,7 +15,7 @@ const deepRemoveFalsey = obj => {
   return R.is(Object, obj)? R.map(deepRemoveFalsey, R.reject(isFalse, obj)) : obj
 }
 
-// combine the two above to make a converstion operation
+// a bool convert is a combination of transforming and removing falsey
 const convertToBool = systems => R.pipe(deepYesNoToBool, deepRemoveFalsey)(systems)
 
 // get rid of $ and $name keys, they aren't needed
