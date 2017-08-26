@@ -9,16 +9,22 @@ const getUniqueProps = (prop, systems) => R.uniq(R.pluck(prop)(systems) )
 // getProp:: [path] => value
 const getProp = keyPath => R.path(keyPath) 
 
-//doesPropHaveValue:: [path] => value => bool
+// doesPropHaveValue:: [path] => value => bool
 const doesPropHaveThisValue = (keyPath, value) => R.pathEq(keyPath, value)
 
-// rejectBeel:: [path] => object => object
+// rejectBool:: [path] => object => object
 const rejectBool = (keyPath, systems) => R.reject( getProp(keyPath), systems)  
 
-// remove those systems which have a property, nested if necessary 
+// keep only those systems which have a property, nested if necessary 
+// (we can use this to make individual lists of genres)
 // filterProp:: [path] => value => object => object
 const filterProp = (keyPath, value, systems) =>  
   R.filter(doesPropHaveThisValue(keyPath, value), systems) 
+
+// remove those systems which have a property, nested if necessary 
+// removeProp:: [path] => value => object => object
+const removeProp = (keyPath, value, systems) =>  
+  R.reject(doesPropHaveThisValue(keyPath, value), systems) 
 
 
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?
@@ -28,5 +34,5 @@ const filterProp = (keyPath, value, systems) =>
 //  const allFilters = R.compose( aSingleFilter, anotherFilter)
 //  allFilters(systems)
 
-module.exports = { rejectBool, filterProp, getUniqueProps }
+module.exports = { rejectBool, filterProp, removeProp, getUniqueProps }
 

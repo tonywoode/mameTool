@@ -1,6 +1,6 @@
 'use strict'
 
-const { rejectBool, getUniqueProps, filterProp } = require(`../src/filterMameJson.js`)
+const { rejectBool, getUniqueProps, filterProp, removeProp } = require(`../src/filterMameJson.js`)
 
 const mockSystems = [
 	{
@@ -80,17 +80,28 @@ describe(`FilterMameJson`, () => {
     expect(getUniqueProps("genre", mockSystems)).to.deep.equal([ 'Maze', 'Game Console' ])
   })
 
-  it(`filters out games which have a string property of a key`, () => {
-    const genreToLose = "Maze" 
+  it(`keeps only games which have a string property of a key`, () => {
+    const genreToKeep = "Maze" 
     //console.log(filterProp(["genre"], genreToLose, mockSystems))
-    expect(filterProp(["genre"], genreToLose, mockSystems)).to.have.lengthOf(1)
+    expect(filterProp(["genre"], genreToKeep, mockSystems)[0][`genre`]).to.equal(`Maze`)
 
   })
 
-  it(`filters out games where some subobject has a string property of a key`, () => {
+  it(`keep only games where some subobject has a string property of a key`, () => {
+    const propToKeep = "megadriv" 
+    expect(filterProp([`display`, `tag`], propToKeep, mockSystems)[0][`display`][`tag`]).to.equal(`megadriv`)
+
+  })
+
+ it(`removes games which have a string property of a key`, () => {
+    const genreToLose = "Maze" 
+    expect(removeProp([`genre`], genreToLose, mockSystems)[0][`genre`]).to.equal(`Game Console`)
+
+  })
+
+  it(`removes games where some subobject has a string property of a key`, () => {
     const propToLose = "megadriv" 
-    expect(filterProp([`display`, `tag`], propToLose, mockSystems)).to.have.lengthOf(1)
+    expect(removeProp([`display`, `tag`], propToLose, mockSystems)[0][`display`][`tag`]).to.equal(`screen`)
 
   })
-
 })

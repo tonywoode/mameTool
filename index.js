@@ -10,7 +10,7 @@ const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {printJson, printRomdata, printIconFile, prepareBaseDir} 
                          = require(`./src/printers.js`)
-const {rejectBool, getUniqueProps, filterProp} = require(`./src/filterMameJson.js`)
+const {rejectBool, getUniqueProps, filterProp, removeProp} = require(`./src/filterMameJson.js`)
 const mameXMLInPath      = `./inputs/mame187.xml`
 const mameXMLStream      = createReadStream(mameXMLInPath)
 const jsonOutPath        = `./outputs/mame.json`
@@ -63,22 +63,36 @@ decideWhetherToXMLAsync()
   .then( mameJson => {
     prepareBaseDir(romdataOutBaseDir, `mame`)
 
-    //make the initial full thing
+    // make the initial full thing
     const fullRomdata = makeRomdata(`Mame64`)(mameJson)
     printRomdata(`${romdataOutBaseDir}/full`, `romdata.dat`)(fullRomdata)
     printIconFile(`${romdataOutBaseDir}/full`, winIconDir, `mame`)
 
-    //then its time to make a filter, lets take out all mechanical games
+    // then its time to make a filter, lets take out all mechanical games
     const nonMechanicalJson = rejectBool([`ismechanical`], mameJson)
     const nonMechanicalRomdata = makeRomdata(`Mame64`)(nonMechanicalJson)
     printRomdata(`${romdataOutBaseDir}/nonMechanical`, `romdata.dat`)(nonMechanicalRomdata)
     printIconFile(`${romdataOutBaseDir}/nonMechanical`, winIconDir, `mame`)
 
-    //now see what a decloned full romdata looks like 
+    // now see what a decloned full romdata looks like 
     const deClonedJson = rejectBool([`cloneof`], mameJson)
     const deClonedRomdata = makeRomdata(`Mame64`)(deClonedJson)
     printRomdata(`${romdataOutBaseDir}/deCloned`, `romdata.dat`)(deClonedRomdata)
     printIconFile(`${romdataOutBaseDir}/deCloned`, winIconDir, `mame`)
+
+    // then filter out casino games
+    const noCasinoJson = removeProp([`genre`], `Casino`, mameJson)
+    const noCasinoRomdata = makeRomdata(`Mame64`)(noCasinoJson)
+    printRomdata(`${romdataOutBaseDir}/noCasino`, `romdata.dat`)(noCasinoRomdata)
+    printIconFile(`${romdataOutBaseDir}/noCasino`, winIconDir, `mame`)
+
+    // then filter out Driving games
+    const onlyDrivingJson = filterProp([`genre`], `Driving`, mameJson)
+    const onlyDrivingRomdata = makeRomdata(`Mame64`)(onlyDrivingJson)
+    printRomdata(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`)(onlyDrivingRomdata)
+    printIconFile(`${romdataOutBaseDir}/onlyDriving`, winIconDir, `mame`)
+
+
 
     return fullRomdata
   })
