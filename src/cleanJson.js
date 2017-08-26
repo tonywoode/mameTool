@@ -54,4 +54,4 @@ const cleanJson = R.pipe(
 )
 
 
-module.exports = { cleanJson, convertToBool, cleanKey, shortenSubObject, savestateToBool}
+module.exports = {cleanJson, convertToBool, cleanKey, shortenSubObject, savestateToBool}

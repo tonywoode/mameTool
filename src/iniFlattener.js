@@ -6,17 +6,17 @@
  *  would be horrendous. Instead, flip the order for those inis and return a plain k-v of game to section
  */
 
-const R = require('ramda')
+const {map, keys, forEachObjIndexed} = require('ramda')
 
 const iniFlattener = ini => {
   const flatInvert = {}
 
   //key is the section, value is the object of that section, and game is each key in that object
-  const sectionedIniToKV = ( value, key ) => R.map( game => {
+  const sectionedIniToKV = ( value, key ) => map( game => {
     flatInvert[game] = key 
-  }, R.keys(value))
+  }, keys(value))
   
-  R.forEachObjIndexed(sectionedIniToKV, ini)
+  forEachObjIndexed(sectionedIniToKV, ini)
   
   return flatInvert
 }

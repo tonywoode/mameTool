@@ -10,7 +10,7 @@ const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {printJson, printRomdata, printIconFile, prepareBaseDir} 
                          = require(`./src/printers.js`)
-
+const {rejectBool, getUniqueProps, filterProp} = require(`./src/filterMameJson.js`)
 const mameXMLInPath      = `./inputs/mame187.xml`
 const mameXMLStream      = createReadStream(mameXMLInPath)
 const jsonOutPath        = `./outputs/mame.json`
@@ -62,10 +62,25 @@ decideWhetherToXMLAsync()
   
   .then( mameJson => {
     prepareBaseDir(romdataOutBaseDir, `mame`)
-    const romdata = makeRomdata(`Mame64`)(mameJson)
-    printRomdata(`${romdataOutBaseDir}/full`, `romdata.dat`)(romdata)
+
+    //make the initial full thing
+    const fullRomdata = makeRomdata(`Mame64`)(mameJson)
+    printRomdata(`${romdataOutBaseDir}/full`, `romdata.dat`)(fullRomdata)
     printIconFile(`${romdataOutBaseDir}/full`, winIconDir, `mame`)
-    return romdata
+
+    //then its time to make a filter, lets take out all mechanical games
+    const nonMechanicalJson = rejectBool([`ismechanical`], mameJson)
+    const nonMechanicalRomdata = makeRomdata(`Mame64`)(nonMechanicalJson)
+    printRomdata(`${romdataOutBaseDir}/nonMechanical`, `romdata.dat`)(nonMechanicalRomdata)
+    printIconFile(`${romdataOutBaseDir}/nonMechanical`, winIconDir, `mame`)
+
+    //now see what a decloned full romdata looks like 
+    const deClonedJson = rejectBool([`cloneof`], mameJson)
+    const deClonedRomdata = makeRomdata(`Mame64`)(deClonedJson)
+    printRomdata(`${romdataOutBaseDir}/deCloned`, `romdata.dat`)(deClonedRomdata)
+    printIconFile(`${romdataOutBaseDir}/deCloned`, winIconDir, `mame`)
+
+    return fullRomdata
   })
 
   .catch(err => _throw(err) )

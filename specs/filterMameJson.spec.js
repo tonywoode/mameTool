@@ -35,6 +35,7 @@ const mockSystems = [
 	},
 	{
 		call: "32x",
+        cloneof: "anything", 
 		system: "Genesis with 32X (USA, NTSC)",
 		year: "1994",
 		company: "Sega",
@@ -67,9 +68,14 @@ describe(`FilterMameJson`, () => {
     expect(rejectBool([`mess`], mockSystems)).to.have.lengthOf(1)
   })
 
+  it(`also filters out keys where the value is truthy, not just equal to true`, () => {
+    expect(rejectBool([`cloneof`], mockSystems)).to.have.lengthOf(1)
+  })
+
   it(`when passed a nested boolean filter, returns a list of parent objects that don't have that key`, () => {
     expect(rejectBool([`display`, `testProp`], mockSystems)).to.have.lengthOf(1)
   })
+
   it(`produces a unique list of properties for a key`, () => {
     expect(getUniqueProps("genre", mockSystems)).to.deep.equal([ 'Maze', 'Game Console' ])
   })

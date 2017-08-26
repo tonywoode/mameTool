@@ -36,8 +36,8 @@ const makeRomdata = mameEmu => systems => {
     return mameRomdataLine(romParams)
   }, systems)
 
-  const mameRomdata             = applyRomdata(systems,  `mame`)
-  const mameRomdataToPrint      = R.prepend(romdataHeader, mameRomdata) 
+  const mameRomdata = applyRomdata(systems,  `mame`)
+  const mameRomdataToPrint = R.prepend(romdataHeader, mameRomdata) 
 
   return mameRomdataToPrint
 
