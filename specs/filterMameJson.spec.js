@@ -89,19 +89,35 @@ describe(`FilterMameJson`, () => {
 
   it(`keep only games where some subobject has a string property of a key`, () => {
     const propToKeep = "megadriv" 
-    expect(filterProp([`display`, `tag`], propToKeep, mockSystems)[0][`display`][`tag`]).to.equal(`megadriv`)
-
+    const keepMegaDisplay = filterProp([`display`, `tag`], propToKeep, mockSystems)
+    // need to check both that there is only one object remaining, AND that its the right one
+    expect(keepMegaDisplay).to.have.lengthOf(1)
+    expect(keepMegaDisplay[0][`display`][`tag`]).to.equal(`megadriv`)
   })
 
- it(`removes games which have a string property of a key`, () => {
+  it(`removes games which have a string property of a key`, () => {
     const genreToLose = "Maze" 
-    expect(removeProp([`genre`], genreToLose, mockSystems)[0][`genre`]).to.equal(`Game Console`)
+    const noMazeGenre = removeProp([`genre`], genreToLose, mockSystems)
+    expect(noMazeGenre).to.have.lengthOf(1)
+    expect(noMazeGenre[0][`genre`]).to.equal(`Game Console`)
 
   })
 
   it(`removes games where some subobject has a string property of a key`, () => {
     const propToLose = "megadriv" 
-    expect(removeProp([`display`, `tag`], propToLose, mockSystems)[0][`display`][`tag`]).to.equal(`screen`)
+    const loseMegaDisplay = removeProp([`display`, `tag`], propToLose, mockSystems)
+    expect(loseMegaDisplay).to.have.lengthOf(1)
+    expect(loseMegaDisplay[0][`display`][`tag`]).to.equal(`screen`)
 
   })
+
+  it(`removes games which have a regex property of a key`, () => {
+    const regexToLose = /.*Console/
+    const noGamesConsoleGenre = removeProp([`genre`], regexToLose, mockSystems)
+    expect(noGamesConsoleGenre).to.have.lengthOf(1)
+    expect(noGamesConsoleGenre[0][`genre`]).to.equal(`Maze`)
+
+  })
+
+
 })
