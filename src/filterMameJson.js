@@ -9,8 +9,12 @@ const getUniqueProps = (prop, systems) => R.uniq(R.pluck(prop)(systems) )
 // getProp:: [path] => value
 const getProp = keyPath => R.path(keyPath) 
 
-// doesPropHaveValue:: [path] => value => bool
-const doesPropHaveThisValue = (keyPath, value) => R.pathEq(keyPath, value)
+// copes with booth regex searches and nested kvs
+// doesPropHaveValue:: [path] => string|RegExp => bool
+const doesPropHaveThisValue = (keyPath, value) => obj => 
+  // if it isn't a regex, treat it like a string
+  R.type(value) === "RegExp"?  R.test(value, R.path(keyPath)(obj)) : 
+    R.pathEq(keyPath, value)(obj)
 
 // rejectBool:: [path] => object => object
 const rejectBool = (keyPath, systems) => R.reject( getProp(keyPath), systems)  
@@ -29,10 +33,12 @@ const removeProp = (keyPath, value, systems) =>
 
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?
 
+// R.type can distinguish regexps
+
 //  one way to compose filters: http://fr.umio.us/why-ramda/
 //  const aSingleFilter = R.filter(R.where( {arcade: true} )
 //  const allFilters = R.compose( aSingleFilter, anotherFilter)
 //  allFilters(systems)
 
-module.exports = { rejectBool, filterProp, removeProp, getUniqueProps }
+module.exports = { doesPropHaveThisValue, rejectBool, filterProp, removeProp, getUniqueProps }
 

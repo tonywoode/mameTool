@@ -1,6 +1,6 @@
 'use strict'
 
-const { rejectBool, getUniqueProps, filterProp, removeProp } = require(`../src/filterMameJson.js`)
+const { doesPropHaveThisValue, rejectBool, getUniqueProps, filterProp, removeProp } = require(`../src/filterMameJson.js`)
 
 const mockSystems = [
 	{
@@ -61,8 +61,15 @@ const mockSystems = [
 		version: "0.132"
 	}
 ]
-
 describe(`FilterMameJson`, () => {
+
+  it(`when passed an path,value and object, tell me an existing KV is true`, () => {
+    expect(doesPropHaveThisValue(['year'], '1981')(mockSystems[0])).to.be.true
+  })
+
+  it(`when passed an path,value and object, tell me an non-existing KV is false`, () => {
+    expect(doesPropHaveThisValue(['madeup'], 'rubbish')(mockSystems[0])).to.be.false
+  })
 
   it(`when passed a valid boolean filter, returns a list of objects that don't have that key`, () => {
     expect(rejectBool([`mess`], mockSystems)).to.have.lengthOf(1)
