@@ -92,6 +92,20 @@ decideWhetherToXMLAsync()
     printRomdata(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`)(onlyDrivingRomdata)
     printIconFile(`${romdataOutBaseDir}/onlyDriving`, winIconDir, `mame`)
 
+    /* now make a naive no-mature set. Analysing the data shows we need to filter 
+     *  BOTH by regex of Mature in catlist AND category. There's no point filtering
+     *  by the genre "Mature" (its a tiny subset of those two), but We also need 
+     *  to look for !word-separated "Adult" and "Sex" in game title
+     */
+
+    const noMatureCategoryJson = removeProp([`category`], /Mature/, mameJson)
+    const noMatureCatlistAndCategoryJson = removeProp([`catlist`], /Mature/, noMatureCategoryJson)
+    const noMatureIniOrAdultJson = removeProp([`system`], /\WAdult\W/i, noMatureCatlistAndCategoryJson)
+    const noMatureIniOrAdultOrSexJson = removeProp([`system`], /\WSex\W/i, noMatureIniOrAdultJson)
+
+    const noMatureRomdata = makeRomdata(`Mame64`)(noMatureIniOrAdultOrSexJson)
+    printRomdata(`${romdataOutBaseDir}/noMature`, `romdata.dat`)(noMatureRomdata)
+    printIconFile(`${romdataOutBaseDir}/noMature`, winIconDir, `mame`)
 
 
     return fullRomdata
