@@ -8,7 +8,7 @@ exports.printJson = jsonOutPath => systems => {
   return systems
 }
 
-exports.printRomdata = (romdataOutDir, romdataOutName) => romdata => {
+const printRomdata = (romdataOutDir, romdataOutName) => romdata => {
   mkdirp.sync(romdataOutDir)
   const romdataOutPath = `${romdataOutDir}/${romdataOutName}`
   writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
@@ -17,7 +17,7 @@ exports.printRomdata = (romdataOutDir, romdataOutName) => romdata => {
   return romdata
 }
 
-exports.printIconFile = (romdataOutDir, mameExtrasDir, iconName) => {
+const printIconFile = (romdataOutDir, mameExtrasDir, iconName) => {
 
   const iconTemplate = `[GoodMerge]
 GoodMergeExclamationRoms=0
@@ -49,9 +49,15 @@ CmbIcon=${iconName}.ico
 
 }
 
-//we're going to put all our romdatas in a base directory, probably called mame
-//it will also need an icon, doesn't need anything else
+// we're going to put all our romdatas in a base directory, probably called mame
+//  it will also need an icon, doesn't need anything else
 exports.prepareBaseDir = (baseDirPath, iconName) => {
   mkdirp.sync(baseDirPath)
-  exports.printIconFile(baseDirPath, ``, iconName)
+  printIconFile(baseDirPath, ``, iconName)
+}
+
+// print both a romdata file and the icon config that goes with it, in a folder in the specified dir
+exports.printRomdataFolder = (romdataOutDir, romdataOutName, mameExtrasDir, iconName) => romdata => {
+  printIconFile(romdataOutDir, mameExtrasDir, iconName)
+  return printRomdata(romdataOutDir, romdataOutName)(romdata)
 }

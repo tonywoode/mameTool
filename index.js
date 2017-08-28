@@ -8,7 +8,7 @@ const {cleanJson}        = require(`./src/cleanJson.js`)
 const {iniToJson}        = require(`./src/fillFromIni.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
-const {printJson, printRomdata, printIconFile, prepareBaseDir} 
+const {printJson, printRomdataFolder, prepareBaseDir} 
                          = require(`./src/printers.js`)
 const {rejectBool, getUniqueProps, filterProp, removeProp} = require(`./src/filterMameJson.js`)
 const mameXMLInPath      = `./inputs/mame187.xml`
@@ -65,37 +65,34 @@ decideWhetherToXMLAsync()
 
     // make the initial full thing
     const fullRomdata = makeRomdata(`Mame64`)(mameJson)
-    printRomdata(`${romdataOutBaseDir}/full`, `romdata.dat`)(fullRomdata)
-    printIconFile(`${romdataOutBaseDir}/full`, winIconDir, `mame`)
+    printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
 
     // then its time to make a filter, lets take out all mechanical games
     const nonMechanicalJson = rejectBool([`ismechanical`], mameJson)
     const nonMechanicalRomdata = makeRomdata(`Mame64`)(nonMechanicalJson)
-    printRomdata(`${romdataOutBaseDir}/nonMechanical`, `romdata.dat`)(nonMechanicalRomdata)
-    printIconFile(`${romdataOutBaseDir}/nonMechanical`, winIconDir, `mame`)
+    printRomdataFolder(`${romdataOutBaseDir}/nonMechanical`, `romdata.dat`, winIconDir, `mame`)(nonMechanicalRomdata)
 
     // now see what a decloned full romdata looks like 
     const deClonedJson = rejectBool([`cloneof`], mameJson)
     const deClonedRomdata = makeRomdata(`Mame64`)(deClonedJson)
-    printRomdata(`${romdataOutBaseDir}/deCloned`, `romdata.dat`)(deClonedRomdata)
-    printIconFile(`${romdataOutBaseDir}/deCloned`, winIconDir, `mame`)
+    printRomdataFolder(`${romdataOutBaseDir}/deCloned`, `romdata.dat`, winIconDir, `mame`)(deClonedRomdata)
 
     // then filter out casino games
     const noCasinoJson = removeProp([`genre`], `Casino`, mameJson)
     const noCasinoRomdata = makeRomdata(`Mame64`)(noCasinoJson)
-    printRomdata(`${romdataOutBaseDir}/noCasino`, `romdata.dat`)(noCasinoRomdata)
-    printIconFile(`${romdataOutBaseDir}/noCasino`, winIconDir, `mame`)
+    printRomdataFolder(`${romdataOutBaseDir}/noCasino`, `romdata.dat`, winIconDir, `mame`)(noCasinoRomdata)
 
     // then filter out Driving games
     const onlyDrivingJson = filterProp([`genre`], `Driving`, mameJson)
     const onlyDrivingRomdata = makeRomdata(`Mame64`)(onlyDrivingJson)
-    printRomdata(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`)(onlyDrivingRomdata)
-    printIconFile(`${romdataOutBaseDir}/onlyDriving`, winIconDir, `mame`)
+    printRomdataFolder(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`, winIconDir, `mame`)(onlyDrivingRomdata)
 
     /* now make a naive no-mature set. Analysing the data shows we need to filter 
      *  BOTH by regex of Mature in catlist AND category. There's no point filtering
-     *  by the genre "Mature" (its a tiny subset of those two), but We also need 
+     *  by the genre "Mature" (its a tiny subset of those two), but we also need 
      *  to look for !word-separated "Adult" and "Sex" in game title
+     *  There is a mature.ini available here: http://www.progettosnaps.net/catver/
+     *  but in my experience, it doesn't filter out all of this...
      */
 
     const noMatureCategoryJson = removeProp([`category`], /Mature/, mameJson)
@@ -104,8 +101,7 @@ decideWhetherToXMLAsync()
     const noMatureIniOrAdultOrSexJson = removeProp([`system`], /\WSex\W/i, noMatureIniOrAdultJson)
 
     const noMatureRomdata = makeRomdata(`Mame64`)(noMatureIniOrAdultOrSexJson)
-    printRomdata(`${romdataOutBaseDir}/noMature`, `romdata.dat`)(noMatureRomdata)
-    printIconFile(`${romdataOutBaseDir}/noMature`, winIconDir, `mame`)
+    printRomdataFolder(`${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`)(noMatureRomdata)
 
 
     return fullRomdata
