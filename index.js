@@ -63,6 +63,20 @@ decideWhetherToXMLAsync()
   .then( mameJson => {
     prepareBaseDir(romdataOutBaseDir, `mame`)
 
+
+   // lets turn our fully instantiated filter functions below into individual filters
+  
+    const nonMechanical = sublist(`remove`, [`ismechanical`] )
+    const deCloned      = sublist(`remove`, [`cloneof`] )
+    const noCasino      = sublist(`remove`, [`genre`], `Casino`)
+
+    // that'll do. Now make an array out of them
+    const filterArray = [ nonMechanical, deCloned, noCasino ]    
+    // now apply the array
+    const multiFiltered = filterArray.reduce( (accum, item) => item(accum), mameJson)
+    console.log(multiFiltered)
+    process.exit()
+
     // make the initial full thing
     const fullRomdata = makeRomdata(`Mame64`)(mameJson)
     printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
