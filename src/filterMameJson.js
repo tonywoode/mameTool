@@ -17,15 +17,15 @@ const doesPropHaveThisValue = (keyPath, value) => obj =>
     R.pathEq(keyPath, value)(obj)
 
 // rejectBool:: [path] => object => object
-const rejectBool = (keyPath, systems) => R.reject( getProp(keyPath), systems)  
+const removeBool = (keyPath, systems) => R.reject( getProp(keyPath), systems)  
 
 // filterBool:: [path] => object => object
-const filterBool = (keyPath, systems) => R.filter( getProp(keyPath), systems)  
+const keepBool = (keyPath, systems) => R.filter( getProp(keyPath), systems)  
 
 // keep only those systems which have a property, nested if necessary 
 // (we can use this to make individual lists of genres)
 // filterProp:: [path] => value => object => object
-const filterProp = (keyPath, value, systems) =>  
+const keepProp = (keyPath, value, systems) =>  
   R.filter(doesPropHaveThisValue(keyPath, value), systems) 
 
 // remove those systems which have a property, nested if necessary 
@@ -49,5 +49,5 @@ const removeProp = (keyPath, value, systems) =>
 //  const allFilters = R.compose( aSingleFilter, anotherFilter)
 //  allFilters(systems)
 
-module.exports = { doesPropHaveThisValue, rejectBool, filterBool, filterProp, removeProp, getUniqueProps }
+module.exports = { doesPropHaveThisValue, removeBool, keepBool, keepProp, removeProp, getUniqueProps }
 
