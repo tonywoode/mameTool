@@ -47,7 +47,7 @@ const removeSublist = (keyPath, value) => value?
 const sublist = (keepOrRemove, keyPath, value) =>
   keepOrRemove === `keep`? keepSublist(keyPath, value) :
     keepOrRemove === `remove`? removeSublist(keyPath, value) :
-    _throw(`"keep" or "remove" are the only options for a sublist filter, you called ${keepOrRemove}`)
+    _throw(`options for sublist filter: keep|remove; you called ${keepOrRemove}`)
 
 
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?
@@ -57,5 +57,6 @@ const sublist = (keepOrRemove, keyPath, value) =>
 //  const allFilters = R.compose( aSingleFilter, anotherFilter)
 //  allFilters(systems)
 
-module.exports = { sublist, doesPropHaveThisValue, removeBool, keepBool, keepProp, removeProp, getUniqueProps }
+module.exports = { sublist, doesPropHaveThisValue, removeBool
+  , keepBool, keepProp, removeProp, getUniqueProps }
 

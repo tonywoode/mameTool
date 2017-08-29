@@ -10,7 +10,7 @@ const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {printJson, printRomdataFolder, prepareBaseDir} 
                          = require(`./src/printers.js`)
-const {rejectBool, getUniqueProps, filterProp, removeProp} = require(`./src/filterMameJson.js`)
+const {sublist, getUniqueProps} = require(`./src/filterMameJson.js`)
 const mameXMLInPath      = `./inputs/mame187.xml`
 const mameXMLStream      = createReadStream(mameXMLInPath)
 const jsonOutPath        = `./outputs/mame.json`
@@ -68,22 +68,22 @@ decideWhetherToXMLAsync()
     printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
 
     // then its time to make a filter, lets take out all mechanical games
-    const nonMechanicalJson = rejectBool([`ismechanical`], mameJson)
+    const nonMechanicalJson = sublist(`remove`, [`ismechanical`] )(mameJson)
     const nonMechanicalRomdata = makeRomdata(`Mame64`)(nonMechanicalJson)
     printRomdataFolder(`${romdataOutBaseDir}/nonMechanical`, `romdata.dat`, winIconDir, `mame`)(nonMechanicalRomdata)
 
     // now see what a decloned full romdata looks like 
-    const deClonedJson = rejectBool([`cloneof`], mameJson)
+    const deClonedJson = sublist(`remove`, [`cloneof`] )(mameJson)
     const deClonedRomdata = makeRomdata(`Mame64`)(deClonedJson)
     printRomdataFolder(`${romdataOutBaseDir}/deCloned`, `romdata.dat`, winIconDir, `mame`)(deClonedRomdata)
 
     // then filter out casino games
-    const noCasinoJson = removeProp([`genre`], `Casino`, mameJson)
+    const noCasinoJson = sublist(`remove`, [`genre`], `Casino`)(mameJson)
     const noCasinoRomdata = makeRomdata(`Mame64`)(noCasinoJson)
     printRomdataFolder(`${romdataOutBaseDir}/noCasino`, `romdata.dat`, winIconDir, `mame`)(noCasinoRomdata)
 
     // then filter out Driving games
-    const onlyDrivingJson = filterProp([`genre`], `Driving`, mameJson)
+    const onlyDrivingJson = sublist(`keep`, [`genre`], `Driving`)(mameJson)
     const onlyDrivingRomdata = makeRomdata(`Mame64`)(onlyDrivingJson)
     printRomdataFolder(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`, winIconDir, `mame`)(onlyDrivingRomdata)
 
@@ -95,10 +95,10 @@ decideWhetherToXMLAsync()
      *  but in my experience, it doesn't filter out all of this...
      */
 
-    const noMatureCategoryJson = removeProp([`category`], /Mature/, mameJson)
-    const noMatureCatlistAndCategoryJson = removeProp([`catlist`], /Mature/, noMatureCategoryJson)
-    const noMatureIniOrAdultJson = removeProp([`system`], /\WAdult\W/i, noMatureCatlistAndCategoryJson)
-    const noMatureIniOrAdultOrSexJson = removeProp([`system`], /\WSex\W/i, noMatureIniOrAdultJson)
+    const noMatureCategoryJson = sublist(`remove`, [`category`], /Mature/)(mameJson)
+    const noMatureCatlistAndCategoryJson = sublist(`remove`, [`catlist`], /Mature/)(noMatureCategoryJson)
+    const noMatureIniOrAdultJson = sublist(`remove`, [`system`], /\WAdult\W/i)(noMatureCatlistAndCategoryJson)
+    const noMatureIniOrAdultOrSexJson = sublist(`remove`, [`system`], /\WSex\W/i)(noMatureIniOrAdultJson)
 
     const noMatureRomdata = makeRomdata(`Mame64`)(noMatureIniOrAdultOrSexJson)
     printRomdataFolder(`${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`)(noMatureRomdata)

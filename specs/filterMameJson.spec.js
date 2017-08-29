@@ -213,7 +213,7 @@ describe(`FilterMameJson`, () => {
 
     it('throws if you ask for a sublist operation but give an incorrect operation type', () => {
       expect( () => sublist(`boom`, [`display`, `tag`], `fakeString`)(mockSystems))
-        .to.throw(`"keep" or "remove" are the only options for a sublist filter, you called boom`) 
+        .to.throw(`options for sublist filter: keep|remove; you called boom`) 
     })
 
   })
