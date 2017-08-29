@@ -86,19 +86,19 @@ describe(`FilterMameJson`, () => {
   // need to check both that there is only one object remaining, AND that its the right one
   describe(`#removeBool`, () => {
     it(`when passed a valid boolean filter, returns a list of objects that don't have that key`, () => {
-    const removeMess = removeBool([`mess`], mockSystems)
+    const removeMess = removeBool([`mess`])(mockSystems)
       expect(removeMess).to.have.lengthOf(1)
       expect(removeMess[0][`mess`]).to.be.undefined
     })
   
     it(`also filters out keys where the value is truthy, not just equal to true`, () => {
-      const removeCloneof = removeBool([`cloneof`], mockSystems)
+      const removeCloneof = removeBool([`cloneof`])(mockSystems)
       expect(removeCloneof).to.have.lengthOf(1)
       expect(removeCloneof[0][`cloneof`]).to.be.undefined
     })
   
     it(`when passed a nested boolean filter, returns a list of parent objects that don't have that key`, () => {
-      const removeNestedProp = removeBool([`display`, `testProp`], mockSystems)
+      const removeNestedProp = removeBool([`display`, `testProp`])(mockSystems)
       expect(removeNestedProp).to.have.lengthOf(1)
       expect(removeNestedProp[0][`display`][`testProp`]).to.be.undefined
     })
@@ -107,19 +107,19 @@ describe(`FilterMameJson`, () => {
 
    describe(`#keepBool`, () => {
     it(`when passed a valid boolean filter, returns a list of only the objects that have that key`, () => {
-    const keepMess = keepBool([`mess`], mockSystems)
+    const keepMess = keepBool([`mess`])(mockSystems)
       expect(keepMess).to.have.lengthOf(1)
       expect(keepMess[0][`mess`]).to.be.true
     })
   
     it(`also keeps keys where the value is truthy, not just equal to true`, () => {
-      const keepCloneof = keepBool([`cloneof`], mockSystems)
+      const keepCloneof = keepBool([`cloneof`])(mockSystems)
       expect(keepCloneof).to.have.lengthOf(1)
       expect(keepCloneof[0][`cloneof`]).to.equal(`anything`)
     })
   
     it(`when passed a nested boolean filter, returns a list of only the parent objects which have that key`, () => {
-      const keepNestedProp = keepBool([`display`, `testProp`], mockSystems)
+      const keepNestedProp = keepBool([`display`, `testProp`])(mockSystems)
       expect(keepNestedProp).to.have.lengthOf(1)
       expect(keepNestedProp[0][`display`][`testProp`]).to.be.true
     })
@@ -128,7 +128,7 @@ describe(`FilterMameJson`, () => {
 
   describe(`#getUniqueProps`, () => {
     it(`produces a unique list of properties for a key`, () => {
-      expect(getUniqueProps("genre", mockSystems)).to.deep.equal([ 'Maze', 'Game Console' ])
+      expect(getUniqueProps("genre")(mockSystems)).to.deep.equal([ 'Maze', 'Game Console' ])
     })
 
   })
@@ -137,7 +137,7 @@ describe(`FilterMameJson`, () => {
     it(`keeps only games which have a string property of a key`, () => {
       const genreToKeep = `Maze` 
       //console.log(keepProp(["genre"], genreToLose, mockSystems))
-      const onlyMazeGenre = keepProp(["genre"], genreToKeep, mockSystems)
+      const onlyMazeGenre = keepProp(["genre"], genreToKeep)(mockSystems)
       expect(onlyMazeGenre).to.have.lengthOf(1)
       expect(onlyMazeGenre[0][`genre`]).to.equal(`Maze`)
   
@@ -145,14 +145,14 @@ describe(`FilterMameJson`, () => {
   
     it(`keep only games where some subobject has a string property of a key`, () => {
       const propToKeep = `megadriv` 
-      const keepMegaDisplay = keepProp([`display`, `tag`], propToKeep, mockSystems)
+      const keepMegaDisplay = keepProp([`display`, `tag`], propToKeep)(mockSystems)
       expect(keepMegaDisplay).to.have.lengthOf(1)
       expect(keepMegaDisplay[0][`display`][`tag`]).to.equal(`megadriv`)
     })
 
    it(`keeps only games which have a regex property of a key`, () => {
       const regexToKeep = /.*Console/
-      const noGamesConsoleGenre = keepProp([`genre`], regexToKeep, mockSystems)
+      const noGamesConsoleGenre = keepProp([`genre`], regexToKeep)(mockSystems)
       expect(noGamesConsoleGenre).to.have.lengthOf(1)
       expect(noGamesConsoleGenre[0][`genre`]).to.equal(`Game Console`)
     })
@@ -162,21 +162,21 @@ describe(`FilterMameJson`, () => {
   describe(`#removeProp`, () => {
     it(`removes games which have a string property of a key`, () => {
       const genreToLose = "Maze" 
-      const noMazeGenre = removeProp([`genre`], genreToLose, mockSystems)
+      const noMazeGenre = removeProp([`genre`], genreToLose)(mockSystems)
       expect(noMazeGenre).to.have.lengthOf(1)
       expect(noMazeGenre[0][`genre`]).to.equal(`Game Console`)
     })
   
     it(`removes games where some subobject has a string property of a key`, () => {
       const propToLose = "megadriv" 
-      const loseMegaDisplay = removeProp([`display`, `tag`], propToLose, mockSystems)
+      const loseMegaDisplay = removeProp([`display`, `tag`], propToLose)(mockSystems)
       expect(loseMegaDisplay).to.have.lengthOf(1)
       expect(loseMegaDisplay[0][`display`][`tag`]).to.equal(`screen`)
     })
   
     it(`removes games which have a regex property of a key`, () => {
       const regexToLose = /.*Console/
-      const noGamesConsoleGenre = removeProp([`genre`], regexToLose, mockSystems)
+      const noGamesConsoleGenre = removeProp([`genre`], regexToLose)(mockSystems)
       expect(noGamesConsoleGenre).to.have.lengthOf(1)
       expect(noGamesConsoleGenre[0][`genre`]).to.equal(`Maze`)
     })
