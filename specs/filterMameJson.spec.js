@@ -1,6 +1,7 @@
 'use strict'
 
-const { doesPropHaveThisValue, removeBool, keepBool, getUniqueProps, keepProp, removeProp } = require(`../src/filterMameJson.js`)
+const { sublist, doesPropHaveThisValue, removeBool, keepBool
+  , getUniqueProps, keepProp, removeProp } = require(`../src/filterMameJson.js`)
 
 const mockSystems = [
 	{
@@ -181,5 +182,41 @@ describe(`FilterMameJson`, () => {
     })
 
   })
+
+  describe(`#sublist`, () => {
+    it(`routes a call to remove all Maze games to the approprtiate removeProp function`, () => {
+      const genreToLose = "Maze" 
+      const noMazeGenre = sublist(`remove`, [`genre`], genreToLose)(mockSystems)
+      expect(noMazeGenre).to.have.lengthOf(1)
+      expect(noMazeGenre[0][`genre`]).to.equal(`Game Console`)
+    })
+    
+    it(`routes a call to remove all Mess games to the appropriate removeBool function`, () => {
+      const removeMess = sublist(`remove`, [`mess`] )(mockSystems)
+      expect(removeMess).to.have.lengthOf(1)
+      expect(removeMess[0][`mess`]).to.be.undefined
+    })
+
+    it(`routes a call to keep all mess games to the appropriate keepBool function`, () => {
+      const keepMess = sublist(`keep`, [`mess`])(mockSystems)
+      expect(keepMess).to.have.lengthOf(1)
+      expect(keepMess[0][`mess`]).to.be.true
+    })
+
+    //lets also test a nested prop
+    it(`routes a call to keep a nested display property to the appropriate keepProp function `, () => {
+      const propToKeep = `megadriv` 
+      const keepMegaDisplay = sublist(`keep`, [`display`, `tag`], propToKeep)(mockSystems)
+      expect(keepMegaDisplay).to.have.lengthOf(1)
+      expect(keepMegaDisplay[0][`display`][`tag`]).to.equal(`megadriv`)
+    })
+
+    it('throws if you ask for a sublist operation but give an incorrect operation type', () => {
+      expect( () => sublist(`boom`, [`display`, `tag`], `fakeString`)(mockSystems))
+        .to.throw(`"keep" or "remove" are the only options for a sublist filter, you called boom`) 
+    })
+
+  })
+
 
 })

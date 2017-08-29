@@ -1,6 +1,7 @@
 'use strict'
 
 const R = require(`ramda`)
+const _throw = m => { throw new Error(m) }
 
 // getUniqueProps:: (string, list) => [set]
 const getUniqueProps = (prop, systems) => R.uniq(R.pluck(prop)(systems) )
@@ -33,13 +34,20 @@ const keepProp = (keyPath, value, systems) =>
 const removeProp = (keyPath, value, systems) =>  
   R.reject(doesPropHaveThisValue(keyPath, value), systems) 
 
-// We need to make a single function that covers all these, a router
-//  perhaps there are two mechanisms for filtering. One is if you supply
-//  a string "keep" or "lose" for , respectively filter and remove prop, 
-//  but maybe it occurs to me that you also need a 'filterBool' that keeps only those
-//  with a bool filter,  so then ALL the fucntions can have 'keep' or 'lose' and if you 
-//  dont supply a property if does the boolean/truthy remove or filter. Lack of specifying
-//  keep or lose means you bomb....
+/* Routing function to make calls to the above four filters generic
+ *   if there's no value (or falsey value) then consider it a boolean op
+ *   otherwise its a property op. TODO: typing */
+
+const keepSublist = (keyPath, value) => systems => value? 
+  keepProp(keyPath, value, systems) : keepBool(keyPath, systems)
+
+const removeSublist = (keyPath, value) => systems => value? 
+  removeProp(keyPath, value, systems) : removeBool(keyPath, systems)
+
+const sublist = (keepOrRemove, keyPath, value) => systems =>
+  keepOrRemove === `keep`? keepSublist(keyPath, value)(systems) :
+    keepOrRemove === `remove`? removeSublist(keyPath, value)(systems) :
+    _throw(`"keep" or "remove" are the only options for a sublist filter, you called ${keepOrRemove}`)
 
 
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?
@@ -49,5 +57,5 @@ const removeProp = (keyPath, value, systems) =>
 //  const allFilters = R.compose( aSingleFilter, anotherFilter)
 //  allFilters(systems)
 
-module.exports = { doesPropHaveThisValue, removeBool, keepBool, keepProp, removeProp, getUniqueProps }
+module.exports = { sublist, doesPropHaveThisValue, removeBool, keepBool, keepProp, removeProp, getUniqueProps }
 

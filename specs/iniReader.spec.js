@@ -104,7 +104,7 @@ describe(`iniReader`, () => {
       const kvIni = loadKVIni(`fakeName`, `NPlayers`)
       expect(kvIni[`10yard`]).to.equal(`2P alt`)
     })
-    it('throws if you ask for a kv ini converter without specifying the name of the section header ', () => {
+    it(`throws if you ask for a kv ini converter without specifying the name of the section header`, () => {
       expect( () => loadIni(`anything`, `kv`)).to.throw(`you didn't supply a section name`) 
     })
   })
