@@ -1,6 +1,6 @@
 'use strict'
 
-const { doesPropHaveThisValue, rejectBool, getUniqueProps, filterProp, removeProp } = require(`../src/filterMameJson.js`)
+const { doesPropHaveThisValue, rejectBool, filterBool, getUniqueProps, filterProp, removeProp } = require(`../src/filterMameJson.js`)
 
 const mockSystems = [
 	{
@@ -84,15 +84,21 @@ describe(`FilterMameJson`, () => {
 
   describe(`#rejectBool`, () => {
     it(`when passed a valid boolean filter, returns a list of objects that don't have that key`, () => {
-      expect(rejectBool([`mess`], mockSystems)).to.have.lengthOf(1)
+    const rejectMess = rejectBool([`mess`], mockSystems)
+      expect(rejectMess).to.have.lengthOf(1)
+      expect(rejectMess[0][`mess`]).to.be.undefined
     })
   
     it(`also filters out keys where the value is truthy, not just equal to true`, () => {
-      expect(rejectBool([`cloneof`], mockSystems)).to.have.lengthOf(1)
+      const rejectCloneof = rejectBool([`cloneof`], mockSystems)
+      expect(rejectCloneof).to.have.lengthOf(1)
+      expect(rejectCloneof[0][`cloneof`]).to.be.undefined
     })
   
     it(`when passed a nested boolean filter, returns a list of parent objects that don't have that key`, () => {
-      expect(rejectBool([`display`, `testProp`], mockSystems)).to.have.lengthOf(1)
+      const rejectNestedProp = rejectBool([`display`, `testProp`], mockSystems)
+      expect(rejectNestedProp).to.have.lengthOf(1)
+      expect(rejectNestedProp[0][`display`, `testProp`]).to.be.undefined
     })
 
   })
