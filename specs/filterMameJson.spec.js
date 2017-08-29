@@ -82,6 +82,7 @@ describe(`FilterMameJson`, () => {
   
   })
 
+  // need to check both that there is only one object remaining, AND that its the right one
   describe(`#rejectBool`, () => {
     it(`when passed a valid boolean filter, returns a list of objects that don't have that key`, () => {
     const rejectMess = rejectBool([`mess`], mockSystems)
@@ -98,11 +99,32 @@ describe(`FilterMameJson`, () => {
     it(`when passed a nested boolean filter, returns a list of parent objects that don't have that key`, () => {
       const rejectNestedProp = rejectBool([`display`, `testProp`], mockSystems)
       expect(rejectNestedProp).to.have.lengthOf(1)
-      expect(rejectNestedProp[0][`display`, `testProp`]).to.be.undefined
+      expect(rejectNestedProp[0][`display`][`testProp`]).to.be.undefined
     })
 
   })
 
+   describe(`#filterBool`, () => {
+    it(`when passed a valid boolean filter, returns a list of only the objects that have that key`, () => {
+    const filterMess = filterBool([`mess`], mockSystems)
+      expect(filterMess).to.have.lengthOf(1)
+      expect(filterMess[0][`mess`]).to.be.true
+    })
+  
+    it(`also keeps keys where the value is truthy, not just equal to true`, () => {
+      const filterCloneof = filterBool([`cloneof`], mockSystems)
+      expect(filterCloneof).to.have.lengthOf(1)
+      expect(filterCloneof[0][`cloneof`]).to.equal(`anything`)
+    })
+  
+    it(`when passed a nested boolean filter, returns a list of only the parent objects which have that key`, () => {
+      const filterNestedProp = filterBool([`display`, `testProp`], mockSystems)
+      console.log(filterNestedProp)
+      expect(filterNestedProp).to.have.lengthOf(1)
+      expect(filterNestedProp[0][`display`][`testProp`]).to.be.true
+    })
+
+  })
 
   describe(`#getUniqueProps`, () => {
     it(`produces a unique list of properties for a key`, () => {
@@ -122,7 +144,6 @@ describe(`FilterMameJson`, () => {
     it(`keep only games where some subobject has a string property of a key`, () => {
       const propToKeep = "megadriv" 
       const keepMegaDisplay = filterProp([`display`, `tag`], propToKeep, mockSystems)
-      // need to check both that there is only one object remaining, AND that its the right one
       expect(keepMegaDisplay).to.have.lengthOf(1)
       expect(keepMegaDisplay[0][`display`][`tag`]).to.equal(`megadriv`)
     })
