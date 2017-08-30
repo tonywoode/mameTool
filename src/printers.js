@@ -9,7 +9,6 @@ exports.printJson = jsonOutPath => systems => {
 }
 
 const printRomdata = (romdataOutDir, romdataOutName) => romdata => {
-  mkdirp.sync(romdataOutDir)
   const romdataOutPath = `${romdataOutDir}/${romdataOutName}`
   writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
   console.log(romdata)
@@ -52,12 +51,14 @@ CmbIcon=${iconName}.ico
 // we're going to put all our romdatas in a base directory, probably called mame
 //  it will also need an icon, doesn't need anything else
 exports.prepareBaseDir = (baseDirPath, iconName) => {
+//  TODO: check that basedir exists
   mkdirp.sync(baseDirPath)
   printIconFile(baseDirPath, ``, iconName)
 }
 
 // print both a romdata file and the icon config that goes with it, in a folder in the specified dir
 exports.printRomdataFolder = (romdataOutDir, romdataOutName, mameExtrasDir, iconName) => romdata => {
+  mkdirp.sync(romdataOutDir)
   printIconFile(romdataOutDir, mameExtrasDir, iconName)
   return printRomdata(romdataOutDir, romdataOutName)(romdata)
 }
