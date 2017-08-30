@@ -1,6 +1,6 @@
 'use strict'
 
-const R = require(`ramda`)
+const R                   = require(`ramda`)
 const {readFile, createReadStream} = require(`fs`)
 const _throw             = m => { throw new Error(m) }
 
@@ -10,9 +10,11 @@ const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {printJson, printRomdataFolder, prepareBaseDir} 
                          = require(`./src/printers.js`)
-const {sublist, getUniqueProps} = require(`./src/filterMameJson.js`)
+const {sublist, getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
+
 const mameXMLInPath      = `./inputs/mame187.xml`
 const mameXMLStream      = createReadStream(mameXMLInPath)
+
 const jsonOutPath        = `./outputs/mame.json`
 const romdataOutBaseDir  = `./outputs/mame`
 const winIconDir         = require(`./src/getDir.js`).getWinIconDir()
@@ -67,33 +69,21 @@ decideWhetherToXMLAsync()
     const fullRomdata = makeRomdata(`Mame64`)(mameJson)
     printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
 
-  const arcadeFilters = [
-     { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
-   , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
-   , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
-   , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
-   , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
-   , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
-   , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
-   , { name: `noMess`,          type: `remove`, path: [`mess`] }
-   , { name: `noBios`,          type: `remove`, path: [`isbios`] }
-   , { name: `noQuiz`,          type: `remove`, path: [`genre`],    value: `Quiz` }
-  ] //probably also "Utilities / Update" genre and "Print Club" genre, and others...
+    const arcadeFilters = [
+       { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
+     , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
+     , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
+     , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
+     , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
+     , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
+     , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
+     , { name: `noMess`,          type: `remove`, path: [`mess`] }
+     , { name: `noBios`,          type: `remove`, path: [`isbios`] }
+     , { name: `noQuiz`,          type: `remove`, path: [`genre`],    value: `Quiz` }
+    ] //probably also "Utilities / Update" genre and "Print Club" genre, and others...
 
-//these need to go in a separate file now
-    // turn a single filter object into a runnable filter function
-    const makeMameFilter = spec => sublist(spec.type, spec.path, spec.value)
-    // combines an array of filter objects into an array of runnable filter functions, its this we actually apply
-    const filterArray = arrayOfFilters => R.map(makeMameFilter, arrayOfFilters)
-    // will apply each filter in turn onto a base mame object
-    const applyMameFilters = (filterArray, mameJson) => 
-      R.reduce( (newJson, filter) => filter(newJson), mameJson, filterArray)
-// --
-
-
-    // apply the array
-    const arcadeFilterRunnable = filterArray(arcadeFilters)
-    const multiFilteredJson = applyMameFilters(arcadeFilterRunnable, mameJson)
+    
+    const multiFilteredJson = makeFilteredJson(arcadeFilters, mameJson)
 
     const originalVideoGamesRomdata = makeRomdata(`Mame64`)(multiFilteredJson)
     printRomdataFolder(`${romdataOutBaseDir}/originalVideoGames`, `romdata.dat`, winIconDir, `mame`)(originalVideoGamesRomdata)
@@ -106,13 +96,14 @@ decideWhetherToXMLAsync()
      *  but in my experience, it doesn't filter out all of this...
      */
 
-    const noMatureCategory = sublist(`remove`, [`category`], /Mature/)
-    const noMatureCatlist  = sublist(`remove`, [`catlist`],  /Mature/)
-    const noAdult          = sublist(`remove`, [`system`],   /\WAdult\W/i)
-    const noSex            = sublist(`remove`, [`system`],   /\WSex\W/i)
-    const noMatureArray = [ noMatureCategory, noMatureCatlist, noAdult, noSex ]
+    const noMatureFilters = [
+       { name: `noMatureCategory`, type: `remove`, path: [`category`], value: /Mature/ }
+     , { name: `noMatureCatlist`,  type: `remove`, path: [`catlist`],  value: /Mature/ }
+     , { name: `noAdult`,          type: `remove`, path: [`system`],   value: /\WAdult\W/i }
+     , { name: `noSex`,            type: `remove`, path: [`system`],   value: /\WSex\W/i }
+    ]
 
-    const matureFilteredJson = applyMameFilters(noMatureArray, mameJson)
+    const matureFilteredJson = makeFilteredJson(noMatureFilters, mameJson)
 
     const noMatureRomdata = makeRomdata(`Mame64`)(matureFilteredJson)
     printRomdataFolder(`${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`)(noMatureRomdata)

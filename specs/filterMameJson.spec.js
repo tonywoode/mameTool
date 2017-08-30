@@ -1,7 +1,7 @@
 'use strict'
 
 const { sublist, doesPropHaveThisValue, removeBool, keepBool
-  , getUniqueProps, keepProp, removeProp } = require(`../src/filterMameJson.js`)
+  , getUniqueProps, keepProp, removeProp, makeFilteredJson } = require(`../src/filterMameJson.js`)
 
 const mockSystems = [
 	{
@@ -204,17 +204,39 @@ describe(`FilterMameJson`, () => {
     })
 
     //lets also test a nested prop
-    it(`routes a call to keep a nested display property to the appropriate keepProp function `, () => {
+    it(`routes a call to keep a nested display property to the appropriate keepProp function`, () => {
       const propToKeep = `megadriv` 
       const keepMegaDisplay = sublist(`keep`, [`display`, `tag`], propToKeep)(mockSystems)
       expect(keepMegaDisplay).to.have.lengthOf(1)
       expect(keepMegaDisplay[0][`display`][`tag`]).to.equal(`megadriv`)
     })
 
-    it('throws if you ask for a sublist operation but give an incorrect operation type', () => {
+    it(`throws if you ask for a sublist operation but give an incorrect operation type`, () => {
       expect( () => sublist(`boom`, [`display`, `tag`], `fakeString`)(mockSystems))
         .to.throw(`options for sublist filter: keep|remove; you called boom`) 
     })
+
+  })
+
+  describe(`#makeFilteredJson`, () => {
+    it(`applies a remove prop filter array to a json and returns the filtered json`, () => {
+      const filterArr = [ 
+        { name: `test`, type: `remove`, path: [`genre`], value: `Game Console` }
+      ]
+      const removeGamesConsole = (makeFilteredJson(filterArr, mockSystems) )
+      expect(removeGamesConsole).to.have.lengthOf(1)
+      expect(removeGamesConsole[0][`genre`]).to.equal(`Maze`)
+    })
+
+    it(`applies a keep bool filter array to a json and returns the filtered json`, () => {
+      const filterArr = [ 
+        { name: `test`, type: `keep`, path: [`mess`] }
+      ]
+      const keepMess = (makeFilteredJson(filterArr, mockSystems) )
+      expect(keepMess).to.have.lengthOf(1)
+      expect(keepMess[0][`mess`]).to.be.true
+    })
+
 
   })
 
