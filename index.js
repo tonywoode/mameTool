@@ -63,45 +63,30 @@ decideWhetherToXMLAsync()
   .then( mameJson => {
     prepareBaseDir(romdataOutBaseDir, `mame`)
 
-
-   // lets turn our fully instantiated filter functions below into individual filters
-  
-    const nonMechanical = sublist(`remove`, [`ismechanical`] )
-    const deCloned      = sublist(`remove`, [`cloneof`] )
-    const noCasino      = sublist(`remove`, [`genre`], `Casino`)
-
-    // that'll do. Now make an array out of them
-    const filterArray = [ nonMechanical, deCloned, noCasino ]    
-    // now apply the array
-    const multiFiltered = filterArray.reduce( (accum, item) => item(accum), mameJson)
-    console.log(multiFiltered)
-    process.exit()
-
-    // make the initial full thing
+    // first make the initial full thing
     const fullRomdata = makeRomdata(`Mame64`)(mameJson)
     printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
 
-    // then its time to make a filter, lets take out all mechanical games
-    const nonMechanicalJson = sublist(`remove`, [`ismechanical`] )(mameJson)
-    const nonMechanicalRomdata = makeRomdata(`Mame64`)(nonMechanicalJson)
-    printRomdataFolder(`${romdataOutBaseDir}/nonMechanical`, `romdata.dat`, winIconDir, `mame`)(nonMechanicalRomdata)
+    // then lets turn our fully instantiated filter functions below into individual filters
+    const nonMechanical   = sublist(`remove`, [`ismechanical`] )
+    const nonMechGenre    = sublist(`remove`, [`genre`], `Electromechanical` ) //turns out you can't trust the ini bool
+    const nonTableTop     = sublist(`remove`, [`genre`], `Tabletop` ) //that means Mahjong etc
+    const nonTableGenre   = sublist(`remove`, [`category`], /Tabletop/ ) //turns out you can't trust the ini AGAIN
+    const deCloned        = sublist(`remove`, [`cloneof`] )
+    const noCasino        = sublist(`remove`, [`genre`], `Casino`)
+    const noCasinoCatlist = sublist(`remove`, [`catlist`], /Casino/) //turns out you can't trust genre
+    const noMess          = sublist(`remove`, [`mess`])
+    const noBios          = sublist(`remove`, [`isbios`])
+    const noQuiz          = sublist(`remove`, [`genre`], `Quiz`)
+    //probably also "Utilities / Update" genre and "Print Club" genre, and others...
+    const filterArray = [ nonMechanical, nonMechGenre, nonTableTop, nonTableGenre, deCloned, noCasino, noCasinoCatlist, noMess, noBios, noQuiz ]
 
-    // now see what a decloned full romdata looks like 
-    const deClonedJson = sublist(`remove`, [`cloneof`] )(mameJson)
-    const deClonedRomdata = makeRomdata(`Mame64`)(deClonedJson)
-    printRomdataFolder(`${romdataOutBaseDir}/deCloned`, `romdata.dat`, winIconDir, `mame`)(deClonedRomdata)
+    // now apply the array
+    const multiFilteredJson = filterArray.reduce( (accum, item) => item(accum), mameJson)
+    const originalVideoGamesRomdata = makeRomdata(`Mame64`)(multiFilteredJson)
+    printRomdataFolder(`${romdataOutBaseDir}/originalVideoGames`, `romdata.dat`, winIconDir, `mame`)(originalVideoGamesRomdata)
 
-    // then filter out casino games
-    const noCasinoJson = sublist(`remove`, [`genre`], `Casino`)(mameJson)
-    const noCasinoRomdata = makeRomdata(`Mame64`)(noCasinoJson)
-    printRomdataFolder(`${romdataOutBaseDir}/noCasino`, `romdata.dat`, winIconDir, `mame`)(noCasinoRomdata)
-
-    // then filter out Driving games
-    const onlyDrivingJson = sublist(`keep`, [`genre`], `Driving`)(mameJson)
-    const onlyDrivingRomdata = makeRomdata(`Mame64`)(onlyDrivingJson)
-    printRomdataFolder(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`, winIconDir, `mame`)(onlyDrivingRomdata)
-
-    /* now make a naive no-mature set. Analysing the data shows we need to filter 
+     /* now make a naive no-mature set. Analysing the data shows we need to filter 
      *  BOTH by regex of Mature in catlist AND category. There's no point filtering
      *  by the genre "Mature" (its a tiny subset of those two), but we also need 
      *  to look for !word-separated "Adult" and "Sex" in game title
@@ -109,14 +94,20 @@ decideWhetherToXMLAsync()
      *  but in my experience, it doesn't filter out all of this...
      */
 
-    const noMatureCategoryJson = sublist(`remove`, [`category`], /Mature/)(mameJson)
-    const noMatureCatlistAndCategoryJson = sublist(`remove`, [`catlist`], /Mature/)(noMatureCategoryJson)
-    const noMatureIniOrAdultJson = sublist(`remove`, [`system`], /\WAdult\W/i)(noMatureCatlistAndCategoryJson)
-    const noMatureIniOrAdultOrSexJson = sublist(`remove`, [`system`], /\WSex\W/i)(noMatureIniOrAdultJson)
+    const noMatureCategory = sublist(`remove`, [`category`], /Mature/)
+    const noMatureCatlist  = sublist(`remove`, [`catlist`],  /Mature/)
+    const noAdult          = sublist(`remove`, [`system`],   /\WAdult\W/i)
+    const noSex            = sublist(`remove`, [`system`],   /\WSex\W/i)
+    const noMatureArray = [ noMatureCategory, noMatureCatlist, noAdult, noSex ]
 
-    const noMatureRomdata = makeRomdata(`Mame64`)(noMatureIniOrAdultOrSexJson)
+    const matureFilteredJson = noMatureArray.reduce( (accum, item) => item(accum), mameJson)
+    const noMatureRomdata = makeRomdata(`Mame64`)(matureFilteredJson)
     printRomdataFolder(`${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`)(noMatureRomdata)
 
+    // then filter out Driving games
+    const onlyDrivingJson = sublist(`keep`, [`genre`], `Driving`)(mameJson)
+    const onlyDrivingRomdata = makeRomdata(`Mame64`)(onlyDrivingJson)
+    printRomdataFolder(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`, winIconDir, `mame`)(onlyDrivingRomdata)
 
     return fullRomdata
   })
