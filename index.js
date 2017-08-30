@@ -10,7 +10,7 @@ const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {printJson, printRomdataFolder, prepareBaseDir} 
                          = require(`./src/printers.js`)
-const {sublist, getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
+const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
 
 const mameXMLInPath      = `./inputs/mame187.xml`
 const mameXMLStream      = createReadStream(mameXMLInPath)
@@ -86,7 +86,9 @@ decideWhetherToXMLAsync()
     const multiFilteredJson = makeFilteredJson(arcadeFilters, mameJson)
 
     const originalVideoGamesRomdata = makeRomdata(`Mame64`)(multiFilteredJson)
-    printRomdataFolder(`${romdataOutBaseDir}/originalVideoGames`, `romdata.dat`, winIconDir, `mame`)(originalVideoGamesRomdata)
+    printRomdataFolder(
+      `${romdataOutBaseDir}/originalVideoGames`, `romdata.dat`, winIconDir, `mame`
+    )(originalVideoGamesRomdata)
 
      /* now make a naive no-mature set. Analysing the data shows we need to filter 
      *  BOTH by regex of Mature in catlist AND category. There's no point filtering
@@ -106,18 +108,22 @@ decideWhetherToXMLAsync()
     const matureFilteredJson = makeFilteredJson(noMatureFilters, mameJson)
 
     const noMatureRomdata = makeRomdata(`Mame64`)(matureFilteredJson)
-    printRomdataFolder(`${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`)(noMatureRomdata)
+    printRomdataFolder(
+      `${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`
+    )(noMatureRomdata)
 
     // next let's make folder split by genre
-    //  first, give me a list of all the genres
     const genreArray = getUniqueProps(`genre`)(mameJson)
     prepareBaseDir(`${romdataOutBaseDir}/Genre`, `mame`)
-
-
-    // then filter out Driving games
-    const onlyDrivingJson = sublist(`keep`, [`genre`], `Driving`)(mameJson)
-    const onlyDrivingRomdata = makeRomdata(`Mame64`)(onlyDrivingJson)
-    printRomdataFolder(`${romdataOutBaseDir}/onlyDriving`, `romdata.dat`, winIconDir, `mame`)(onlyDrivingRomdata)
+    //now for each genre we need to make a folder with a romdata in it
+    R.map( genre => {
+      const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
+      const thisGenreJson = makeFilteredJson(genreFilter, mameJson)
+      const thisGenreRomdata = makeRomdata(`Mame64`)(thisGenreJson)
+      printRomdataFolder(
+        `${romdataOutBaseDir}/Genre/${genre}`, `romdata.dat`, winIconDir, `mame`
+      )(thisGenreRomdata)
+    }, genreArray)
 
     return fullRomdata
   })
