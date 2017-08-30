@@ -67,22 +67,34 @@ decideWhetherToXMLAsync()
     const fullRomdata = makeRomdata(`Mame64`)(mameJson)
     printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
 
-    // then lets turn our fully instantiated filter functions below into individual filters
-    const nonMechanical   = sublist(`remove`, [`ismechanical`] )
-    const nonMechGenre    = sublist(`remove`, [`genre`], `Electromechanical` ) //turns out you can't trust the ini bool
-    const nonTableTop     = sublist(`remove`, [`genre`], `Tabletop` ) //that means Mahjong etc
-    const nonTableGenre   = sublist(`remove`, [`category`], /Tabletop/ ) //turns out you can't trust the ini AGAIN
-    const deCloned        = sublist(`remove`, [`cloneof`] )
-    const noCasino        = sublist(`remove`, [`genre`], `Casino`)
-    const noCasinoCatlist = sublist(`remove`, [`catlist`], /Casino/) //turns out you can't trust genre
-    const noMess          = sublist(`remove`, [`mess`])
-    const noBios          = sublist(`remove`, [`isbios`])
-    const noQuiz          = sublist(`remove`, [`genre`], `Quiz`)
-    //probably also "Utilities / Update" genre and "Print Club" genre, and others...
-    const filterArray = [ nonMechanical, nonMechGenre, nonTableTop, nonTableGenre, deCloned, noCasino, noCasinoCatlist, noMess, noBios, noQuiz ]
+  const arcadeFilters = [
+     { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
+   , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
+   , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
+   , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
+   , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
+   , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
+   , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
+   , { name: `noMess`,          type: `remove`, path: [`mess`] }
+   , { name: `noBios`,          type: `remove`, path: [`isbios`] }
+   , { name: `noQuiz`,          type: `remove`, path: [`genre`],    value: `Quiz` }
+  ] //probably also "Utilities / Update" genre and "Print Club" genre, and others...
 
-    // now apply the array
-    const multiFilteredJson = filterArray.reduce( (accum, item) => item(accum), mameJson)
+//these need to go in a separate file now
+    // turn a single filter object into a runnable filter function
+    const makeMameFilter = spec => sublist(spec.type, spec.path, spec.value)
+    // combines an array of filter objects into an array of runnable filter functions, its this we actually apply
+    const filterArray = arrayOfFilters => R.map(makeMameFilter, arrayOfFilters)
+    // will apply each filter in turn onto a base mame object
+    const applyMameFilters = (filterArray, mameJson) => 
+      R.reduce( (newJson, filter) => filter(newJson), mameJson, filterArray)
+// --
+
+
+    // apply the array
+    const arcadeFilterRunnable = filterArray(arcadeFilters)
+    const multiFilteredJson = applyMameFilters(arcadeFilterRunnable, mameJson)
+
     const originalVideoGamesRomdata = makeRomdata(`Mame64`)(multiFilteredJson)
     printRomdataFolder(`${romdataOutBaseDir}/originalVideoGames`, `romdata.dat`, winIconDir, `mame`)(originalVideoGamesRomdata)
 
@@ -100,9 +112,16 @@ decideWhetherToXMLAsync()
     const noSex            = sublist(`remove`, [`system`],   /\WSex\W/i)
     const noMatureArray = [ noMatureCategory, noMatureCatlist, noAdult, noSex ]
 
-    const matureFilteredJson = noMatureArray.reduce( (accum, item) => item(accum), mameJson)
+    const matureFilteredJson = applyMameFilters(noMatureArray, mameJson)
+
     const noMatureRomdata = makeRomdata(`Mame64`)(matureFilteredJson)
     printRomdataFolder(`${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`)(noMatureRomdata)
+
+    // next let's make folder split by genre
+    //  first, give me a list of all the genres
+    const genreArray = getUniqueProps(`genre`)(mameJson)
+    prepareBaseDir(`${romdataOutBaseDir}/Genre`, `mame`)
+
 
     // then filter out Driving games
     const onlyDrivingJson = sublist(`keep`, [`genre`], `Driving`)(mameJson)
