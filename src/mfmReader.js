@@ -1,6 +1,7 @@
 "use strict"
 
 const readline = require(`readline`)
+const R        = require(`ramda`)
 
 const mfmReaderAsync = mfmTextFileStream => new Promise( (resolve, reject) => {
   const gameList = []
@@ -10,5 +11,7 @@ const mfmReaderAsync = mfmTextFileStream => new Promise( (resolve, reject) => {
   rl.on('close', ()    => resolve(gameList) )
 })
 
-module.exports = mfmReaderAsync
+const mfmFilter = mfmArray => R.filter( obj => mfmArray.includes(obj.call))
+
+module.exports = { mfmReaderAsync, mfmFilter }
 
