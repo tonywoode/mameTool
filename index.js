@@ -1,6 +1,6 @@
 'use strict'
 
-const R                   = require(`ramda`)
+const R                  = require(`ramda`)
 const {readFile, createReadStream} = require(`fs`)
 const _throw             = m => { throw new Error(m) }
 
@@ -8,12 +8,16 @@ const {cleanJson}        = require(`./src/cleanJson.js`)
 const {iniToJson}        = require(`./src/fillFromIni.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
+const {mfmReaderAsync, mfmFilter} = require(`./src/mfmReader.js`)
 const {printJson, printRomdataFolder, prepareBaseDir} 
                          = require(`./src/printers.js`)
 const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
 
 const mameXMLInPath      = `./inputs/mame187.xml`
-const mameXMLStream      = createReadStream(mameXMLInPath)
+const mameXMLStream      = createReadStream(`./inputs/mame187.xml`)
+
+const mfmTextFileInPath  = `./inputs/sampleMFMfilter.txt`
+const mfmTextFileStream  = createReadStream(mfmTextFileInPath)
 
 const jsonOutPath        = `./outputs/mame.json`
 const romdataOutBaseDir  = `./outputs/mame`
@@ -48,7 +52,6 @@ const inis = [
 ]
 
 decideWhetherToXMLAsync()
-  
   .then( systems => {
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
@@ -59,16 +62,25 @@ decideWhetherToXMLAsync()
      , printJson(jsonOutPath) 
     )(filledSystems) 
   
-   return mameJson
-  })
-  
-  .then( mameJson => {
     prepareBaseDir(romdataOutBaseDir, `mame`)
 
-    // first make the initial full thing
+    // now we have a finished data file, first make the initial full romdata
     const fullRomdata = makeRomdata(`Mame64`)(mameJson)
     printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
 
+    //then process an mfm file
+    return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])
+  })
+  .then( ([mfmArray,  mameJson]) => { 
+      const mfmFilteredJson    = mfmFilter(mfmArray)(mameJson) 
+      const mfmFilteredRomdata = makeRomdata(`Mame64`)(mfmFilteredJson)
+      printRomdataFolder(
+        `${romdataOutBaseDir}/mfm`, `romdata.dat`, winIconDir, `mame`
+      )(mfmFilteredRomdata)
+      return mameJson
+  })
+
+  .then( mameJson => {
     const arcadeFilters = [
        { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
      , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
@@ -125,7 +137,7 @@ decideWhetherToXMLAsync()
       )(thisGenreRomdata)
     }, genreArray)
 
-    return fullRomdata
+    return mameJson
   })
 
   .catch(err => _throw(err) )
