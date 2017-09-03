@@ -9,18 +9,18 @@ const {iniToJson}        = require(`./src/fillFromIni.js`)
 const makeRomdata        = require(`./src/makeRomdata.js`)
 const {makeSystemsAsync} = require(`./src/readMameXml.js`)
 const {mfmReaderAsync, mfmFilter} = require(`./src/mfmReader.js`)
-const {printJson, printRomdataFolder, prepareBaseDir} 
-                         = require(`./src/printers.js`)
+const {printJson, printRomdataFolder} = require(`./src/printers.js`)
 const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
 
 const mameXMLInPath      = `./inputs/mame187.xml`
-const mameXMLStream      = createReadStream(`./inputs/mame187.xml`)
+const mameXMLStream      = createReadStream(mameXMLInPath)
 
 const mfmTextFileInPath  = `./inputs/sampleMFMfilter.txt`
 const mfmTextFileStream  = createReadStream(mfmTextFileInPath)
 
 const jsonOutPath        = `./outputs/mame.json`
-const romdataOutBaseDir  = `./outputs/mame`
+const romdataOutMameDir  = `./outputs/mame`
+const romdataOutRarchDir = `./outputs/retroarch`
 const winIconDir         = require(`./src/getDir.js`).getWinIconDir()
 
 
@@ -62,22 +62,23 @@ decideWhetherToXMLAsync()
      , printJson(jsonOutPath) 
     )(filledSystems) 
   
-    prepareBaseDir(romdataOutBaseDir, `mame`)
-
     // now we have a finished data file, first make the initial full romdata
-    const fullRomdata = makeRomdata(`Mame64`)(mameJson)
-    printRomdataFolder(`${romdataOutBaseDir}/full`, `romdata.dat`, winIconDir, `mame`)(fullRomdata)
+    const fullMameRomdata  = makeRomdata(`Mame64`)(mameJson)
+    const fullRarchRomdata = makeRomdata(`Retroarch Arcade (Mame)`)(mameJson)
+    printRomdataFolder(`${romdataOutMameDir}`,  `full`,  winIconDir, `mame`)(fullMameRomdata)
+    printRomdataFolder(`${romdataOutRarchDir}`, `full`, winIconDir, `mame`)(fullRarchRomdata)
 
     //then process an mfm file
     return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])
   })
   .then( ([mfmArray,  mameJson]) => { 
-      const mfmFilteredJson    = mfmFilter(mfmArray)(mameJson) 
-      const mfmFilteredRomdata = makeRomdata(`Mame64`)(mfmFilteredJson)
-      printRomdataFolder(
-        `${romdataOutBaseDir}/mfm`, `romdata.dat`, winIconDir, `mame`
-      )(mfmFilteredRomdata)
-      return mameJson
+    const mfmFilteredJson         = mfmFilter(mfmArray)(mameJson) 
+
+    const mfmFilteredMameRomdata  = makeRomdata(`Mame64`)(mfmFilteredJson)
+    const mfmFilteredRarchRomdata = makeRomdata(`Retroarch Arcade (Mame)`)(mfmFilteredJson)
+    printRomdataFolder(`${romdataOutMameDir}`,  `mfm`, winIconDir, `mame`)(mfmFilteredMameRomdata)
+    printRomdataFolder(`${romdataOutRarchDir}`, `mfm`, winIconDir, `mame`)(mfmFilteredRarchRomdata)
+    return mameJson
   })
 
   .then( mameJson => {
@@ -99,7 +100,7 @@ decideWhetherToXMLAsync()
 
     const originalVideoGamesRomdata = makeRomdata(`Mame64`)(multiFilteredJson)
     printRomdataFolder(
-      `${romdataOutBaseDir}/originalVideoGames`, `romdata.dat`, winIconDir, `mame`
+      `${romdataOutMameDir}`, `originalVideoGames`, winIconDir, `mame`
     )(originalVideoGamesRomdata)
 
      /* now make a naive no-mature set. Analysing the data shows we need to filter 
@@ -121,19 +122,18 @@ decideWhetherToXMLAsync()
 
     const noMatureRomdata = makeRomdata(`Mame64`)(matureFilteredJson)
     printRomdataFolder(
-      `${romdataOutBaseDir}/noMature`, `romdata.dat`, winIconDir, `mame`
+      `${romdataOutMameDir}`, `noMature`, winIconDir, `mame`
     )(noMatureRomdata)
 
     // next let's make folder split by genre
     const genreArray = getUniqueProps(`genre`)(mameJson)
-    prepareBaseDir(`${romdataOutBaseDir}/Genre`, `mame`)
     //now for each genre we need to make a folder with a romdata in it
     R.map( genre => {
       const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
       const thisGenreJson = makeFilteredJson(genreFilter, mameJson)
       const thisGenreRomdata = makeRomdata(`Mame64`)(thisGenreJson)
       printRomdataFolder(
-        `${romdataOutBaseDir}/Genre/${genre}`, `romdata.dat`, winIconDir, `mame`
+        `${romdataOutMameDir}/Genre/`, `${genre}`, winIconDir, `mame`
       )(thisGenreRomdata)
     }, genreArray)
 

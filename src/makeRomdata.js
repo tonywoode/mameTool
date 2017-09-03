@@ -2,7 +2,7 @@
 
 const  R  = require(`ramda`)
 
-const makeRomdata = mameEmu => systems => {
+const makeRomdata = mameEmu => mameJson => {
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
   const mameRomdataLine = ({name, MAMEName, parentName, path, emu, company, year, gameType, rating, language, comment, players}) => ( 
@@ -16,7 +16,7 @@ const makeRomdata = mameEmu => systems => {
  *  18) # players, 19) defaultGoodMerge (The user selected default GoodMerge ROM). (there should ALWAYS be an extra ¬ at the end of the string) */
 
  //sets the variables for a line of romdata entry for later injection into a romdata printer
-  const applyRomdata = systems  => R.map( obj => {
+  const applyRomdata = mameJson  => R.map( obj => {
 
     const romParams = {
         name        : obj.system.replace(/[^\x00-\x7F]/g, ``) //in case of japanese
@@ -34,9 +34,9 @@ const makeRomdata = mameEmu => systems => {
     }
 
     return mameRomdataLine(romParams)
-  }, systems)
+  }, mameJson)
 
-  const mameRomdata = applyRomdata(systems,  `mame`)
+  const mameRomdata = applyRomdata(mameJson,  `mame`)
   const mameRomdataToPrint = R.prepend(romdataHeader, mameRomdata) 
 
   return mameRomdataToPrint
