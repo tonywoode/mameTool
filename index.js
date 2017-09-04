@@ -1,26 +1,26 @@
 'use strict'
 
-const R                  = require(`ramda`)
-const {readFile, createReadStream} = require(`fs`)
-const _throw             = m => { throw new Error(m) }
+const R                                  = require(`ramda`)
+const {readFile, createReadStream}       = require(`fs`)
+const _throw                             = m => { throw new Error(m) }
 
-const {cleanJson}        = require(`./src/cleanJson.js`)
-const {iniToJson}        = require(`./src/fillFromIni.js`)
-const {makeSystemsAsync} = require(`./src/readMameXml.js`)
-const {mfmReaderAsync, mfmFilter} = require(`./src/mfmReader.js`)
-const {printJson, generateRomdata} = require(`./src/printers.js`)
+const {cleanJson}                        = require(`./src/cleanJson.js`)
+const {iniToJson}                        = require(`./src/fillFromIni.js`)
+const {makeSystemsAsync}                 = require(`./src/readMameXml.js`)
+const {mfmReaderAsync, mfmFilter}        = require(`./src/mfmReader.js`)
+const {printJson, generateRomdata}       = require(`./src/printers.js`)
 const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
 
-const mameXMLInPath      = `./inputs/mame187.xml`
-const mameXMLStream      = createReadStream(mameXMLInPath)
+const mameXMLInPath                      = `./inputs/mame187.xml`
+const mameXMLStream                      = createReadStream(mameXMLInPath)
 
-const mfmTextFileInPath  = `./inputs/sampleMFMfilter.txt`
-const mfmTextFileStream  = createReadStream(mfmTextFileInPath)
+const mfmTextFileInPath                  = `./inputs/sampleMFMfilter.txt`
+const mfmTextFileStream                  = createReadStream(mfmTextFileInPath)
 
-const jsonOutPath        = `./outputs/mame.json`
-const romdataOutMameDir  = `./outputs/mame`
-const romdataOutRarchDir = `./outputs/retroarch`
-const winIconDir         = require(`./src/getDir.js`).getWinIconDir()
+const outputDir                          = require(`./src/getDir.js`).getOutputDir()
+const jsonOutPath                        = `${outputDir}mame.json`
+const winIconDir                         = require(`./src/getDir.js`).getWinIconDir()
+const {Mame, RetroArch}                  = require(`./src/types.js`)
 
 
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
@@ -62,13 +62,8 @@ decideWhetherToXMLAsync()
     )(filledSystems) 
   
     // now we have a finished data file, first make the initial full romdata
-    generateRomdata(
-      `mame64`, `${romdataOutMameDir}`,  `full`,  winIconDir, `mame`
-    )(mameJson)
-    generateRomdata(
-      `Retroarch Arcade (Mame)`, `${romdataOutRarchDir}`, `full`, winIconDir, `RetroArch`
-    )(mameJson)
-
+    generateRomdata(Mame,      `full`, winIconDir)(mameJson)
+    generateRomdata(RetroArch, `full`, winIconDir)(mameJson)
 
     //then process an mfm file
     return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])
@@ -76,12 +71,8 @@ decideWhetherToXMLAsync()
   .then( ([mfmArray,  mameJson]) => { 
     const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
 
-    generateRomdata(
-      `Mame64`, `${romdataOutMameDir}`,  `mfm`, winIconDir, `mame`
-    )(mfmFilteredJson)
-    generateRomdata(
-      `Retroarch Arcade (Mame)`, `${romdataOutRarchDir}`, `mfm`, winIconDir, `RetroArch`
-    )(mfmFilteredJson)
+    generateRomdata(Mame,      `mfm`, winIconDir)(mfmFilteredJson)
+    generateRomdata(RetroArch, `mfm`, winIconDir)(mfmFilteredJson)
 
     return mameJson
   })
@@ -104,12 +95,8 @@ decideWhetherToXMLAsync()
     
     const multiFilteredJson = makeFilteredJson(arcadeFilters, mameJson)
 
-    generateRomdata(
-      `Mame64`, `${romdataOutMameDir}`, `originalVideoGames`, winIconDir, `mame`
-    )(multiFilteredJson)
-    generateRomdata(
-      `Retroarch Arcade (Mame)`, `${romdataOutRarchDir}`, `originalVideoGames`, winIconDir, `RetroArch`
-    )(multiFilteredJson)
+    generateRomdata(Mame,      `originalVideoGames`, winIconDir)(multiFilteredJson)
+    generateRomdata(RetroArch, `originalVideoGames`, winIconDir)(multiFilteredJson)
 
      /* now make a naive no-mature set. Analysing the data shows we need to filter 
      *  BOTH by regex of Mature in catlist AND category. There's no point filtering
@@ -128,12 +115,8 @@ decideWhetherToXMLAsync()
 
     const matureFilteredJson = makeFilteredJson(noMatureFilters, mameJson)
 
-    generateRomdata(
-      `Mame64`, `${romdataOutMameDir}`, `noMature`, winIconDir, `mame`
-    )(matureFilteredJson)
-    generateRomdata(
-      `Retroarch Arcade (Mame)`, `${romdataOutRarchDir}`, `noMature`, winIconDir, `RetroArch`
-    )(matureFilteredJson)
+    generateRomdata(Mame,      `noMature`, winIconDir)(matureFilteredJson)
+    generateRomdata(RetroArch, `noMature`, winIconDir)(matureFilteredJson)
 
     // next let's make folder split by genre
     const genreArray = getUniqueProps(`genre`)(mameJson)
@@ -142,12 +125,8 @@ decideWhetherToXMLAsync()
       const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
       const thisGenreJson = makeFilteredJson(genreFilter, mameJson)
 
-      generateRomdata(
-        `Mame64`, `${romdataOutMameDir}/Genre/`, `${genre}`, winIconDir, `mame`
-      )(thisGenreJson)
-      generateRomdata(
-        `Retroarch Arcade (Mame)`, `${romdataOutRarchDir}/Genre/`, `${genre}`, winIconDir, `RetroArch`
-      )(thisGenreJson)
+      generateRomdata(Mame,      `/Genre/${genre}`, winIconDir)(thisGenreJson)
+      generateRomdata(RetroArch, `/Genre/${genre}`, winIconDir)(thisGenreJson)
     
     }, genreArray)
 

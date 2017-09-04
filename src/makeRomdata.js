@@ -4,7 +4,7 @@ const  R  = require(`ramda`)
 
 const makeRomdata = mameEmu => mameJson => {
   const romdataHeader = `ROM DataFile Version : 1.1`
-  const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
+  const path = `./qp.exe` //we don't need a path for mame roms, they don't use it, we just need to point to a valid file
   const mameRomdataLine = ({name, MAMEName, parentName, path, emu, company, year, gameType, rating, language, comment, players}) => ( 
       `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${emu}`
     + `¬${company}¬${year}¬${gameType}¬${rating}¬${language}¬¬${comment}¬0¬1¬<IPS>¬</IPS>¬${players}¬¬`

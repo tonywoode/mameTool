@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "daggy": "^1.2.0",
     "ini": "^1.3.4",
     "mkdirp": "^0.5.1",
     "ramda": "^0.24.1",
