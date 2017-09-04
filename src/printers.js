@@ -2,6 +2,7 @@
 
 const mkdirp = require(`mkdirp`)
 const {writeFileSync, existsSync} = require('fs')
+const makeRomdata = require(`./makeRomdata.js`)
 
 exports.printJson = jsonOutPath => systems => {
   writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`)) 
@@ -52,9 +53,14 @@ CmbIcon=${iconName}.ico
 //  remember the top level also needs a basic icon, give it the child's icon
 //  TODO: check that baseDir exists....
 //  TODO: convert params to object, clearer at callsite
-exports.printRomdataFolder = ( baseDir, romdataOutDir, mameExtrasDir, iconName ) => romdata => {
+const printRomdataFolder = (baseDir, romdataOutDir, mameExtrasDir, iconName) => romdata => {
   mkdirp.sync(`${baseDir}/${romdataOutDir}`)
   existsSync(`${baseDir}/folders.ini`) || printIconFile(baseDir, ``, iconName)
   printIconFile(`${baseDir}/${romdataOutDir}`, mameExtrasDir, iconName)
   return printRomdata(`${baseDir}/${romdataOutDir}`, `romdata.dat`)(romdata)
+}
+
+exports.generateRomdata = (mameEmu, baseDir, romdataOutDir, mameExtrasDir, iconName) => mameJson => {
+    const mameRomdata  = makeRomdata(mameEmu)(mameJson)
+    return printRomdataFolder(baseDir, romdataOutDir, mameExtrasDir, iconName)(mameRomdata)
 }
