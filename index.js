@@ -124,9 +124,10 @@ decideWhetherToXMLAsync()
     R.map( genre => {
       const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
       const thisGenreJson = makeFilteredJson(genreFilter, mameJson)
-
-      generateRomdata(Mame,      `/Genre/${genre}`, winIconDir)(thisGenreJson)
-      generateRomdata(RetroArch, `/Genre/${genre}`, winIconDir)(thisGenreJson)
+      //make a folder per genre (but windows interprets the . in Misc. oddly) 
+      const thisFolderName = `/Genre/${genre.replace(`.`, ``)}`
+      generateRomdata(Mame,      thisFolderName, winIconDir)(thisGenreJson)
+      generateRomdata(RetroArch, thisFolderName, winIconDir)(thisGenreJson)
     
     }, genreArray)
 
