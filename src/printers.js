@@ -1,7 +1,7 @@
-"use strict"
+'use strict'
 
 const mkdirp                      = require(`mkdirp`)
-const {writeFileSync, existsSync} = require('fs')
+const {writeFileSync, existsSync} = require(`fs`)
 
 const makeRomdata                 = require(`./makeRomdata.js`)
 
