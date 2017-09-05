@@ -57,6 +57,9 @@ CmbIcon=${iconName}.ico
 const printRomdataFolder = (baseDir, romdataOutDir, mameExtrasDir, iconName) => romdata => {
   mkdirp.sync(`${baseDir}/${romdataOutDir}`)
   existsSync(`${baseDir}/folders.ini`) || printIconFile(baseDir, ``, iconName)
+  //when making a collection folder like 'genre', we might miss a level of ico printing
+  const collectionFolder = `${baseDir}/${romdataOutDir}/..`
+  existsSync(`${collectionFolder}/folders.ini`) || printIconFile(collectionFolder, ``, iconName)
   printIconFile(`${baseDir}/${romdataOutDir}`, mameExtrasDir, iconName)
   return printRomdata(`${baseDir}/${romdataOutDir}`, `romdata.dat`)(romdata)
 }
