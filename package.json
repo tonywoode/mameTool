@@ -7,6 +7,9 @@
     "getSpecs": "find specs -name '*spec.js'"
   },
   "scripts": {
+    "debug": "node --inspect-brk index.js",
+    "full": "rm -rf ./outputs && node index.js",
+    "fulldebug": "rm -r ./outputs && node --inspect-brk index.js",
     "start": "node index.js",
     "test": "mocha --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
   },

@@ -18,14 +18,14 @@ const mfmTextFileInPath                  = `./inputs/sampleMFMfilter.txt`
 const mfmTextFileStream                  = createReadStream(mfmTextFileInPath)
 
 const outputDir                          = require(`./src/getDir.js`).getOutputDir()
-const jsonOutPath                        = `${outputDir}mame.json`
+const jsonOutName                        = `mame.json`
 const winIconDir                         = require(`./src/getDir.js`).getWinIconDir()
 const {Mame, RetroArch}                  = require(`./src/types.js`)
 
 
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
-  readFile(jsonOutPath, (err, data) =>
+  readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
     err? resolve(makeSystemsAsync(mameXMLStream) ) : resolve(JSON.parse(data) )  
   )
 )
@@ -58,7 +58,7 @@ decideWhetherToXMLAsync()
     // post-process the data-complete json, printing it becomes a gatepost
     const mameJson = R.pipe(
        cleanJson
-     , printJson(jsonOutPath) 
+     , printJson(outputDir, jsonOutName) 
     )(filledSystems) 
   
     // now we have a finished data file, first make the initial full romdata

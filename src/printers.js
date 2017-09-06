@@ -2,10 +2,13 @@
 
 const mkdirp                      = require(`mkdirp`)
 const {writeFileSync, existsSync} = require(`fs`)
+const _throw                      = m => { throw new Error(m) }
 
 const makeRomdata                 = require(`./makeRomdata.js`)
 
-exports.printJson = jsonOutPath => systems => {
+exports.printJson = (outputDir, jsonOutName) => systems => {
+  const jsonOutPath = `${outputDir}/${jsonOutName}`
+  existsSync(outputDir) || mkdirp(outputDir) && _throw(`Can't write Json to ${jsonOutPath}`)
   writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`)) 
   return systems
 }
