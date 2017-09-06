@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "config": {
+    "outputDir": "./outputs",
     "getSpecs": "find specs -name '*spec.js'"
   },
   "scripts": {
     "debug": "node --inspect-brk index.js",
-    "full": "rm -rf ./outputs && node index.js",
-    "fulldebug": "rm -r ./outputs && node --inspect-brk index.js",
+    "full": "rimraf $npm_package_config_outputDir && node index.js",
+    "fulldebug": "rimraf $npm_package_config_outputDir && node --inspect-brk index.js",
     "start": "node index.js",
     "test": "mocha --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
   },
@@ -28,6 +29,7 @@
     "into-stream": "^3.1.0",
     "mocha": "^3.4.2",
     "rewire": "^2.5.2",
+    "rimraf": "^2.6.1",
     "sinon": "^2.4.1"
   }
 }
