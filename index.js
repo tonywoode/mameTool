@@ -80,17 +80,21 @@ decideWhetherToXMLAsync()
   .then( mameJson => {
     //then my best approximation of what the average arcade gamer wants in a filter
     const arcadeFilters = [
-       { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
-     , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
-     , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
-     , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
-     , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
+       { name: `noBios`,          type: `remove`, path: [`isbios`] }
      , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
      , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
+     , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
+     , { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
+     , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
      , { name: `noMess`,          type: `remove`, path: [`mess`] }
-     , { name: `noBios`,          type: `remove`, path: [`isbios`] }
+     , { name: `nonPrintClub`,    type: `remove`, path: [`genre`],    value: `Print Club` } //turns out you can't trust the ini bool
+     , { name: `noSimulator`,     type: `remove`, path: [`genre`],    value: `Simulator` } //a couple of laserDisc players!
+     , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
+     , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
      , { name: `noQuiz`,          type: `remove`, path: [`genre`],    value: `Quiz` }
-    ] //probably also "Utilities / Update" genre and "Print Club" genre, and others...
+     , { name: `noCQuizCatList`,  type: `remove`, path: [`catlist`],  value: /Quiz/ } //turns out you can't trust genre
+     , { name: `noUtilities`,     type: `remove`, path: [`genre`],    value: `Utilities` }
+    ] 
 
     
     const multiFilteredJson = makeFilteredJson(arcadeFilters, mameJson)
