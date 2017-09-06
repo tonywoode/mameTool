@@ -34,20 +34,20 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 //   there are three types of ini file (see iniReader.js)
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
 const inis = [
-    { iniName: `arcade`,        iniType: `bare`}
-  , { iniName: `arcade_NOBIOS`, iniType: `bare`}
-  , { iniName: `bestgames`,     iniType: `section`}
-  , { iniName: `category`,      iniType: `section`}
-  , { iniName: `catlist`,       iniType: `section`}
-  , { iniName: `genre`,         iniType: `section`}
-  , { iniName: `languages`,     iniType: `section`}
-  , { iniName: `mamescore`,     iniType: `kv`,     sectionName: `MAMESCORE`}
-  , { iniName: `mess`,          iniType: `bare`}
-  , { iniName: `monochrome`,    iniType: `section`}
-  , { iniName: `nplayers`,      iniType: `kv`,     sectionName: `NPlayers`}
-  , { iniName: `screenless`,    iniType: `bare`}
-  , { iniName: `series`,        iniType: `section`}
-  , { iniName: `version`,       iniType: `section`}
+    {iniName: `arcade`,        iniType: `bare`}
+  , {iniName: `arcade_NOBIOS`, iniType: `bare`}
+  , {iniName: `bestgames`,     iniType: `section`}
+  , {iniName: `category`,      iniType: `section`}
+  , {iniName: `catlist`,       iniType: `section`}
+  , {iniName: `genre`,         iniType: `section`}
+  , {iniName: `languages`,     iniType: `section`}
+  , {iniName: `mamescore`,     iniType: `kv`,     sectionName: `MAMESCORE`}
+  , {iniName: `mess`,          iniType: `bare`}
+  , {iniName: `monochrome`,    iniType: `section`}
+  , {iniName: `nplayers`,      iniType: `kv`,     sectionName: `NPlayers`}
+  , {iniName: `screenless`,    iniType: `bare`}
+  , {iniName: `series`,        iniType: `section`}
+  , {iniName: `version`,       iniType: `section`}
 ]
 
 decideWhetherToXMLAsync()
@@ -58,13 +58,12 @@ decideWhetherToXMLAsync()
       iniToJson(ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
     // post-process the data-complete json, printing it becomes a gatepost
     const mameJson = R.pipe(
-       cleanJson
-     , printJson(outputDir, jsonOutName) 
+      cleanJson , printJson(outputDir, jsonOutName)
     )(filledSystems) 
   
     // now we have a finished data file, first make the initial full romdata
-    generateRomdata(Mame,      `full`, winIconDir)(mameJson)
-    generateRomdata(RetroArch, `full`, winIconDir)(mameJson)
+    generateRomdata(Mame,      `full/allGames`, winIconDir)(mameJson)
+    generateRomdata(RetroArch, `full/allGames`, winIconDir)(mameJson)
     
     /* now make a naive no-mature set. Analysing the data shows we need to filter 
      *  BOTH by regex of Mature in catlist AND category. There's no point filtering
@@ -83,28 +82,46 @@ decideWhetherToXMLAsync()
 
     const matureFilteredJson = makeFilteredJson(noMatureFilters, mameJson)
 
-    generateRomdata(Mame,      `noMature`, winIconDir)(matureFilteredJson)
-    generateRomdata(RetroArch, `noMature`, winIconDir)(matureFilteredJson)
+    generateRomdata(Mame,      `noMature/allGames`, winIconDir)(matureFilteredJson)
+    generateRomdata(RetroArch, `noMature/allGames`, winIconDir)(matureFilteredJson)
 
     // then we'll write more filters and pass them to the emulator and adult variations
-    
-    // make a deCloned version of those full jsons
-    const deClonediFilter = [ { name: `deCloned`, type: `remove`, path: [`cloneof`] } ]
-    
-    const deClonedFullJson      = makeFilteredJson(deClonediFilter, mameJson)
-    const deClonedNoMatureJson   = makeFilteredJson(deClonediFilter, matureFilteredJson)
+    // but another main thing to filter on is whether we want our lists to include games whose emulation
+    // is marked 'preliminary'
+    const noPreliminaryFilter = [ { name: `noPreliminary`, type: `remove`, path: [`status`], value: `preliminary` } ]
 
-    generateRomdata(Mame,      `full/deCloned`, winIconDir)(deClonedFullJson)
-    generateRomdata(RetroArch, `full/deCloned`, winIconDir)(deClonedFullJson)
-    generateRomdata(Mame,      `noMature/deCloned`, winIconDir)(deClonedNoMatureJson)
-    generateRomdata(RetroArch, `noMature/deCloned`, winIconDir)(deClonedNoMatureJson)
+    const noPreliminaryFullJson     = makeFilteredJson(noPreliminaryFilter, mameJson)
+    const noPreliminaryNoMatureJson = makeFilteredJson(noPreliminaryFilter, matureFilteredJson)
+    
+    generateRomdata(Mame,      `full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
+    generateRomdata(RetroArch, `full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
+    generateRomdata(Mame,      `noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
+    generateRomdata(RetroArch, `noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
 
+    // make a noClones version of those full jsons
+    const noClonesFilter = [ { name: `noClones`, type: `remove`, path: [`cloneof`] } ]
+    
+    const noClonesFullJson            = makeFilteredJson(noClonesFilter, mameJson)
+    const noClonesNoMatureJson        = makeFilteredJson(noClonesFilter, matureFilteredJson)
+    const noClonesFullWorkingJson     = makeFilteredJson(noClonesFilter, noPreliminaryFullJson)
+    const noClonesNoMatureWorkingJson = makeFilteredJson(noClonesFilter, noPreliminaryNoMatureJson)
+
+    generateRomdata(Mame,      `full/allGames/noClones`,        winIconDir)(noClonesFullJson)
+    generateRomdata(RetroArch, `full/allGames/noClones`,        winIconDir)(noClonesFullJson)
+    generateRomdata(Mame,      `noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
+    generateRomdata(RetroArch, `noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
+
+    generateRomdata(Mame,      `full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
+    generateRomdata(RetroArch, `full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
+    generateRomdata(Mame,      `noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
+    generateRomdata(RetroArch, `noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
+    
     // next, here's my best approximation of what the average arcade gamer wants in a filter
     const arcadeFilters = [
        { name: `noBios`,          type: `remove`, path: [`isbios`] }
      , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
      , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
-     , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
+     , { name: `noClones`,        type: `remove`, path: [`cloneof`] }
      , { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
      , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
      , { name: `noMess`,          type: `remove`, path: [`mess`] }
@@ -118,15 +135,20 @@ decideWhetherToXMLAsync()
     ] 
 
     
-    const arcadeFullJson     = makeFilteredJson(arcadeFilters, mameJson)
-    const arcadeNoMatureJson = makeFilteredJson(arcadeFilters, matureFilteredJson)
+    const arcadeFullJson            = makeFilteredJson(arcadeFilters, mameJson)
+    const arcadeNoMatureJson        = makeFilteredJson(arcadeFilters, matureFilteredJson)
+    const arcadeFullWorkingJson     = makeFilteredJson(arcadeFilters, noPreliminaryFullJson)
+    const arcadeNoMatureWorkingJson = makeFilteredJson(arcadeFilters, noPreliminaryNoMatureJson)
 
-    generateRomdata(Mame,      `full/originalVideoGames`, winIconDir)(arcadeFullJson)
-    generateRomdata(RetroArch, `full/originalVideoGames`, winIconDir)(arcadeFullJson)
-    generateRomdata(Mame,      `noMature/originalVideoGames`, winIconDir)(arcadeNoMatureJson)
-    generateRomdata(RetroArch, `noMature/originalVideoGames`, winIconDir)(arcadeNoMatureJson)
+    generateRomdata(Mame,      `full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
+    generateRomdata(RetroArch, `full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
+    generateRomdata(Mame,      `noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
+    generateRomdata(RetroArch, `noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
 
-
+    generateRomdata(Mame,      `full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
+    generateRomdata(RetroArch, `full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
+    generateRomdata(Mame,      `noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
+    generateRomdata(RetroArch, `noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
 
     // next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
     const genreSplit = (mameSetType, emuType, json) => {
@@ -144,12 +166,17 @@ decideWhetherToXMLAsync()
       return json
     }
    
-    genreSplit(`full`, Mame, mameJson)
-    genreSplit(`noMature`, Mame, matureFilteredJson)
-    genreSplit(`full`, RetroArch, mameJson)
-    genreSplit(`noMature`, RetroArch, matureFilteredJson)
+    genreSplit(`full/allGames`, Mame, mameJson)
+    genreSplit(`noMature/allGames`, Mame, matureFilteredJson)
+    genreSplit(`full/allGames`, RetroArch, mameJson)
+    genreSplit(`noMature/allGames`, RetroArch, matureFilteredJson)
 
-   //then process an mfm file
+    genreSplit(`full/workingOnly`, Mame, noPreliminaryFullJson)
+    genreSplit(`noMature/workingOnly`, Mame, noPreliminaryNoMatureJson)
+    genreSplit(`full/workingOnly`, RetroArch, noPreliminaryFullJson)
+    genreSplit(`noMature/workingOnly`, RetroArch, noPreliminaryNoMatureJson)   
+    
+    //then process an mfm file
     return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])
   })
 

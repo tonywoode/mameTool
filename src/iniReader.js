@@ -21,7 +21,7 @@ const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 // this will load an ini file using the ini reader...
 const loadGenericIni = iniName => {
   try { return parseIni(fs.readFileSync(`${iniDir}/${iniName}.ini`, `utf-8`) ) }
-  catch(err) { console.error(`PROBLEM: iniReader: "${iniName}" doesn't exist at "${iniDir}"`); return {}  }
+  catch(err) { console.error(`PROBLEM: iniReader: "${iniName}" can't be read at "${iniDir}"`); return {}  }
 }
 
 // BUT, either that ini will have an annoying section header preventing it from being generic....
