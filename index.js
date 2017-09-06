@@ -51,6 +51,7 @@ const inis = [
 ]
 
 decideWhetherToXMLAsync()
+
   .then( systems => {
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
@@ -64,45 +65,8 @@ decideWhetherToXMLAsync()
     // now we have a finished data file, first make the initial full romdata
     generateRomdata(Mame,      `full`, winIconDir)(mameJson)
     generateRomdata(RetroArch, `full`, winIconDir)(mameJson)
-
-    //then process an mfm file
-    return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])
-  })
-  .then( ([mfmArray,  mameJson]) => { 
-    const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
-
-    generateRomdata(Mame,      `mfm`, winIconDir)(mfmFilteredJson)
-    generateRomdata(RetroArch, `mfm`, winIconDir)(mfmFilteredJson)
-
-    return mameJson
-  })
-
-  .then( mameJson => {
-    //then my best approximation of what the average arcade gamer wants in a filter
-    const arcadeFilters = [
-       { name: `noBios`,          type: `remove`, path: [`isbios`] }
-     , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
-     , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
-     , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
-     , { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
-     , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
-     , { name: `noMess`,          type: `remove`, path: [`mess`] }
-     , { name: `nonPrintClub`,    type: `remove`, path: [`genre`],    value: `Print Club` } //turns out you can't trust the ini bool
-     , { name: `noSimulator`,     type: `remove`, path: [`genre`],    value: `Simulator` } //a couple of laserDisc players!
-     , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
-     , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
-     , { name: `noQuiz`,          type: `remove`, path: [`genre`],    value: `Quiz` }
-     , { name: `noCQuizCatList`,  type: `remove`, path: [`catlist`],  value: /Quiz/ } //turns out you can't trust genre
-     , { name: `noUtilities`,     type: `remove`, path: [`genre`],    value: `Utilities` }
-    ] 
-
     
-    const multiFilteredJson = makeFilteredJson(arcadeFilters, mameJson)
-
-    generateRomdata(Mame,      `originalVideoGames`, winIconDir)(multiFilteredJson)
-    generateRomdata(RetroArch, `originalVideoGames`, winIconDir)(multiFilteredJson)
-
-     /* now make a naive no-mature set. Analysing the data shows we need to filter 
+    /* now make a naive no-mature set. Analysing the data shows we need to filter 
      *  BOTH by regex of Mature in catlist AND category. There's no point filtering
      *  by the genre "Mature" (its a tiny subset of those two), but we also need 
      *  to look for !word-separated "Adult" and "Sex" in game title
@@ -122,18 +86,79 @@ decideWhetherToXMLAsync()
     generateRomdata(Mame,      `noMature`, winIconDir)(matureFilteredJson)
     generateRomdata(RetroArch, `noMature`, winIconDir)(matureFilteredJson)
 
-    // next let's make folder split by genre
-    const genreArray = getUniqueProps(`genre`)(mameJson)
-    //now for each genre we need to make a folder with a romdata in it
-    R.map( genre => {
-      const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
-      const thisGenreJson = makeFilteredJson(genreFilter, mameJson)
-      //make a folder per genre (but windows interprets the . in Misc. oddly) 
-      const thisFolderName = `/Genre/${genre.replace(`.`, ``)}`
-      generateRomdata(Mame,      thisFolderName, winIconDir)(thisGenreJson)
-      generateRomdata(RetroArch, thisFolderName, winIconDir)(thisGenreJson)
+    // then we'll write more filters and pass them to the emulator and adult variations
     
-    }, genreArray)
+    // make a deCloned version of those full jsons
+    const deClonediFilter = [ { name: `deCloned`, type: `remove`, path: [`cloneof`] } ]
+    
+    const deClonedFullJson      = makeFilteredJson(deClonediFilter, mameJson)
+    const deClonedNoMatureJson   = makeFilteredJson(deClonediFilter, matureFilteredJson)
+
+    generateRomdata(Mame,      `full/deCloned`, winIconDir)(deClonedFullJson)
+    generateRomdata(RetroArch, `full/deCloned`, winIconDir)(deClonedFullJson)
+    generateRomdata(Mame,      `noMature/deCloned`, winIconDir)(deClonedNoMatureJson)
+    generateRomdata(RetroArch, `noMature/deCloned`, winIconDir)(deClonedNoMatureJson)
+
+    // next, here's my best approximation of what the average arcade gamer wants in a filter
+    const arcadeFilters = [
+       { name: `noBios`,          type: `remove`, path: [`isbios`] }
+     , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
+     , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
+     , { name: `deCloned`,        type: `remove`, path: [`cloneof`] }
+     , { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
+     , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
+     , { name: `noMess`,          type: `remove`, path: [`mess`] }
+     , { name: `nonPrintClub`,    type: `remove`, path: [`genre`],    value: `Print Club` } //turns out you can't trust the ini bool
+     , { name: `noSimulator`,     type: `remove`, path: [`genre`],    value: `Simulator` } //a couple of laserDisc players!
+     , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
+     , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
+     , { name: `noQuiz`,          type: `remove`, path: [`genre`],    value: `Quiz` }
+     , { name: `noCQuizCatList`,  type: `remove`, path: [`catlist`],  value: /Quiz/ } //turns out you can't trust genre
+     , { name: `noUtilities`,     type: `remove`, path: [`genre`],    value: `Utilities` }
+    ] 
+
+    
+    const arcadeFullJson     = makeFilteredJson(arcadeFilters, mameJson)
+    const arcadeNoMatureJson = makeFilteredJson(arcadeFilters, matureFilteredJson)
+
+    generateRomdata(Mame,      `full/originalVideoGames`, winIconDir)(arcadeFullJson)
+    generateRomdata(RetroArch, `full/originalVideoGames`, winIconDir)(arcadeFullJson)
+    generateRomdata(Mame,      `noMature/originalVideoGames`, winIconDir)(arcadeNoMatureJson)
+    generateRomdata(RetroArch, `noMature/originalVideoGames`, winIconDir)(arcadeNoMatureJson)
+
+
+
+    // next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
+    const genreSplit = (mameSetType, emuType, json) => {
+      const genreArray = getUniqueProps(`genre`)(json)
+      //now for each genre we need to make a folder with a romdata in it
+      R.map( genre => {
+        const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
+        const thisGenreJson = makeFilteredJson(genreFilter, json)
+        //make a folder per genre (but windows interprets the . in Misc. oddly) 
+        const thisFolderName = `${mameSetType}/Genre/${genre.replace(`.`, ``)}`
+        generateRomdata(emuType,      thisFolderName, winIconDir)(thisGenreJson)
+      
+      }, genreArray)
+  
+      return json
+    }
+   
+    genreSplit(`full`, Mame, mameJson)
+    genreSplit(`noMature`, Mame, matureFilteredJson)
+    genreSplit(`full`, RetroArch, mameJson)
+    genreSplit(`noMature`, RetroArch, matureFilteredJson)
+
+   //then process an mfm file
+    return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])
+  })
+
+  .then( ([mfmArray,  mameJson]) => { 
+    const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
+
+    generateRomdata(Mame,      `mfm`, winIconDir)(mfmFilteredJson)
+    generateRomdata(RetroArch, `mfm`, winIconDir)(mfmFilteredJson)
+
 
     return mameJson
   })
