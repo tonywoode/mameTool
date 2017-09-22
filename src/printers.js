@@ -69,5 +69,6 @@ const printRomdataFolder = (baseDir, romdataOutDir, mameExtrasDir, iconName) => 
 
 exports.generateRomdata = (Emu, romdataOutDir, mameExtrasDir) => mameJson => {
     const mameRomdata  = makeRomdata(Emu.EmuName)(mameJson)
-    return printRomdataFolder(Emu.RomdataOutParDir, romdataOutDir, mameExtrasDir, Emu.Icon)(mameRomdata)
+    printRomdataFolder(Emu.RomdataOutParDir, romdataOutDir, mameExtrasDir, Emu.Icon)(mameRomdata)
+    return mameJson
 }

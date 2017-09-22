@@ -223,7 +223,7 @@ describe(`FilterMameJson`, () => {
       const filterArr = [ 
         { name: `test`, type: `remove`, path: [`genre`], value: `Game Console` }
       ]
-      const removeGamesConsole = (makeFilteredJson(filterArr, mockSystems) )
+      const removeGamesConsole = (makeFilteredJson(filterArr)(mockSystems) )
       expect(removeGamesConsole).to.have.lengthOf(1)
       expect(removeGamesConsole[0][`genre`]).to.equal(`Maze`)
     })
@@ -232,7 +232,7 @@ describe(`FilterMameJson`, () => {
       const filterArr = [ 
         { name: `test`, type: `keep`, path: [`mess`] }
       ]
-      const keepMess = (makeFilteredJson(filterArr, mockSystems) )
+      const keepMess = (makeFilteredJson(filterArr)(mockSystems) )
       expect(keepMess).to.have.lengthOf(1)
       expect(keepMess[0][`mess`]).to.be.true
     })
