@@ -1,15 +1,15 @@
 'use strict'
 
-const R                                  = require(`ramda`)
-const {readFile, createReadStream}       = require(`fs`)
-const _throw                             = m => { throw new Error(m) }
+const R                            = require(`ramda`)
+const {readFile, createReadStream} = require(`fs`)
+const _throw                       = m => { throw new Error(m) }
 
-const {cleanJson}                        = require(`./src/cleanJson.js`)
-const {iniToJson}                        = require(`./src/fillFromIni.js`)
-const {makeSystemsAsync}                 = require(`./src/readMameXml.js`)
-const {mfmReaderAsync, mfmFilter}        = require(`./src/mfmReader.js`)
-const {printJson, generateRomdata}       = require(`./src/printers.js`)
-const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
+const {cleanJson}                  = require(`./src/cleanJson.js`)
+const {iniToJson}                  = require(`./src/fillFromIni.js`)
+const {makeSystemsAsync}           = require(`./src/readMameXml.js`)
+const {mfmReaderAsync, mfmFilter}  = require(`./src/mfmReader.js`)
+const {printJson, generateRomdata} = require(`./src/printers.js`)
+const {getUniqueProps, makeFilteredJson}   = require(`./src/filterMameJson.js`)
 
 const strategy = process.argv.length > 2? require(`./src/livePaths`) : require(`./src/devPaths.js`)
 
@@ -24,11 +24,6 @@ const winIconDir         = strategy.winIconDir
 const Mame               = strategy.Mame 
 const RetroArch          = strategy.RetroArch
 
-//so these are the same now
-console.log(strategy.outputDir)
-console.log(outputDir)
-process.exit()
-
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
@@ -39,80 +34,25 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 // these are the available inis, specifying their type (and their internal name if necessary)
 //   there are three types of ini file (see iniReader.js)
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
-const inis = [
-    {iniName: `arcade`,        iniType: `bare`}
-  , {iniName: `arcade_NOBIOS`, iniType: `bare`}
-  , {iniName: `bestgames`,     iniType: `section`}
-  , {iniName: `category`,      iniType: `section`}
-  , {iniName: `catlist`,       iniType: `section`}
-  , {iniName: `genre`,         iniType: `section`}
-  , {iniName: `languages`,     iniType: `section`}
-  , {iniName: `mamescore`,     iniType: `kv`,     sectionName: `MAMESCORE`}
-  , {iniName: `mess`,          iniType: `bare`}
-  , {iniName: `monochrome`,    iniType: `section`}
-  , {iniName: `nplayers`,      iniType: `kv`,     sectionName: `NPlayers`}
-  , {iniName: `screenless`,    iniType: `bare`}
-  , {iniName: `series`,        iniType: `section`}
-  , {iniName: `version`,       iniType: `section`}
-]
+const inis = require(`./src/inis.json`) 
 
-    /* now make a naive no-mature set. Analysing the data shows we need to filter 
-     *  BOTH by regex of Mature in catlist AND category. There's no point filtering
-     *  by the genre "Mature" (its a tiny subset of those two), but we also need 
-     *  to look for !word-separated "Adult" and "Sex" in game title
-     *  There is a mature.ini available here: http://www.progettosnaps.net/catver/
-     *  but in my experience, it doesn't filter out all of this...
-     */
+const {noMatureFilters, arcadeFilters, noPreliminaryFilter, noClonesFilter} = require(`./src/filters.js`) 
 
-    const noMatureFilters = [
-       { name: `noMatureCategory`, type: `remove`, path: [`category`], value: /Mature/ }
-     , { name: `noMatureCatlist`,  type: `remove`, path: [`catlist`],  value: /Mature/ }
-     , { name: `noAdult`,          type: `remove`, path: [`system`],   value: /\WAdult\W/i }
-     , { name: `noSex`,            type: `remove`, path: [`system`],   value: /\WSex\W/i }
-    ]
-
-    // next, here's my best approximation of what the average arcade gamer wants in a filter
-    const arcadeFilters = [
-       { name: `noBios`,          type: `remove`, path: [`isbios`] }
-     , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
-     , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
-     , { name: `noClones`,        type: `remove`, path: [`cloneof`] }
-     , { name: `nonMechanical`,   type: `remove`, path: [`ismechanical`] }
-     , { name: `nonMechGenre`,    type: `remove`, path: [`genre`],    value: `Electromechanical` } //turns out you can't trust the ini bool
-     , { name: `noMess`,          type: `remove`, path: [`mess`] }
-     , { name: `nonPrintClub`,    type: `remove`, path: [`genre`],    value: `Print Club` } //turns out you can't trust the ini bool
-     , { name: `noSimulator`,     type: `remove`, path: [`genre`],    value: `Simulator` } //a couple of laserDisc players!
-     , { name: `nonTableTop`,     type: `remove`, path: [`genre`],    value: `Tabletop` } //that means Mahjong etc
-     , { name: `nonTableGenre`,   type: `remove`, path: [`category`], value: /Tabletop/ } //turns out you can't trust the ini AGAIN
-     , { name: `noQuiz`,          type: `remove`, path: [`genre`],    value: `Quiz` }
-     , { name: `noCQuizCatList`,  type: `remove`, path: [`catlist`],  value: /Quiz/ } //turns out you can't trust genre
-     , { name: `noUtilities`,     type: `remove`, path: [`genre`],    value: `Utilities` }
-    ] 
-
-    // then we'll write more filters and pass them to the emulator and adult variations
-    // but another main thing to filter on is whether we want our lists to include games whose emulation
-    // is marked 'preliminary'
-    const noPreliminaryFilter = [ { name: `noPreliminary`, type: `remove`, path: [`status`], value: `preliminary` } ]
-
-    // make a noClones version of those full jsons
-    const noClonesFilter = [ { name: `noClones`, type: `remove`, path: [`cloneof`] } ]
-
-  // next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
-    const genreSplit = (mameSetType, emuType, json) => {
-      const genreArray = getUniqueProps(`genre`)(json)
-      //now for each genre we need to make a folder with a romdata in it
-      R.map( genre => {
-        const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
-        const thisGenreJson = makeFilteredJson(genreFilter)(json)
-        //make a folder per genre (but windows interprets the . in Misc. oddly) 
-        const thisFolderName = `${mameSetType}/Genre/${genre.replace(`.`, ``)}`
-        generateRomdata(emuType,      thisFolderName, winIconDir)(thisGenreJson)
-      
-      }, genreArray)
+// next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
+const genreSplit = (mameSetType, emuType, winIconDir, json) => {
+  const genreArray = getUniqueProps(`genre`)(json)
+  //now for each genre we need to make a folder with a romdata in it
+  R.map( genre => {
+    const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
+    const thisGenreJson = makeFilteredJson(genreFilter)(json)
+    //make a folder per genre (but windows interprets the . in Misc. oddly) 
+    const thisFolderName = `${mameSetType}/Genre/${genre.replace(`.`, ``)}`
+    generateRomdata(emuType,      thisFolderName, winIconDir)(thisGenreJson)
   
-      return json
-    }
-   
+  }, genreArray)
+ 
+  return json
+}
 
 decideWhetherToXMLAsync()
 
@@ -173,17 +113,17 @@ decideWhetherToXMLAsync()
     generateRomdata(Mame,      `noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
     generateRomdata(RetroArch, `noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
 
-    genreSplit(`full/allGames`, Mame, mameJson)
-    genreSplit(`full/allGames`, RetroArch, mameJson)
+    genreSplit(`full/allGames`, Mame, winIconDir, mameJson)
+    genreSplit(`full/allGames`, RetroArch, winIconDir, mameJson)
 
-    genreSplit(`noMature/allGames`, Mame, noMatureJson)
-    genreSplit(`noMature/allGames`, RetroArch, noMatureJson)
+    genreSplit(`noMature/allGames`, Mame, winIconDir, noMatureJson)
+    genreSplit(`noMature/allGames`, RetroArch, winIconDir, noMatureJson)
 
-    genreSplit(`full/workingOnly`, Mame, noPreliminaryFullJson)
-    genreSplit(`full/workingOnly`, RetroArch, noPreliminaryFullJson)
+    genreSplit(`full/workingOnly`, Mame, winIconDir, noPreliminaryFullJson)
+    genreSplit(`full/workingOnly`, RetroArch, winIconDir, noPreliminaryFullJson)
 
-    genreSplit(`noMature/workingOnly`, Mame, noPreliminaryNoMatureJson)
-    genreSplit(`noMature/workingOnly`, RetroArch, noPreliminaryNoMatureJson)   
+    genreSplit(`noMature/workingOnly`, Mame, winIconDir, noPreliminaryNoMatureJson)
+    genreSplit(`noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson)   
     
     //then process an mfm file
     return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])

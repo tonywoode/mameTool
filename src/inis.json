@@ -1,0 +1,61 @@
+
+[
+        {
+                "iniName": "arcade",
+                "iniType": "bare"
+        },
+        {
+                "iniName": "arcade_NOBIOS",
+                "iniType": "bare"
+        },
+        {
+                "iniName": "bestgames",
+                "iniType": "section"
+        },
+        {
+                "iniName": "category",
+                "iniType": "section"
+        },
+        {
+                "iniName": "catlist",
+                "iniType": "section"
+        },
+        {
+                "iniName": "genre",
+                "iniType": "section"
+        },
+        {
+                "iniName": "languages",
+                "iniType": "section"
+        },
+        {
+                "iniName": "mamescore",
+                "iniType": "kv",
+                "sectionName": "MAMESCORE"
+        },
+        {
+                "iniName": "mess",
+                "iniType": "bare"
+        },
+        {
+                "iniName": "monochrome",
+                "iniType": "section"
+        },
+        {
+                "iniName": "nplayers",
+                "iniType": "kv",
+                "sectionName": "NPlayers"
+        },
+        {
+                "iniName": "screenless",
+                "iniType": "bare"
+        },
+        {
+                "iniName": "series",
+                "iniType": "section"
+        },
+        {
+                "iniName": "version",
+                "iniType": "section"
+        }
+]

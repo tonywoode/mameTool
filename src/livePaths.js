@@ -2,7 +2,7 @@
 
 const {readFileSync, createReadStream}  = require(`fs`)
 
-const program                           = require('commander');
+const program                           = require('commander')
 const ini                               = require('ini')
 
 const {makeEmu}                         = require(`./types.js`)
@@ -14,7 +14,7 @@ program
     .option(`--mfm`)
     .parse(process.argv)
 
-exports.mfm               = program.mfm;
+exports.mfm               = program.mfm
 console.log(qpSettings.MAME)
 console.log('\n')
 exports.mameXMLInPath     = qpSettings.MAME.MameXMLPath || _throw(`you said make an MFM-filtered MAME romset, but there's no MAME XML`)
