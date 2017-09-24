@@ -11,17 +11,23 @@ const {mfmReaderAsync, mfmFilter}        = require(`./src/mfmReader.js`)
 const {printJson, generateRomdata}       = require(`./src/printers.js`)
 const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
 
-const mameXMLInPath                      = `./inputs/mame187.xml`
-const mameXMLStream                      = createReadStream(mameXMLInPath)
+const strategy = process.argv.length > 2? require(`./src/livePaths`) : require(`./src/devPaths.js`)
 
-const mfmTextFileInPath                  = `./inputs/sampleMFMfilter.txt`
-const mfmTextFileStream                  = createReadStream(mfmTextFileInPath)
+const mfm                = strategy.mfm
+const mameXMLInPath      = strategy.mameXMLInPath 
+const mameXMLStream      = strategy.mameXMLStream
+const mfmTextFileInPath  = strategy.mfmTextFileInPath 
+const mfmTextFileStream  = strategy.mfmTextFileStream
+const outputDir          = strategy.outputDir       
+const jsonOutName        = strategy.jsonOutName    
+const winIconDir         = strategy.winIconDir    
+const Mame               = strategy.Mame 
+const RetroArch          = strategy.RetroArch
 
-const outputDir                          = require(`./src/getDir.js`).getOutputDir()
-const jsonOutName                        = `mame.json`
-const winIconDir                         = require(`./src/getDir.js`).getWinIconDir()
-const {Mame, RetroArch}                  = require(`./src/types.js`)
-
+//so these are the same now
+console.log(strategy.outputDir)
+console.log(outputDir)
+process.exit()
 
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>

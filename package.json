@@ -13,11 +13,12 @@
     "full": "trash $npm_package_config_outputDir && node index.js",
     "fulldebug": "trash $npm_package_config_outputDir && node --inspect-brk index.js",
     "start": "trash $npm_package_config_outputDir/*/ && node index.js",
-    "test": "mocha --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
+    "test": "mocha -- --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "commander": "^2.11.0",
     "daggy": "^1.2.0",
     "ini": "^1.3.4",
     "mkdirp": "^0.5.1",

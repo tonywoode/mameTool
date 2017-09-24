@@ -12,7 +12,7 @@ const getUniqueProps = prop => systems => R.uniq(R.pluck(prop)(systems) )
 // getProp:: [path] => value
 const getProp = keyPath => R.path(keyPath) 
 
-// copes with booth regex searches and nested kvs
+// copes with both regex searches and nested kvs
 // doesPropHaveValue:: [path] => string|RegExp => object => bool
 const doesPropHaveThisValue = (keyPath, value) => obj => 
   // if it isn't a regex, treat it like a string
@@ -64,7 +64,7 @@ const applySublistFilters = (sublistArray, mameJson) =>
   R.reduce( (newJson, filter) => filter(newJson), mameJson, sublistArray)
 
 // run the above
-const makeFilteredJson = (filterArray) => ( mameJson) => 
+const makeFilteredJson = (filterArray) => mameJson => 
   applySublistFilters( sublistArray(filterArray), mameJson)
 
 
