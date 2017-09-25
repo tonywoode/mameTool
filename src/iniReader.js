@@ -1,8 +1,8 @@
 'use strict'
 
-let fs               = require(`fs`) //rewired in test, don't try and destructure
+let fs               = require('fs') //rewired in test, don't try and destructure
 const ini            = require('ini')
-const R              = require(`ramda`)
+const R              = require('ramda')
 const iniFlattener   = require('./iniFlattener.js')
 
 //TODO - iniDir is static - it needs to be a lamda here

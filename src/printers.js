@@ -1,10 +1,10 @@
 'use strict'
 
-const mkdirp                      = require(`mkdirp`)
-const {writeFileSync, existsSync} = require(`fs`)
+const mkdirp                      = require('mkdirp')
+const {writeFileSync, existsSync} = require('fs')
 const _throw                      = m => { throw new Error(m) }
 
-const makeRomdata                 = require(`./makeRomdata.js`)
+const makeRomdata                 = require('./makeRomdata.js')
 
 exports.printJson = (outputDir, jsonOutName) => systems => {
   const jsonOutPath = `${outputDir}/${jsonOutName}`

@@ -1,7 +1,7 @@
 'use strict'
 
 
-const {readFileSync, createReadStream}  = require(`fs`)
+const {readFileSync, createReadStream}  = require('fs')
 
 //these paths vary
 const ini                 = require('ini')

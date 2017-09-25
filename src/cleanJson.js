@@ -1,6 +1,6 @@
 'use strict'
 
-const R = require(`ramda`)
+const R = require('ramda')
 
 // boolean logic isn't well served by 'no' and 'yes', record only 'true'
 const yesNoToTrueFalse = key => key === `no`? false : key === `yes`? true : key

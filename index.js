@@ -1,17 +1,17 @@
 'use strict'
 
-const R                            = require(`ramda`)
-const {readFile}                   = require(`fs`)
+const R                            = require('ramda')
+const {readFile}                   = require('fs')
 const program                      = require('commander')
 const _throw                       = m => { throw new Error(m) }
 
-const {cleanJson}                  = require(`./src/cleanJson.js`)
-const {iniToJson}                  = require(`./src/fillFromIni.js`)
-const {makeSystemsAsync}           = require(`./src/readMameXml.js`)
-const {mfmReaderAsync, mfmFilter}  = require(`./src/mfmReader.js`)
-const {printJson, generateRomdata} = require(`./src/printers.js`)
-const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
-const {makeEmu}                         = require(`./src/types.js`)
+const {cleanJson}                  = require('./src/cleanJson.js')
+const {iniToJson}                  = require('./src/fillFromIni.js')
+const {makeSystemsAsync}           = require('./src/readMameXml.js')
+const {mfmReaderAsync, mfmFilter}  = require('./src/mfmReader.js')
+const {printJson, generateRomdata} = require('./src/printers.js')
+const {getUniqueProps, makeFilteredJson} = require('./src/filterMameJson.js')
+const {makeEmu}                         = require('./src/types.js')
 
 program
     .option('--output-dir [path]')
@@ -23,7 +23,7 @@ const mfm               = program.mfm
 const devMode           = program.dev
 const outputDir         = program.outputDir
 //bring in settings from quickplay's ini file, or use the nix dev settings
-const strategy = devMode? require(`./src/devPaths`) : require(`./src/livePaths.js`)
+const strategy = devMode? require('./src/devPaths') : require('./src/livePaths.js')
 const mameXMLStream      = strategy.mameXMLStream
 const mfmTextFileStream  = strategy.mfmTextFileStream
 const winIconDir         = strategy.winIconDir    
@@ -32,7 +32,7 @@ const mameExe            = strategy.mameExe //dev mode is going to give undef
 const emu                = makeEmu(mameExe, outputDir);              console.log(`so emu is ${emu.toString()}`)
 const jsonOutName        = `mame.json`
 
-const {Mame, RetroArch}    = require(`./src/types.js`) //TODO: this is for dev mode only, better to make it
+const {Mame, RetroArch}    = require('./src/types.js') //TODO: this is for dev mode only, better to make it
 console.log(`output dir is ${outputDir}`)
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
@@ -44,9 +44,9 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 // these are the available inis, specifying their type (and their internal name if necessary)
 //   there are three types of ini file (see iniReader.js)
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
-const inis = require(`./src/inis.json`) 
+const inis = require('./src/inis.json') 
 
-const {noMatureFilters, arcadeFilters, noPreliminaryFilter, noClonesFilter} = require(`./src/filters.js`) 
+const {noMatureFilters, arcadeFilters, noPreliminaryFilter, noClonesFilter} = require('./src/filters.js') 
 
 // next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
 const genreSplit = (emuType, winIconDir, json) => {

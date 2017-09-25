@@ -1,11 +1,11 @@
 'use strict'
 
-const {readFileSync, createReadStream}  = require(`fs`)
+const {readFileSync, createReadStream} = require('fs')
 
 //these paths vary
-const ini                               = require('ini')
-const qpIni                             = `..\\dats\\settings.ini`
-const qpSettings                        = ini.parse(readFileSync(qpIni, 'utf-8'))
+const ini                 = require('ini')
+const qpIni               = `..\\dats\\settings.ini`
+const qpSettings          = ini.parse(readFileSync(qpIni, 'utf-8'))
 
 exports.iniDir            = `${exports.mameExtrasPath}\\folders`;    console.log(`mame extras inidir path set to ${exports.iniDir}`) 
 

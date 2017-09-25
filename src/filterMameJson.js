@@ -1,6 +1,6 @@
 'use strict'
 
-const R = require(`ramda`)
+const R = require('ramda')
 const _throw = m => { throw new Error(m) }
 
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?

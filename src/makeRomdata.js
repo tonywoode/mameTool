@@ -1,6 +1,6 @@
 'use strict'
 
-const  R  = require(`ramda`)
+const  R  = require('ramda')
 
 const makeRomdata = mameEmu => mameJson => {
   const romdataHeader = `ROM DataFile Version : 1.1`

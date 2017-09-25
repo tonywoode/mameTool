@@ -1,6 +1,6 @@
 "use strict"
 
-const XmlStream = require(`xml-stream`)
+const XmlStream = require('xml-stream')
 //Parse the mame xml pulling out the fields we need but only from systems which actually work
 const makeSystems = (mameXMLStream, nodeback) => {
   const systems = []

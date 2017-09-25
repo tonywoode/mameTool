@@ -1,7 +1,7 @@
 'use strict'
 
-const {map, assoc} = require(`ramda`)
-const {loadIni} = require(`./iniReader.js`)
+const {map, assoc} = require('ramda')
+const {loadIni} = require('./iniReader.js')
 
 // I think its faster to search the ini for a each mame game than to search for each ini entry in the mame json
 const getEntryFromIni = ini => call => ini[call]

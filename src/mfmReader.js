@@ -1,7 +1,7 @@
-"use strict"
+'use strict'
 
-const readline = require(`readline`)
-const R        = require(`ramda`)
+const readline = require('readline')
+const R        = require('ramda')
 
 const mfmReaderAsync = mfmTextFileStream => new Promise( (resolve, reject) => {
   const gameList = []
