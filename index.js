@@ -1,7 +1,8 @@
 'use strict'
 
 const R                            = require(`ramda`)
-const {readFile, createReadStream} = require(`fs`)
+const {readFile}                   = require(`fs`)
+const program                      = require('commander')
 const _throw                       = m => { throw new Error(m) }
 
 const {cleanJson}                  = require(`./src/cleanJson.js`)
@@ -9,21 +10,28 @@ const {iniToJson}                  = require(`./src/fillFromIni.js`)
 const {makeSystemsAsync}           = require(`./src/readMameXml.js`)
 const {mfmReaderAsync, mfmFilter}  = require(`./src/mfmReader.js`)
 const {printJson, generateRomdata} = require(`./src/printers.js`)
-const {getUniqueProps, makeFilteredJson}   = require(`./src/filterMameJson.js`)
+const {getUniqueProps, makeFilteredJson} = require(`./src/filterMameJson.js`)
+const {makeEmu}                         = require(`./src/types.js`)
 
+program
+    .option('--output-dir [path]')
+    .option(`--mfm`)
+    .parse(process.argv)
+
+const mfm               = program.mfm
+const outputDir         = program.outputDir || require(`./src/getDir.js`).getOutputDir()
+
+//bring in settings from quickplay's ini file, or use the nix dev settings
 const strategy = process.argv.length > 2? require(`./src/livePaths`) : require(`./src/devPaths.js`)
-
-const mfm                = strategy.mfm
-const mameXMLInPath      = strategy.mameXMLInPath 
 const mameXMLStream      = strategy.mameXMLStream
-const mfmTextFileInPath  = strategy.mfmTextFileInPath 
 const mfmTextFileStream  = strategy.mfmTextFileStream
-const outputDir          = strategy.outputDir       
-const jsonOutName        = strategy.jsonOutName    
 const winIconDir         = strategy.winIconDir    
-const Mame               = strategy.Mame 
-const RetroArch          = strategy.RetroArch
+const mameExe            = strategy.mameExe //dev mode is going to give undef
+const emu                = makeEmu(mameExe, outputDir);              console.log(`so emu is ${emu.toString()}`)
+const jsonOutName        = `mame.json`
 
+const {Mame, RetroArch}    = require(`./src/types.js`) //TODO: this is for dev mode only, better to make it
+console.log(`output dir is ${outputDir}`)
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
@@ -53,18 +61,7 @@ const genreSplit = (mameSetType, emuType, winIconDir, json) => {
  
   return json
 }
-
-decideWhetherToXMLAsync()
-
-  .then( systems => {
-    // process all the inis into the json
-    const filledSystems = inis.reduce( (systems, ini) => 
-      iniToJson(ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
-    // post-process the data-complete json, printing it becomes a gatepost
-    const mameJson = R.pipe(
-      cleanJson , printJson(outputDir, jsonOutName)
-    )(filledSystems) 
-  
+const manualOutput = mameJson => {
     const noMatureJson = makeFilteredJson(noMatureFilters)(mameJson)
     const noPreliminaryFullJson     = makeFilteredJson(noPreliminaryFilter)(mameJson)
     const arcadeFullJson            = makeFilteredJson(arcadeFilters)(mameJson)
@@ -123,20 +120,44 @@ decideWhetherToXMLAsync()
     genreSplit(`full/workingOnly`, RetroArch, winIconDir, noPreliminaryFullJson)
 
     genreSplit(`noMature/workingOnly`, Mame, winIconDir, noPreliminaryNoMatureJson)
-    genreSplit(`noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson)   
-    
-    //then process an mfm file
-    return Promise.all([mfmReaderAsync(mfmTextFileStream), mameJson])
+    genreSplit(`noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson) 
+
+  }
+
+//do thejson generation, processing etc that applies whichever optionsis chosen
+const makeMameJsonPromise = decideWhetherToXMLAsync()
+  .then( systems => {
+    // process all the inis into the json
+    const filledSystems = inis.reduce( (systems, ini) => 
+      iniToJson(ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
+    // post-process the data-complete json, printing it becomes a gatepost
+    const mameJson = R.pipe(
+        cleanJson 
+      , printJson(outputDir, jsonOutName)
+    )(filledSystems) 
+ 
+    manualOutput(mameJson)
+
+   return mameJson
   })
-
-  .then( ([mfmArray,  mameJson]) => { 
-    const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
-
-    generateRomdata(Mame,      `mfm`, winIconDir)(mfmFilteredJson)
-    generateRomdata(RetroArch, `mfm`, winIconDir)(mfmFilteredJson)
-
-
-    return mameJson
-  })
-
   .catch(err => _throw(err) )
+
+//fulfil a call to make a mame file manager filtered romdata
+if (mfm) {
+  makeMameJsonPromise.then( mameJson =>
+    mfmReaderAsync(mfmTextFileStream) 
+      .then( (mfmArray) => {
+        console.log(mfmArray)
+        const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
+  
+        generateRomdata(emu, `mfm`, winIconDir)(mfmFilteredJson)
+        // TODO: its an integration test to print these two out, dev mode still needs to 
+        //generateRomdata(Mame,      `mfm`, winIconDir)(mfmFilteredJson)
+        //generateRomdata(RetroArch, `mfm`, winIconDir)(mfmFilteredJson)
+  
+  
+        return mameJson
+      })
+    )
+  .catch(err => _throw(err) )
+}

@@ -14,7 +14,7 @@ describe(`Types`, () => {
     })
 
 
-    it(`when passed a mame-type emu, returns a mame emu of that name`, () => {
+    it(`when passed a retroarch-type emu, returns a mame emu of that name`, () => {
       const retroarchEmu = (makeEmu(retroarchTypeName, `./myRomsDir`).toString())
       expect(retroarchEmu).to.equal(`Emu("Retroarch reloaded", "./myRomsDir/RetroArch", "RetroArch")`)
     })

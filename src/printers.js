@@ -57,6 +57,7 @@ CmbIcon=${iconName}.ico
 //  remember the top level also needs a basic icon, give it the child's icon
 //  TODO: check that baseDir exists....
 //  TODO: convert params to object, clearer at callsite
+
 const printRomdataFolder = (baseDir, romdataOutDir, mameExtrasDir, iconName) => romdata => {
   mkdirp.sync(`${baseDir}/${romdataOutDir}`)
   existsSync(`${baseDir}/folders.ini`) || printIconFile(baseDir, ``, iconName)
