@@ -12,8 +12,10 @@
     "debug": "trash $npm_package_config_outputDir/*/ && node --inspect-brk index.js",
     "full": "trash $npm_package_config_outputDir && node index.js",
     "fulldebug": "trash $npm_package_config_outputDir && node --inspect-brk index.js",
-    "start": "trash $npm_package_config_outputDir/*/ && node index.js",
-    "test": "mocha -- --require ./specs/init.js $(eval $npm_package_config_getSpecs)"
+    "start": "trash $npm_package_config_outputDir/*/ && node index.js --dev --output-dir './outputs'",
+    "test": "mocha -- --require ./specs/init.js $(eval $npm_package_config_getSpecs)",
+    "package": "pkg -t win-x86 --output ./outputs index.js"
+    
   },
   "author": "",
   "license": "ISC",
@@ -31,6 +33,7 @@
     "chai-as-promised": "^7.1.1",
     "into-stream": "^3.1.0",
     "mocha": "^3.4.2",
+    "pkg": "^4.2.4",
     "rewire": "^2.5.2",
     "rimraf": "^2.6.1",
     "sinon": "^2.4.1"

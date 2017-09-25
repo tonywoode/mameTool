@@ -15,17 +15,19 @@ const {makeEmu}                         = require(`./src/types.js`)
 
 program
     .option('--output-dir [path]')
-    .option(`--mfm`)
+    .option(`--mfm`) //so to make a dev mfm run: npm start -- --dev
+    .option(`--dev`)
     .parse(process.argv)
 
 const mfm               = program.mfm
-const outputDir         = program.outputDir || require(`./src/getDir.js`).getOutputDir()
-
+const devMode           = program.dev
+const outputDir         = program.outputDir
 //bring in settings from quickplay's ini file, or use the nix dev settings
-const strategy = process.argv.length > 2? require(`./src/livePaths`) : require(`./src/devPaths.js`)
+const strategy = devMode? require(`./src/devPaths`) : require(`./src/livePaths.js`)
 const mameXMLStream      = strategy.mameXMLStream
 const mfmTextFileStream  = strategy.mfmTextFileStream
 const winIconDir         = strategy.winIconDir    
+const iniDir             = strategy.iniDir
 const mameExe            = strategy.mameExe //dev mode is going to give undef
 const emu                = makeEmu(mameExe, outputDir);              console.log(`so emu is ${emu.toString()}`)
 const jsonOutName        = `mame.json`
@@ -129,7 +131,7 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
   .then( systems => {
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
-      iniToJson(ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
+      iniToJson(iniDir, ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
     // post-process the data-complete json, printing it becomes a gatepost
     const mameJson = R.pipe(
         cleanJson 
@@ -147,7 +149,6 @@ if (mfm) {
   makeMameJsonPromise.then( mameJson =>
     mfmReaderAsync(mfmTextFileStream) 
       .then( (mfmArray) => {
-        console.log(mfmArray)
         const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
   
         generateRomdata(emu, outputDir, winIconDir)(mfmFilteredJson)

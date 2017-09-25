@@ -55,14 +55,14 @@ describe(`iniReader`, () => {
 
   describe(`#loadIni`, () => {
     const revert = iniReader.__set__("fs", { readFileSync: () => mockBareIni })
-    const ini = loadIni(`anything`, `bare`)
+    const ini = loadIni(`randomdir`, `anything`, `bare`)
     revert()
     it(`routes an ini type to the correct function to handle it`, () => {
       expect(ini[`005`]).to.be.true
     })
     it(`throws on a non-existant ini type`, () => {
       //wrap throw in function - don't execute right away, give the test framework an opportunity to handle the error - stack 18925884
-      expect( () => loadIni(`anything`, `fake`)).to.throw(
+      expect( () => loadIni(`randomdir`, `anything`, `fake`)).to.throw(
         `iniType "fake" not defined, you need to supply a first param of e.g."bare"/"kv"/"section"`)
     })
     
@@ -85,14 +85,14 @@ describe(`iniReader`, () => {
   describe(`#loadGenericIni`, () => {
     it(`when asked to load an ini that doesn't exist at the output, print a console error`, () => {
       sinon.stub(console, 'error');
-      loadGenericIni(`fakefile`)
+      loadGenericIni(`randomdir`, `fakefile`)
       expect( console.error.calledOnce ).to.be.true;
     })
 
     const realConsoleError = console.error // its disconcerting to have console errors when npm test runs - stack question 29469213
     it(`when asked to load an ini that doesn't exist at the output dir, return an empty object`, () => {
       console.error = content => ``
-      expect(loadGenericIni(`fakefile`)).to.deep.equal( ({}) )
+      expect(loadGenericIni(`randomdir`, `fakefile`)).to.deep.equal( ({}) )
     })
     console.error = realConsoleError
   })
@@ -101,18 +101,18 @@ describe(`iniReader`, () => {
   describe(`#loadKVIni`, () => {
     it(`when passed a KV-style ini, treat it generically and hence return an expected kv`, () => {
       iniReader.__set__("fs", { readFileSync: () => mockKVIni })
-      const kvIni = loadKVIni(`fakeName`, `NPlayers`)
+      const kvIni = loadKVIni(`randomdir`, `fakeName`, `NPlayers`)
       expect(kvIni[`10yard`]).to.equal(`2P alt`)
     })
     it(`throws if you ask for a kv ini converter without specifying the name of the section header`, () => {
-      expect( () => loadIni(`anything`, `kv`)).to.throw(`you didn't supply a section name`) 
+      expect( () => loadIni(`randomdir`, `anything`, `kv`)).to.throw(`you didn't supply a section name`) 
     })
   })
 
   describe(`#loadBareIni`, () => {
     it(`when passed a Bare-style ini, treat it generically and hence return an expected kv`, () => {
     iniReader.__set__("fs", { readFileSync: () => mockBareIni })
-    const bareIni = loadBareIni(`fakeName` )
+    const bareIni = loadBareIni(`randomdir`, `fakeName` )
     expect(bareIni[`10yard`]).to.equal(true)
     })
   })
@@ -120,7 +120,7 @@ describe(`iniReader`, () => {
   describe(`#loadSectionIni`, () => {
     it(`when passed a Section-style ini, treat it generically and hence return an expected kv`, () => {
     iniReader.__set__("fs", { readFileSync: () => mockSectionIni })
-    const sectionIni = loadSectionIni(`fakeName`)
+    const sectionIni = loadSectionIni(`randomdir`, `fakeName`)
     expect(sectionIni[`bazookabr`]).to.equal(`Brazilian Portuguese`)
     })
   })

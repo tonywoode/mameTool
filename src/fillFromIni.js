@@ -14,8 +14,8 @@ const fillFromIni = (typeOfIni, ini) => map( game => {
 
 // parse, format and incorporate an ini into our mame JSON,
 //   note this works by the ini name being the same as they key in the json
-const iniToJson = (iniName, iniType, sectionName) => {
-  const parsedIni = loadIni(iniName, iniType, sectionName)
+const iniToJson = (iniDir, iniName, iniType, sectionName) => {
+  const parsedIni = loadIni(iniDir, iniName, iniType, sectionName)
   return fillFromIni(iniName, parsedIni) 
 }
 
