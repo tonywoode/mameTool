@@ -58,18 +58,18 @@ CmbIcon=${iconName}.ico
 //  TODO: check that baseDir exists....
 //  TODO: convert params to object, clearer at callsite
 
-const printRomdataFolder = (baseDir, romdataOutDir, mameExtrasDir, iconName) => romdata => {
-  mkdirp.sync(`${baseDir}/${romdataOutDir}`)
-  existsSync(`${baseDir}/folders.ini`) || printIconFile(baseDir, ``, iconName)
+const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName) => romdata => {
+  mkdirp.sync(`${romdataOutDir}`)
+  existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
   //when making a collection folder like 'genre', we might miss a level of ico printing
-  const collectionFolder = `${baseDir}/${romdataOutDir}/..`
-  existsSync(`${collectionFolder}/folders.ini`) || printIconFile(collectionFolder, ``, iconName)
-  printIconFile(`${baseDir}/${romdataOutDir}`, mameExtrasDir, iconName)
-  return printRomdata(`${baseDir}/${romdataOutDir}`, `romdata.dat`)(romdata)
+  //const collectionFolder = `${baseDir}/${romdataOutDir}/..`
+ // existsSync(`${collectionFolder}/folders.ini`) || printIconFile(collectionFolder, ``, iconName)
+  printIconFile(`${romdataOutDir}`, mameExtrasDir, iconName)
+  return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
 
 exports.generateRomdata = (Emu, romdataOutDir, mameExtrasDir) => mameJson => {
     const mameRomdata  = makeRomdata(Emu.EmuName)(mameJson)
-    printRomdataFolder(Emu.RomdataOutParDir, romdataOutDir, mameExtrasDir, Emu.Icon)(mameRomdata)
+    printRomdataFolder(romdataOutDir, mameExtrasDir, Emu.Icon)(mameRomdata)
     return mameJson
 }

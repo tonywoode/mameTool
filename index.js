@@ -47,15 +47,15 @@ const inis = require(`./src/inis.json`)
 const {noMatureFilters, arcadeFilters, noPreliminaryFilter, noClonesFilter} = require(`./src/filters.js`) 
 
 // next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
-const genreSplit = (mameSetType, emuType, winIconDir, json) => {
+const genreSplit = (emuType, winIconDir, json) => {
   const genreArray = getUniqueProps(`genre`)(json)
   //now for each genre we need to make a folder with a romdata in it
   R.map( genre => {
     const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
     const thisGenreJson = makeFilteredJson(genreFilter)(json)
     //make a folder per genre (but windows interprets the . in Misc. oddly) 
-    const thisFolderName = `${mameSetType}/Genre/${genre.replace(`.`, ``)}`
-    generateRomdata(emuType,      thisFolderName, winIconDir)(thisGenreJson)
+    const thisFolderName = `${outputDir}/Genre/${genre.replace(`.`, ``)}`
+    generateRomdata(emuType, thisFolderName, winIconDir)(thisGenreJson)
   
   }, genreArray)
  
@@ -136,7 +136,7 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
       , printJson(outputDir, jsonOutName)
     )(filledSystems) 
  
-    manualOutput(mameJson)
+    //manualOutput(mameJson)
 
    return mameJson
   })
@@ -150,7 +150,7 @@ if (mfm) {
         console.log(mfmArray)
         const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
   
-        generateRomdata(emu, `mfm`, winIconDir)(mfmFilteredJson)
+        generateRomdata(emu, outputDir, winIconDir)(mfmFilteredJson)
         // TODO: its an integration test to print these two out, dev mode still needs to 
         //generateRomdata(Mame,      `mfm`, winIconDir)(mfmFilteredJson)
         //generateRomdata(RetroArch, `mfm`, winIconDir)(mfmFilteredJson)
