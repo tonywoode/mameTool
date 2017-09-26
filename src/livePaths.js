@@ -4,7 +4,7 @@ const {readFileSync, createReadStream} = require('fs')
 
 //these paths vary
 const ini                 = require('ini')
-const qpIni               = `..\\dats\\settings.ini`
+const qpIni               = `dats\\settings.ini`
 const qpSettings          = ini.parse(readFileSync(qpIni, 'utf-8'))
 
 

@@ -23,7 +23,7 @@ const makeRomdata = mameEmu => mameJson => {
       , MAMEName    : obj.call
       , parentName  : obj.cloneof || ``
       , path
-      , emu         : `${mameEmu} Win32` 
+      , emu         : `${mameEmu}` 
       , company     : obj.company.replace(/[^\x00-\x7F]/g, ``)
       , year        : obj.year
       , gameType    : obj.catlist|| obj.category|| obj.genre|| ``
