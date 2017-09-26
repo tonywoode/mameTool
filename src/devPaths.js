@@ -8,8 +8,6 @@ const ini                 = require('ini')
 const qpIni               = `./settings.ini`
 const qpSettings          = ini.parse(readFileSync(qpIni, 'utf-8'))
 
-exports.iniDir            = `/Volumes/GAMES/MAME/EXTRAs/folders`//for dev is nix
-
 
 //TODO: this text is idential to src/livePaths
 console.log(qpSettings.MAME)
@@ -22,4 +20,5 @@ exports.mameExtrasPath    = qpSettings.MAME.MameExtrasPath;          console.log
 exports.winIconDir        = `${exports.mameExtrasPath}\\Icons`;      console.log(`mame icons path set to ${exports.winIconDir}`) 
 exports.mameExe           = qpSettings.MAME.MametoolMameExePath;     console.log(`mame exe set to ${exports.mameExe}` )
 
-
+//this path varies
+exports.iniDir            = `/Volumes/GAMES/MAME/EXTRAs/folders`//for dev is nix
