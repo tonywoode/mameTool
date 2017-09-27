@@ -34,6 +34,29 @@ const mameExe            = strategy.mameExe //dev mode is going to give undef
 const emu                = makeEmu(mameExe, outputDir);              console.log(`so emu is ${emu.toString()}`)
 const jsonOutName        = `mame.json`
 
+//TODO: dry this up, its silly. All the tickboxes
+const tickBios             = strategy.tickBios         
+const tickCasino           = strategy.tickCasino
+const tickClones           = strategy.tickClones
+const tickMature           = strategy.tickMature
+const tickMechanical       = strategy.tickMechanical
+const tickMess             = strategy.tickMess
+const tickPreliminary      = strategy.tickPreliminary
+const tickPrintClub        = strategy.tickPrintClub
+const tickSimulator        = strategy.tickSimulator
+const tickTableTop         = strategy.tickTableTop
+const tickQuiz             = strategy.tickQuiz
+const tickUtilities        = strategy.tickUtilities
+const tickSplitCompany     = strategy.tickSplitCompany
+//and the splits
+const tickSplitGenre       = strategy.tickSplitGenre   
+const tickSplitNPlayers    = strategy.tickSplitNPlayers
+const tickSplitRating      = strategy.tickSplitRating
+const tickSplitSeries      = strategy.tickSplitSeries
+const tickSplitVersion     = strategy.tickSplitVersion
+const tickSplitYear        = strategy.tickSplitYear    
+
+
 const {Mame, RetroArch}    = require('./src/types.js') //TODO: this is for dev mode only, better to make it
 console.log(`output dir is ${outputDir}`)
 // If there's an xml that parses in the jsonOutDir, don't parse it all again

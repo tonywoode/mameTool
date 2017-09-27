@@ -22,3 +22,25 @@ exports.mameExe           = qpSettings.MAME.MametoolMameExePath;     console.log
 
 //this path varies
 exports.iniDir            = `/Volumes/GAMES/MAME/EXTRAs/folders`//for dev is nix
+
+//and now all the tickboxes
+exports.tickBios             = qpSettings.MAME.MameOptBios
+exports.tickCasino           = qpSettings.MAME.MameOptCasino
+exports.tickClones           = qpSettings.MAME.MameOptClones
+exports.tickMature           = qpSettings.MAME.MameOptMature
+exports.tickMechanical       = qpSettings.MAME.MameOptMechanical
+exports.tickMess             = qpSettings.MAME.MameOptMess
+exports.tickPreliminary      = qpSettings.MAME.MameOptPreliminary
+exports.tickPrintClub        = qpSettings.MAME.MameOptPrintClub
+exports.tickSimulator        = qpSettings.MAME.MameOptSimulator
+exports.tickTableTop         = qpSettings.MAME.MameOptTableTop
+exports.tickQuiz             = qpSettings.MAME.MameOptQuiz
+exports.tickUtilities        = qpSettings.MAME.MameOptUtilities
+exports.tickSplitCompany     = qpSettings.MAME.MameOptCompany
+//and the tickbox splits
+exports.tickSplitGenre       = qpSettings.MAME.MameOptGenre
+exports.tickSplitNPlayers    = qpSettings.MAME.MameOptNPlayers
+exports.tickSplitRating      = qpSettings.MAME.MameOptRating
+exports.tickSplitSeries      = qpSettings.MAME.MameOptSeries
+exports.tickSplitVersion     = qpSettings.MAME.MameOptVersion
+exports.tickSplitYear        = qpSettings.MAME.MameOptYear
