@@ -47,8 +47,8 @@ const tickSimulator        = strategy.tickSimulator
 const tickTableTop         = strategy.tickTableTop
 const tickQuiz             = strategy.tickQuiz
 const tickUtilities        = strategy.tickUtilities
-const tickSplitCompany     = strategy.tickSplitCompany
 //and the splits
+const tickSplitCompany     = strategy.tickSplitCompany
 const tickSplitGenre       = strategy.tickSplitGenre   
 const tickSplitNPlayers    = strategy.tickSplitNPlayers
 const tickSplitRating      = strategy.tickSplitRating
