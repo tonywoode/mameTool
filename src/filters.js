@@ -8,7 +8,7 @@
  *  but in my experience, it doesn't filter out all of this...
  */
 
-exports.noMatureFilters = [
+exports.matureFilter = [
    { name: `noMatureCategory`, type: `remove`, path: [`category`], value: /Mature/ }
  , { name: `noMatureCatlist`,  type: `remove`, path: [`catlist`],  value: /Mature/ }
  , { name: `noAdult`,          type: `remove`, path: [`system`],   value: /\WAdult\W/i }
@@ -16,7 +16,7 @@ exports.noMatureFilters = [
 ]
 
 // next, here's my best approximation of what the average arcade gamer wants in a filter
-exports.arcadeFilters = [
+exports.arcadeFilter = [
    { name: `noBios`,          type: `remove`, path: [`isbios`] }
  , { name: `noCasino`,        type: `remove`, path: [`genre`],    value: `Casino` }
  , { name: `noCasinoCatlist`, type: `remove`, path: [`catlist`],  value: /Casino/ } //turns out you can't trust genre
@@ -36,8 +36,8 @@ exports.arcadeFilters = [
 // then we'll write more filters and pass them to the emulator and adult variations
 // but another main thing to filter on is whether we want our lists to include games whose emulation
 // is marked 'preliminary'
-exports.noPreliminaryFilter = [ { name: `noPreliminary`, type: `remove`, path: [`status`], value: `preliminary` } ]
+exports.preliminaryFilter = [ { name: `noPreliminary`, type: `remove`, path: [`status`], value: `preliminary` } ]
 
 // make a noClones version of those full jsons
-exports.noClonesFilter = [ { name: `noClones`, type: `remove`, path: [`cloneof`] } ]
+exports.clonesFilter = [ { name: `noClones`, type: `remove`, path: [`cloneof`] } ]
 
