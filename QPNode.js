@@ -10,8 +10,9 @@ const {iniToJson}                  = require('./src/fillFromIni.js')
 const {makeSystemsAsync}           = require('./src/readMameXml.js')
 const {mfmReaderAsync, mfmFilter}  = require('./src/mfmReader.js')
 const {printJson, generateRomdata} = require('./src/printers.js')
-const {getUniqueProps, makeFilteredJson} = require('./src/filterMameJson.js')
-const {makeEmu}                         = require('./src/types.js')
+const {makeFilteredJson} = require('./src/filterMameJson.js')
+const {makeEmu}                    = require('./src/types.js')
+const makeSplit                    = require('./src/makeSplit.js')
 
 program
     .option('--output-dir [path]')
@@ -73,21 +74,7 @@ const inis = require('./src/inis.json')
 
 const {matureFilter, arcadeFilter, preliminaryFilter, clonesFilter} = require('./src/filters.js') 
 
-// next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
-const genreSplit = ( outputDir, emuType, winIconDir, json) => {
-  const genreArray = getUniqueProps(`genre`)(json)
-  //now for each genre we need to make a folder with a romdata in it
-  R.map( genre => {
-    const genreFilter = [ { name: genre, type: `keep`, path: [`genre`], value: genre } ]   
-    const thisGenreJson = makeFilteredJson(genreFilter)(json)
-    //make a folder per genre (but windows interprets the . in Misc. oddly) 
-    const thisFolderName = `${outputDir}/Genre/${genre.replace(`.`, ``)}`
-    generateRomdata(emuType, thisFolderName, winIconDir)(thisGenreJson)
-  
-  }, genreArray)
- 
-  return json
-}
+
 const manualOutput = mameJson => {
     const noMatureJson = makeFilteredJson(matureFilter)(mameJson)
     const noPreliminaryFullJson     = makeFilteredJson(preliminaryFilter)(mameJson)
@@ -137,17 +124,17 @@ const manualOutput = mameJson => {
     generateRomdata(Mame,      `${outputDir}/noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
     generateRomdata(RetroArch, `${outputDir}/noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
 
-    genreSplit(`${outputDir}/full/allGames`, Mame, winIconDir, mameJson)
-    genreSplit(`${outputDir}/full/allGames`, RetroArch, winIconDir, mameJson)
+    makeSplit(`genre`, `${outputDir}/full/allGames`, Mame, winIconDir, mameJson)
+    makeSplit(`genre`, `${outputDir}/full/allGames`, RetroArch, winIconDir, mameJson)
 
-    genreSplit(`${outputDir}/noMature/allGames`, Mame, winIconDir, noMatureJson)
-    genreSplit(`${outputDir}/noMature/allGames`, RetroArch, winIconDir, noMatureJson)
+    makeSplit(`genre`, `${outputDir}/noMature/allGames`, Mame, winIconDir, noMatureJson)
+    makeSplit(`genre`, `${outputDir}/noMature/allGames`, RetroArch, winIconDir, noMatureJson)
 
-    genreSplit(`${outputDir}/full/workingOnly`, Mame, winIconDir, noPreliminaryFullJson)
-    genreSplit(`${outputDir}/full/workingOnly`, RetroArch, winIconDir, noPreliminaryFullJson)
+    makeSplit(`genre`, `${outputDir}/full/workingOnly`, Mame, winIconDir, noPreliminaryFullJson)
+    makeSplit(`genre`, `${outputDir}/full/workingOnly`, RetroArch, winIconDir, noPreliminaryFullJson)
 
-    genreSplit(`${outputDir}/noMature/workingOnly`, Mame, winIconDir, noPreliminaryNoMatureJson)
-    genreSplit(`${outputDir}/noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson) 
+    makeSplit(`genre`, `${outputDir}/noMature/workingOnly`, Mame, winIconDir, noPreliminaryNoMatureJson)
+    makeSplit(`genre`, `${outputDir}/noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson) 
 
   }
 

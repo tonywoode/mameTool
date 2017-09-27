@@ -34,12 +34,12 @@ const expected = [ `ROM DataFile Version : 1.1`,
 
 describe(`makeRomdata`, () => {
   it(`should accept a mame json string and return something`, () => {
-    const systems = makeRomdata(`Mame64`)(mockJson)
+    const systems = makeRomdata(`Mame64 Win32`)(mockJson)
     expect(systems).to.not.be.null
   })
 
   it(`should convert the input data to expected romdata lines, regardless of other ini filling of the romdata that also occurs`, () => {
-    const systems = makeRomdata(`Mame64`)(mockJson)
+    const systems = makeRomdata(`Mame64 Win32`)(mockJson)
     const systemsWithoutUndef = systems.map( element => element.replace(/undefined/g, ``) )
     expect(systemsWithoutUndef).to.deep.equal(expected)
   })
