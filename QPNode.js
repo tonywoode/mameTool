@@ -16,10 +16,12 @@ const {makeEmu}                         = require('./src/types.js')
 program
     .option('--output-dir [path]')
     .option(`--mfm`) //so to make a dev mfm run: npm start -- --dev
+    .option(`--arcade`)
     .option(`--dev`)
     .parse(process.argv)
 
 const mfm               = program.mfm
+const arcade            = program.arcade
 const devMode           = program.dev
 const outputDir         = program.outputDir
 //bring in settings from quickplay's ini file, or use the nix dev settings
@@ -49,7 +51,7 @@ const inis = require('./src/inis.json')
 const {noMatureFilters, arcadeFilters, noPreliminaryFilter, noClonesFilter} = require('./src/filters.js') 
 
 // next let's make folder split by genre, set type will be the folder name eg: 'full', 'mature'
-const genreSplit = (emuType, winIconDir, json) => {
+const genreSplit = ( outputDir, emuType, winIconDir, json) => {
   const genreArray = getUniqueProps(`genre`)(json)
   //now for each genre we need to make a folder with a romdata in it
   R.map( genre => {
@@ -67,62 +69,62 @@ const manualOutput = mameJson => {
     const noMatureJson = makeFilteredJson(noMatureFilters)(mameJson)
     const noPreliminaryFullJson     = makeFilteredJson(noPreliminaryFilter)(mameJson)
     const arcadeFullJson            = makeFilteredJson(arcadeFilters)(mameJson)
-    generateRomdata(Mame,      `full/allGames`, winIconDir)(mameJson)
-    generateRomdata(RetroArch, `full/allGames`, winIconDir)(mameJson)
+    generateRomdata(Mame,      `${outputDir}/full/allGames`, winIconDir)(mameJson)
+    generateRomdata(RetroArch, `${outputDir}/full/allGames`, winIconDir)(mameJson)
 
     const noPreliminaryNoMatureJson = makeFilteredJson(noPreliminaryFilter)(noMatureJson)
     const arcadeNoMatureJson        = makeFilteredJson(arcadeFilters)(noMatureJson)
-    generateRomdata(Mame,      `noMature/allGames`, winIconDir)(noMatureJson)
-    generateRomdata(RetroArch, `noMature/allGames`, winIconDir)(noMatureJson)
+    generateRomdata(Mame,      `${outputDir}/noMature/allGames`, winIconDir)(noMatureJson)
+    generateRomdata(RetroArch, `${outputDir}/noMature/allGames`, winIconDir)(noMatureJson)
 
     const arcadeFullWorkingJson     = makeFilteredJson(arcadeFilters)(noPreliminaryFullJson)
-    generateRomdata(Mame,      `full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
-    generateRomdata(RetroArch, `full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
+    generateRomdata(Mame,      `${outputDir}/full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
+    generateRomdata(RetroArch, `${outputDir}/full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
 
     const arcadeNoMatureWorkingJson = makeFilteredJson(arcadeFilters)(noPreliminaryNoMatureJson)
-    generateRomdata(Mame,      `noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
-    generateRomdata(RetroArch, `noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
+    generateRomdata(Mame,      `${outputDir}/noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
+    generateRomdata(RetroArch, `${outputDir}/noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
     
     const noClonesFullJson          = makeFilteredJson(noClonesFilter)(mameJson)
-    generateRomdata(Mame,      `full/allGames/noClones`,        winIconDir)(noClonesFullJson)
-    generateRomdata(RetroArch, `full/allGames/noClones`,        winIconDir)(noClonesFullJson)
+    generateRomdata(Mame,      `${outputDir}/full/allGames/noClones`,        winIconDir)(noClonesFullJson)
+    generateRomdata(RetroArch, `${outputDir}/full/allGames/noClones`,        winIconDir)(noClonesFullJson)
 
     const noClonesNoMatureJson        = makeFilteredJson(noClonesFilter)(noMatureJson)
-    generateRomdata(Mame,      `noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
-    generateRomdata(RetroArch, `noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
+    generateRomdata(Mame,      `${outputDir}/noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
+    generateRomdata(RetroArch, `${outputDir}/noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
 
     const noClonesFullWorkingJson     = makeFilteredJson(noClonesFilter)(noPreliminaryFullJson)
-    generateRomdata(Mame,      `full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
-    generateRomdata(RetroArch, `full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
+    generateRomdata(Mame,      `${outputDir}/full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
+    generateRomdata(RetroArch, `${outputDir}/full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
 
     const noClonesNoMatureWorkingJson = makeFilteredJson(noClonesFilter)(noPreliminaryNoMatureJson)
-    generateRomdata(Mame,      `noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
-    generateRomdata(RetroArch, `noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
+    generateRomdata(Mame,      `${outputDir}/noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
+    generateRomdata(RetroArch, `${outputDir}/noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
     
 
-    generateRomdata(Mame,      `full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
-    generateRomdata(RetroArch, `full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
+    generateRomdata(Mame,      `${outputDir}/full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
+    generateRomdata(RetroArch, `${outputDir}/full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
 
-    generateRomdata(Mame,      `noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
-    generateRomdata(RetroArch, `noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
+    generateRomdata(Mame,      `${outputDir}/noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
+    generateRomdata(RetroArch, `${outputDir}/noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
 
-    generateRomdata(Mame,      `full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
-    generateRomdata(RetroArch, `full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
+    generateRomdata(Mame,      `${outputDir}/full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
+    generateRomdata(RetroArch, `${outputDir}/full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
 
-    generateRomdata(Mame,      `noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
-    generateRomdata(RetroArch, `noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
+    generateRomdata(Mame,      `${outputDir}/noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
+    generateRomdata(RetroArch, `${outputDir}/noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
 
-    genreSplit(`full/allGames`, Mame, winIconDir, mameJson)
-    genreSplit(`full/allGames`, RetroArch, winIconDir, mameJson)
+    genreSplit(`${outputDir}/full/allGames`, Mame, winIconDir, mameJson)
+    genreSplit(`${outputDir}/full/allGames`, RetroArch, winIconDir, mameJson)
 
-    genreSplit(`noMature/allGames`, Mame, winIconDir, noMatureJson)
-    genreSplit(`noMature/allGames`, RetroArch, winIconDir, noMatureJson)
+    genreSplit(`${outputDir}/noMature/allGames`, Mame, winIconDir, noMatureJson)
+    genreSplit(`${outputDir}/noMature/allGames`, RetroArch, winIconDir, noMatureJson)
 
-    genreSplit(`full/workingOnly`, Mame, winIconDir, noPreliminaryFullJson)
-    genreSplit(`full/workingOnly`, RetroArch, winIconDir, noPreliminaryFullJson)
+    genreSplit(`${outputDir}/full/workingOnly`, Mame, winIconDir, noPreliminaryFullJson)
+    genreSplit(`${outputDir}/full/workingOnly`, RetroArch, winIconDir, noPreliminaryFullJson)
 
-    genreSplit(`noMature/workingOnly`, Mame, winIconDir, noPreliminaryNoMatureJson)
-    genreSplit(`noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson) 
+    genreSplit(`${outputDir}/noMature/workingOnly`, Mame, winIconDir, noPreliminaryNoMatureJson)
+    genreSplit(`${outputDir}/noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson) 
 
   }
 
@@ -138,7 +140,7 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
       , printJson(outputDir, jsonOutName)
     )(filledSystems) 
  
-    //manualOutput(mameJson)
+    
 
    return mameJson
   })
@@ -150,15 +152,20 @@ if (mfm) {
     mfmReaderAsync(mfmTextFileStream) 
       .then( (mfmArray) => {
         const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
-  
         generateRomdata(emu, outputDir, winIconDir)(mfmFilteredJson)
-        // TODO: its an integration test to print these two out, dev mode still needs to 
-        //generateRomdata(Mame,      `mfm`, winIconDir)(mfmFilteredJson)
-        //generateRomdata(RetroArch, `mfm`, winIconDir)(mfmFilteredJson)
-  
-  
+
         return mameJson
       })
     )
+  .catch(err => _throw(err) )
+}
+
+
+if (arcade) {
+  makeMameJsonPromise.then( mameJson => {
+    manualOutput(mameJson)
+
+    return mameJson
+  })
   .catch(err => _throw(err) )
 }
