@@ -89,6 +89,15 @@ const tickSplitSeries      = strategy.tickSplitSeries
 const tickSplitVersion     = strategy.tickSplitVersion
 const tickSplitYear        = strategy.tickSplitYear    
 
+const splitObject = [
+   { name: `company`  , value: parseInt(tickSplitCompany )}
+ , { name: `genre`    , value: parseInt(tickSplitGenre   )}
+ , { name: `nplayers` , value: parseInt(tickSplitNPlayers)}
+ //, { name: `bestgames`, value: parseInt(tickSplitRating  )}
+ //, { name: `series`   , value: parseInt(tickSplitSeries  )}
+ , { name: `version`  , value: parseInt(tickSplitVersion )}
+ , { name: `year`     , value: parseInt(tickSplitYear    )}
+]
 
 const {Mame, RetroArch}    = require('./src/types.js') //TODO: this is for dev mode only, better to make it
 console.log(`output dir is ${outputDir}`)
@@ -216,6 +225,14 @@ if (arcade) {
 
   const userFilteredJson = applyFilters(tickObject, mameJson)
   generateRomdata(emu, outputDir, winIconDir)(userFilteredJson)
+
+  //now use that romdata to make the splits the user wants
+  //this isn't a reduce because we no longer wish to reduce on the json, we use the same (filtered) json for each filter 
+  const applySplit = (tick, mameJson) => tick.value? makeSplit(tick.name, outputDir, emu, winIconDir, mameJson):``
+  const applySplits = (splitObject, mameJson) =>
+    R.map( tick => applySplit(tick, mameJson), splitObject )
+  applySplits(splitObject, userFilteredJson)
+
 
   return userFilteredJson
   })
