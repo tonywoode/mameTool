@@ -64,7 +64,7 @@ const applySublistFilters = (sublistArray, mameJson) =>
   R.reduce( (newJson, filter) => filter(newJson), mameJson, sublistArray)
 
 // run the above
-const makeFilteredJson = (filterArray) => mameJson => 
+const makeFilteredJson = filterArray => mameJson => 
   applySublistFilters( sublistArray(filterArray), mameJson)
 
 

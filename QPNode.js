@@ -48,6 +48,38 @@ const tickSimulator        = strategy.tickSimulator
 const tickTableTop         = strategy.tickTableTop
 const tickQuiz             = strategy.tickQuiz
 const tickUtilities        = strategy.tickUtilities
+
+const {
+   arcadeFilter 
+ , biosFilter   
+ , casinoFilter      
+ , clonesFilter      
+ , matureFilter      
+ , mechanicalFilter  
+ , messFilter        
+ , preliminaryFilter 
+ , printClubFilter   
+ , simulatorFilter   
+ , tableTopFilter    
+ , quizFilter        
+ , utilitiesFilter    
+} = require('./src/filters.js') 
+
+const tickObject = [
+   { name: `noBios`       , value: parseInt(tickBios)       , filter: biosFilter        }      
+ , { name: `noCasino`     , value: parseInt(tickCasino)     , filter: casinoFilter      }    
+ , { name: `noClones`     , value: parseInt(tickClones)     , filter: clonesFilter      }    
+ , { name: `noMature`     , value: parseInt(tickMature)     , filter: matureFilter      }    
+ , { name: `noMechanical` , value: parseInt(tickMechanical) , filter: mechanicalFilter  }
+ , { name: `noMess`       , value: parseInt(tickMess)       , filter: messFilter        }      
+ , { name: `noPreliminary`, value: parseInt(tickPreliminary), filter: preliminaryFilter }
+ , { name: `noPrintClub`  , value: parseInt(tickPrintClub)  , filter: printClubFilter   }
+ , { name: `noSimulator`  , value: parseInt(tickSimulator)  , filter: simulatorFilter   }
+ , { name: `noTableTop`   , value: parseInt(tickTableTop)   , filter: tableTopFilter    }
+ , { name: `noQuiz`       , value: parseInt(tickQuiz)       , filter: quizFilter        }
+ , { name: `noUtilities`  , value: parseInt(tickUtilities)  , filter: utilitiesFilter   }
+]
+
 //and the splits
 const tickSplitCompany     = strategy.tickSplitCompany
 const tickSplitGenre       = strategy.tickSplitGenre   
@@ -72,11 +104,8 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
 const inis = require('./src/inis.json') 
 
-const {matureFilter, arcadeFilter, preliminaryFilter, clonesFilter} = require('./src/filters.js') 
-
-
 const manualOutput = mameJson => {
-    const noMatureJson = makeFilteredJson(matureFilter)(mameJson)
+    const noMatureJson              = makeFilteredJson(matureFilter)(mameJson)
     const noPreliminaryFullJson     = makeFilteredJson(preliminaryFilter)(mameJson)
     const arcadeFullJson            = makeFilteredJson(arcadeFilter)(mameJson)
     generateRomdata(Mame,      `${outputDir}/full/allGames`, winIconDir)(mameJson)
@@ -166,16 +195,29 @@ if (mfm) {
 
         return mameJson
       })
-    )
+  )
   .catch(err => _throw(err) )
 }
 
-
 if (arcade) {
   makeMameJsonPromise.then( mameJson => {
-    manualOutput(mameJson)
 
-    return mameJson
+  //manualOutput(mameJson)
+
+  /* make the romdata the user selected. its a reduce 
+   * what to operate on =  tickObject. what the accumulator is = mameJson
+   * what to do to accum each time around =  if (filterThisProp) makeFilteredJson(thisProp'sFilter)(mameJson)*/
+
+  //so put that together
+  const applyFilter = (tick, mameJson) => tick.value? makeFilteredJson(tick.filter)(mameJson): mameJson
+    
+  const applyFilters = (tickObject, mameJson) =>
+    R.reduce( (newJson, tick) => applyFilter(tick, newJson), mameJson, tickObject )
+
+  const userFilteredJson = applyFilters(tickObject, mameJson)
+  generateRomdata(emu, outputDir, winIconDir)(userFilteredJson)
+
+  return userFilteredJson
   })
   .catch(err => _throw(err) )
 }
