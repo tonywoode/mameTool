@@ -23,7 +23,7 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
   return json
 }
   
- /*this is just like the rreduce that applys filters, but ita not a reduce because we no longer wish to reduce on the json, 
+ /*this is just like the reduce that appliess filters, but its not a reduce because we no longer wish to reduce on the json, 
   * we use the same (filtered) json for each filter */
 
 // a function that is used on an individual split by the below map

@@ -4,12 +4,12 @@
   "description": "",
   "main": "QPNode.js",
   "directories": {
-    "outputDir": "./outputs"
+    "outputDir": "./outputs",
+    "binOutputDir": "/Volumes/Untitled/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin",
+    "binOutputDirParallels": "/Volumes/C/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin"
   },
   "config": {
     "devFlags": "--dev",
-    "binOutputDir": "/Volumes/Untitled/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin",
-    "binOutputDirParallels": "/Volumes/C/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin",
     "getSpecs": "find specs -name '*spec.js'"
   },
   "scripts": {
@@ -17,13 +17,13 @@
     "comment2": "eg: 'npm start -- --arcade' will make an arcade set to the ini flags in settings.ini, and output to ./outputs",
     "base": "node QPNode.js",
     "start": "node QPNode.js --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags",
-    "full": "trash $npm_package_config_outputDir && npm run start",
+    "full": "trash $npm_package_directories_outputDir && npm run start --",
     "basedebug": "node --inspect-brk QPNode.js",
     "debug": "npm run basedebug -- --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags",
-    "fulldebug": "trash $npm_package_config_outputDir && npm run debug",
+    "fulldebug": "trash $npm_package_directories_outputDir && npm run debug --",
     "test": "mocha -- --require ./specs/init.js $(eval $npm_package_config_getSpecs)",
-    "package": "pkg QPNode.js -t win --out-path $npm_package_config_binOutputDir",
-    "packageParallels": "pkg QPNode.js -t win --out-path $npm_package_config_binOutputDirParallels" 
+    "package": "pkg QPNode.js -t win --out-path $npm_package_directories_binOutputDir",
+    "packageParallels": "pkg QPNode.js -t win --out-path $npm_package_directories_binOutputDirParallels" 
   },
   "author": "",
   "license": "ISC",
