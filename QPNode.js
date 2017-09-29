@@ -1,19 +1,19 @@
 'use strict'
 
-const R                            = require('ramda')
-const {readFile}                   = require('fs')
-const program                      = require('commander')
-const _throw                       = m => { throw new Error(m) }
+const R                                = require('ramda')
+const {readFile}                       = require('fs')
+const program                          = require('commander')
+const _throw                           = m => { throw new Error(m) }
 
-const {cleanJson}                  = require('./src/cleanJson.js')
-const {iniToJson}                  = require('./src/fillFromIni.js')
-const {makeSystemsAsync}           = require('./src/readMameXml.js')
-const {mfmReaderAsync, mfmFilter}  = require('./src/mfmReader.js')
-const {printJson, generateRomdata} = require('./src/printers.js')
-const {makeFilteredJson}           = require('./src/filterMameJson.js')
-const {makeEmu}                    = require('./src/types.js')
-const makeSplit                    = require('./src/makeSplit.js')
-const manualOutput                 = require('./src/manualOutput.js')
+const {cleanJson}                      = require('./src/cleanJson.js')
+const {iniToJson}                      = require('./src/fillFromIni.js')
+const {makeSystemsAsync}               = require('./src/readMameXml.js')
+const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
+const {printJson, generateRomdata}     = require('./src/printers.js')
+const {makeFilteredJson, applyFilters} = require('./src/filterMameJson.js')
+const {makeEmu}                        = require('./src/types.js')
+const {applySplits}                    = require('./src/makeSplit.js')
+const manualOutput                     = require('./src/manualOutput.js')
 
 program
     .option('--output-dir [path]')
@@ -71,8 +71,8 @@ const splitObject = [
    { name: `company`  , value: parseInt(strategy.tickSplitCompany )}
  , { name: `genre`    , value: parseInt(strategy.tickSplitGenre   )}
  , { name: `nplayers` , value: parseInt(strategy.tickSplitNPlayers)}
- //, { name: `bestgames`, value: parseInt(strategy.tickSplitRating  )}
- //, { name: `series`   , value: parseInt(strategy.tickSplitSeries  )}
+ , { name: `bestgames`, value: parseInt(strategy.tickSplitRating  )}
+ , { name: `series`   , value: parseInt(strategy.tickSplitSeries  )}
  , { name: `version`  , value: parseInt(strategy.tickSplitVersion )}
  , { name: `year`     , value: parseInt(strategy.tickSplitYear    )}
 ]
@@ -125,23 +125,11 @@ if (arcade) {
 
   //manualOutput(mameJson, winIconDir, outputDir) //these manual tests could be an integration test
 
-  /* make the romdata the user selected. its a reduce 
-   * what to operate on =  tickObject. what the accumulator is = mameJson
-   * what to do to accum each time around =  if (filterThisProp) makeFilteredJson(thisProp'sFilter)(mameJson)*/
-  const applyFilter = (tick, mameJson) => tick.value? makeFilteredJson(tick.filter)(mameJson): mameJson
-    
-  const applyFilters = (tickObject, mameJson) =>
-    R.reduce( (newJson, tick) => applyFilter(tick, newJson), mameJson, tickObject )
-
   const userFilteredJson = applyFilters(tickObject, mameJson)
   generateRomdata(emu, outputDir, winIconDir)(userFilteredJson)
 
   //now use that romdata to make the splits the user wants
-  //this isn't a reduce because we no longer wish to reduce on the json, we use the same (filtered) json for each filter 
-  const applySplit = (tick, mameJson) => tick.value? makeSplit(tick.name, outputDir, emu, winIconDir, mameJson):``
-  const applySplits = (splitObject, mameJson) =>
-    R.map( tick => applySplit(tick, mameJson), splitObject )
-  applySplits(splitObject, userFilteredJson)
+  applySplits(splitObject, outputDir, emu, winIconDir, userFilteredJson)
 
   return userFilteredJson
   })

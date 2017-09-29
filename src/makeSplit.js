@@ -1,11 +1,11 @@
 'use strict'
 
-const R                = require('ramda')
+const R                                  = require('ramda')
 const {getUniqueProps, makeFilteredJson} = require('./filterMameJson.js')
-const {generateRomdata} = require('./printers.js')
+const {generateRomdata}                  = require('./printers.js')
 
 // let's make folder split by e.g.: genre, set type will be the folder name eg: 'full', 'mature'
-module.exports = ( jsonKey,  outputDir, emuType, winIconDir, json) => {
+const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
   const valuesArray = getUniqueProps(jsonKey)(json)
   //now for each genre we need to make a folder with a romdata in it
   R.map( value => {
@@ -22,3 +22,15 @@ module.exports = ( jsonKey,  outputDir, emuType, winIconDir, json) => {
  
   return json
 }
+  
+ /*this is just like the rreduce that applys filters, but ita not a reduce because we no longer wish to reduce on the json, 
+  * we use the same (filtered) json for each filter */
+
+// a function that is used on an individual split by the below map
+const applySplit = (tick, outputDir, emu, winIconDir, mameJson) => 
+  tick.value? processSplit(tick.name, outputDir, emu, winIconDir, mameJson):``
+//map all splits the user selected over the same json
+const applySplits = (splitObject, outputDir, emu, winIconDir, mameJson) => 
+  R.map( tick => applySplit(tick, outputDir, emu, winIconDir, mameJson), splitObject )
+  
+module.exports = {processSplit, applySplit, applySplits}

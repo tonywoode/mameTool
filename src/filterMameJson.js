@@ -67,7 +67,18 @@ const applySublistFilters = (sublistArray, mameJson) =>
 const makeFilteredJson = filterArray => mameJson => 
   applySublistFilters( sublistArray(filterArray), mameJson)
 
+/* but now we need to apply that to each filter ie: tickbox the user selected to make
+ * the romdata they want. its a reduce: 
+ * what to operate on =  tickObject. what the accumulator is = mameJson
+ * what to do to accum each time around =  if (filterThisProp) makeFilteredJson(thisProp'sFilter)(mameJson) */
+
+//this is the function that gers applied each time round
+const applyFilter = (tick, mameJson) => tick.value? makeFilteredJson(tick.filter)(mameJson): mameJson
+
+//this applies that function to each tickbox
+const applyFilters = (tickObject, mameJson) =>
+  R.reduce( (newJson, tick) => applyFilter(tick, newJson), mameJson, tickObject )
 
 module.exports = { sublist, doesPropHaveThisValue, removeBool
-  , keepBool, keepProp, removeProp, getUniqueProps, makeFilteredJson }
+  , keepBool, keepProp, removeProp, getUniqueProps, makeFilteredJson, applyFilters }
 
