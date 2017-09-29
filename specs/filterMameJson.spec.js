@@ -65,7 +65,7 @@ const mockSystems = [
 describe(`FilterMameJson`, () => {
 
   describe(`#doesPropHaveThisValue`, () => {
-    it(`when passed an path,value and object, tell me an existing KV is true`, () => {
+    it(`when passed a path,value and object, tell me an existing KV is true`, () => {
       expect(doesPropHaveThisValue(['year'], '1981')(mockSystems[0])).to.be.true
     })
   
@@ -130,7 +130,12 @@ describe(`FilterMameJson`, () => {
     it(`produces a unique list of properties for a key`, () => {
       expect(getUniqueProps("genre")(mockSystems)).to.deep.equal([ 'Maze', 'Game Console' ])
     })
-
+  })
+  
+  describe(`#getUniqueProps`, () => {
+    it(`when given a non-existent key, retruns an empty set (not undefined)`, () => {
+      expect(getUniqueProps("somethingSilly")(mockSystems)).to.deep.equal(new Array)
+    })
   })
 
   describe(`#keepProp`, () => {

@@ -6,7 +6,11 @@ const _throw = m => { throw new Error(m) }
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?
 
 // getUniqueProps:: (string, list) => [set]
-const getUniqueProps = prop => systems => R.uniq(R.pluck(prop)(systems) )
+const getUniqueProps = prop => systems => R.uniq( R.pipe(
+     R.pluck(prop)
+   , R.reject(R.isNil) //pluck will pluck undef if the key doesn't exist in an item
+  )(systems) 
+)
 
 // get a value, nested if neccessary
 // getProp:: [path] => value

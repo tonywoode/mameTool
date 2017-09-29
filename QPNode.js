@@ -33,7 +33,7 @@ const mfmTextFileStream  = strategy.mfmTextFileStream
 const winIconDir         = strategy.winIconDir    
 const iniDir             = strategy.iniDir
 const mameExe            = strategy.mameExe //dev mode is going to give undef
-const emu                = makeEmu(mameExe, outputDir); console.log(`so emu is ${emu.toString()}`)
+const emu                = makeEmu(mameExe); console.log(`so emu is ${emu.toString()}`)
 const jsonOutName        = `mame.json`
 
 const {
