@@ -11,7 +11,6 @@ const {makeSystemsAsync}               = require('./src/readMameXml.js')
 const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
 const {printJson, generateRomdata}     = require('./src/printers.js')
 const {makeFilteredJson, applyFilters} = require('./src/filterMameJson.js')
-const {makeEmu}                        = require('./src/types.js')
 const {applySplits}                    = require('./src/makeSplit.js')
 const manualOutput                     = require('./src/manualOutput.js')
 
@@ -32,8 +31,7 @@ const mameXMLStream      = strategy.mameXMLStream
 const mfmTextFileStream  = strategy.mfmTextFileStream
 const winIconDir         = strategy.winIconDir    
 const iniDir             = strategy.iniDir
-const mameExe            = strategy.mameExe //dev mode is going to give undef
-const emu                = makeEmu(mameExe); console.log(`so emu is ${emu.toString()}`)
+const emu                = strategy.mameExe //dev mode is going to give undef
 const jsonOutName        = `mame.json`
 
 const {
@@ -123,7 +121,8 @@ if (mfm) {
 if (arcade) {
   makeMameJsonPromise.then( mameJson => {
 
-  //manualOutput(mameJson, winIconDir, outputDir) //these manual tests could be an integration test
+  //manualOutput(`Mame64 Win32`, mameJson, winIconDir, outputDir) //these manual tests could be an integration test
+  //manualOutput(`Retroarch Arcade (Mame) Win32`, mameJson, winIconDir, outputDir) //these manual tests could be an integration test
 
   const userFilteredJson = applyFilters(tickObject, mameJson)
   generateRomdata(emu, outputDir, winIconDir)(userFilteredJson)

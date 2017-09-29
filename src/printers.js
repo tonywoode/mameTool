@@ -68,8 +68,9 @@ const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName) => romdata =
   return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
 
-exports.generateRomdata = (Emu, romdataOutDir, mameExtrasDir) => mameJson => {
-    const mameRomdata  = makeRomdata(Emu.EmuName)(mameJson)
-    printRomdataFolder(romdataOutDir, mameExtrasDir, Emu.Icon)(mameRomdata)
+exports.generateRomdata = (emu, romdataOutDir, mameExtrasDir) => mameJson => {
+    const mameRomdata  = makeRomdata(emu)(mameJson)
+    const emuIcon = /RetroArch/i.test(emu)? `RetroArch` : `Mame`
+    printRomdataFolder(romdataOutDir, mameExtrasDir, emuIcon)(mameRomdata)
     return mameJson
 }
