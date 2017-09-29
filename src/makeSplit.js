@@ -11,8 +11,11 @@ module.exports = ( jsonKey,  outputDir, emuType, winIconDir, json) => {
   R.map( value => {
     const splitFilter = [ { name: value, type: `keep`, path: [jsonKey], value } ]   
     const thisSplitJson = makeFilteredJson(splitFilter)(json)
-    //make a folder per genre (but windows interprets the . in Misc. oddly) 
-    const thisFolderName = `${outputDir}/${jsonKey}/${value.replace(`.`, ``)}`
+    //make a folder per genre
+    const thisFolderName = `${outputDir}/${jsonKey}/${value
+      .replace(`.`, ``) //but windows interprets the . in Misc. oddly
+      .replace(/ \/ /, "/") //use the slash to make subfolders, but the spaces around the slash cause "SNK" and "SNK "
+    }`
     generateRomdata(emuType, thisFolderName, winIconDir)(thisSplitJson)
   
   }, valuesArray)
