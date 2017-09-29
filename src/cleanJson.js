@@ -17,8 +17,10 @@ const convertToBool = R.pipe(deepYesNoToBool, deepRemoveFalsey)
 
 // get rid of $ and $name keys, they aren't needed, pointfree processing mameJson systems
 const cleanDollar = subobj => R.prop( "$", subobj)
-const cleanKey = key => R.map(obj => obj[key]? 
-    R.assoc(`${key}`, cleanDollar(obj[key]), obj) : obj )
+const cleanKey = key => R.map(obj => obj[key] 
+  && (cleanDollar(obj[key]) !== undefined) ? //a re-run of the cleanup would delete the subkey otherwise
+    R.assoc(key, cleanDollar(obj[key]), obj) 
+  : obj )
 
 // none of the other props of these objects will help us make a list of games to play
 //   I find them distracting. (Enum hack is stackoverflow.com/questions/8206453 and is so
