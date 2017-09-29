@@ -10,9 +10,10 @@ const {iniToJson}                  = require('./src/fillFromIni.js')
 const {makeSystemsAsync}           = require('./src/readMameXml.js')
 const {mfmReaderAsync, mfmFilter}  = require('./src/mfmReader.js')
 const {printJson, generateRomdata} = require('./src/printers.js')
-const {makeFilteredJson} = require('./src/filterMameJson.js')
+const {makeFilteredJson}           = require('./src/filterMameJson.js')
 const {makeEmu}                    = require('./src/types.js')
 const makeSplit                    = require('./src/makeSplit.js')
+const manualOutput                 = require('./src/manualOutput.js')
 
 program
     .option('--output-dir [path]')
@@ -32,22 +33,8 @@ const mfmTextFileStream  = strategy.mfmTextFileStream
 const winIconDir         = strategy.winIconDir    
 const iniDir             = strategy.iniDir
 const mameExe            = strategy.mameExe //dev mode is going to give undef
-const emu                = makeEmu(mameExe, outputDir);              console.log(`so emu is ${emu.toString()}`)
+const emu                = makeEmu(mameExe, outputDir); console.log(`so emu is ${emu.toString()}`)
 const jsonOutName        = `mame.json`
-
-//TODO: dry this up, its silly. All the tickboxes
-const tickBios             = strategy.tickBios         
-const tickCasino           = strategy.tickCasino
-const tickClones           = strategy.tickClones
-const tickMature           = strategy.tickMature
-const tickMechanical       = strategy.tickMechanical
-const tickMess             = strategy.tickMess
-const tickPreliminary      = strategy.tickPreliminary
-const tickPrintClub        = strategy.tickPrintClub
-const tickSimulator        = strategy.tickSimulator
-const tickTableTop         = strategy.tickTableTop
-const tickQuiz             = strategy.tickQuiz
-const tickUtilities        = strategy.tickUtilities
 
 const {
    arcadeFilter 
@@ -66,40 +53,30 @@ const {
 } = require('./src/filters.js') 
 
 const tickObject = [
-   { name: `noBios`       , value: parseInt(tickBios)       , filter: biosFilter        }      
- , { name: `noCasino`     , value: parseInt(tickCasino)     , filter: casinoFilter      }    
- , { name: `noClones`     , value: parseInt(tickClones)     , filter: clonesFilter      }    
- , { name: `noMature`     , value: parseInt(tickMature)     , filter: matureFilter      }    
- , { name: `noMechanical` , value: parseInt(tickMechanical) , filter: mechanicalFilter  }
- , { name: `noMess`       , value: parseInt(tickMess)       , filter: messFilter        }      
- , { name: `noPreliminary`, value: parseInt(tickPreliminary), filter: preliminaryFilter }
- , { name: `noPrintClub`  , value: parseInt(tickPrintClub)  , filter: printClubFilter   }
- , { name: `noSimulator`  , value: parseInt(tickSimulator)  , filter: simulatorFilter   }
- , { name: `noTableTop`   , value: parseInt(tickTableTop)   , filter: tableTopFilter    }
- , { name: `noQuiz`       , value: parseInt(tickQuiz)       , filter: quizFilter        }
- , { name: `noUtilities`  , value: parseInt(tickUtilities)  , filter: utilitiesFilter   }
+   { name: `noBios`       , value: parseInt(strategy.tickBios)       , filter: biosFilter        }      
+ , { name: `noCasino`     , value: parseInt(strategy.tickCasino)     , filter: casinoFilter      }    
+ , { name: `noClones`     , value: parseInt(strategy.tickClones)     , filter: clonesFilter      }    
+ , { name: `noMature`     , value: parseInt(strategy.tickMature)     , filter: matureFilter      }    
+ , { name: `noMechanical` , value: parseInt(strategy.tickMechanical) , filter: mechanicalFilter  }
+ , { name: `noMess`       , value: parseInt(strategy.tickMess)       , filter: messFilter        }      
+ , { name: `noPreliminary`, value: parseInt(strategy.tickPreliminary), filter: preliminaryFilter }
+ , { name: `noPrintClub`  , value: parseInt(strategy.tickPrintClub)  , filter: printClubFilter   }
+ , { name: `noSimulator`  , value: parseInt(strategy.tickSimulator)  , filter: simulatorFilter   }
+ , { name: `noTableTop`   , value: parseInt(strategy.tickTableTop)   , filter: tableTopFilter    }
+ , { name: `noQuiz`       , value: parseInt(strategy.tickQuiz)       , filter: quizFilter        }
+ , { name: `noUtilities`  , value: parseInt(strategy.tickUtilities)  , filter: utilitiesFilter   }
 ]
-
-//and the splits
-const tickSplitCompany     = strategy.tickSplitCompany
-const tickSplitGenre       = strategy.tickSplitGenre   
-const tickSplitNPlayers    = strategy.tickSplitNPlayers
-const tickSplitRating      = strategy.tickSplitRating
-const tickSplitSeries      = strategy.tickSplitSeries
-const tickSplitVersion     = strategy.tickSplitVersion
-const tickSplitYear        = strategy.tickSplitYear    
 
 const splitObject = [
-   { name: `company`  , value: parseInt(tickSplitCompany )}
- , { name: `genre`    , value: parseInt(tickSplitGenre   )}
- , { name: `nplayers` , value: parseInt(tickSplitNPlayers)}
- //, { name: `bestgames`, value: parseInt(tickSplitRating  )}
- //, { name: `series`   , value: parseInt(tickSplitSeries  )}
- , { name: `version`  , value: parseInt(tickSplitVersion )}
- , { name: `year`     , value: parseInt(tickSplitYear    )}
+   { name: `company`  , value: parseInt(strategy.tickSplitCompany )}
+ , { name: `genre`    , value: parseInt(strategy.tickSplitGenre   )}
+ , { name: `nplayers` , value: parseInt(strategy.tickSplitNPlayers)}
+ //, { name: `bestgames`, value: parseInt(strategy.tickSplitRating  )}
+ //, { name: `series`   , value: parseInt(strategy.tickSplitSeries  )}
+ , { name: `version`  , value: parseInt(strategy.tickSplitVersion )}
+ , { name: `year`     , value: parseInt(strategy.tickSplitYear    )}
 ]
 
-const {Mame, RetroArch}    = require('./src/types.js') //TODO: this is for dev mode only, better to make it
 console.log(`output dir is ${outputDir}`)
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
@@ -113,69 +90,6 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
 const inis = require('./src/inis.json') 
 
-const manualOutput = mameJson => {
-    const noMatureJson              = makeFilteredJson(matureFilter)(mameJson)
-    const noPreliminaryFullJson     = makeFilteredJson(preliminaryFilter)(mameJson)
-    const arcadeFullJson            = makeFilteredJson(arcadeFilter)(mameJson)
-    generateRomdata(Mame,      `${outputDir}/full/allGames`, winIconDir)(mameJson)
-    generateRomdata(RetroArch, `${outputDir}/full/allGames`, winIconDir)(mameJson)
-
-    const noPreliminaryNoMatureJson = makeFilteredJson(preliminaryFilter)(noMatureJson)
-    const arcadeNoMatureJson        = makeFilteredJson(arcadeFilter)(noMatureJson)
-    generateRomdata(Mame,      `${outputDir}/noMature/allGames`, winIconDir)(noMatureJson)
-    generateRomdata(RetroArch, `${outputDir}/noMature/allGames`, winIconDir)(noMatureJson)
-
-    const arcadeFullWorkingJson     = makeFilteredJson(arcadeFilter)(noPreliminaryFullJson)
-    generateRomdata(Mame,      `${outputDir}/full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
-    generateRomdata(RetroArch, `${outputDir}/full/workingOnly`,     winIconDir)(noPreliminaryFullJson)
-
-    const arcadeNoMatureWorkingJson = makeFilteredJson(arcadeFilter)(noPreliminaryNoMatureJson)
-    generateRomdata(Mame,      `${outputDir}/noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
-    generateRomdata(RetroArch, `${outputDir}/noMature/workingOnly`, winIconDir)(noPreliminaryNoMatureJson)
-    
-    const noClonesFullJson          = makeFilteredJson(clonesFilter)(mameJson)
-    generateRomdata(Mame,      `${outputDir}/full/allGames/noClones`,        winIconDir)(noClonesFullJson)
-    generateRomdata(RetroArch, `${outputDir}/full/allGames/noClones`,        winIconDir)(noClonesFullJson)
-
-    const noClonesNoMatureJson        = makeFilteredJson(clonesFilter)(noMatureJson)
-    generateRomdata(Mame,      `${outputDir}/noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
-    generateRomdata(RetroArch, `${outputDir}/noMature/allGames/noClones`,    winIconDir)(noClonesNoMatureJson)
-
-    const noClonesFullWorkingJson     = makeFilteredJson(clonesFilter)(noPreliminaryFullJson)
-    generateRomdata(Mame,      `${outputDir}/full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
-    generateRomdata(RetroArch, `${outputDir}/full/workingOnly/noClones`,     winIconDir)(noClonesFullWorkingJson)
-
-    const noClonesNoMatureWorkingJson = makeFilteredJson(clonesFilter)(noPreliminaryNoMatureJson)
-    generateRomdata(Mame,      `${outputDir}/noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
-    generateRomdata(RetroArch, `${outputDir}/noMature/workingOnly/noClones`, winIconDir)(noClonesNoMatureWorkingJson)
-    
-
-    generateRomdata(Mame,      `${outputDir}/full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
-    generateRomdata(RetroArch, `${outputDir}/full/allGames/originalVideoGames`,        winIconDir)(arcadeFullJson)
-
-    generateRomdata(Mame,      `${outputDir}/noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
-    generateRomdata(RetroArch, `${outputDir}/noMature/allGames/originalVideoGames`,    winIconDir)(arcadeNoMatureJson)
-
-    generateRomdata(Mame,      `${outputDir}/full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
-    generateRomdata(RetroArch, `${outputDir}/full/workingOnly/originalVideoGames`,     winIconDir)(arcadeFullWorkingJson)
-
-    generateRomdata(Mame,      `${outputDir}/noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
-    generateRomdata(RetroArch, `${outputDir}/noMature/workingOnly/originalVideoGames`, winIconDir)(arcadeNoMatureWorkingJson)
-
-    makeSplit(`genre`, `${outputDir}/full/allGames`, Mame, winIconDir, mameJson)
-    makeSplit(`genre`, `${outputDir}/full/allGames`, RetroArch, winIconDir, mameJson)
-
-    makeSplit(`genre`, `${outputDir}/noMature/allGames`, Mame, winIconDir, noMatureJson)
-    makeSplit(`genre`, `${outputDir}/noMature/allGames`, RetroArch, winIconDir, noMatureJson)
-
-    makeSplit(`genre`, `${outputDir}/full/workingOnly`, Mame, winIconDir, noPreliminaryFullJson)
-    makeSplit(`genre`, `${outputDir}/full/workingOnly`, RetroArch, winIconDir, noPreliminaryFullJson)
-
-    makeSplit(`genre`, `${outputDir}/noMature/workingOnly`, Mame, winIconDir, noPreliminaryNoMatureJson)
-    makeSplit(`genre`, `${outputDir}/noMature/workingOnly`, RetroArch, winIconDir, noPreliminaryNoMatureJson) 
-
-  }
-
 //do thejson generation, processing etc that applies whichever optionsis chosen
 const makeMameJsonPromise = decideWhetherToXMLAsync()
   .then( systems => {
@@ -188,8 +102,6 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
       , printJson(outputDir, jsonOutName)
     )(filledSystems) 
  
-    
-
    return mameJson
   })
   .catch(err => _throw(err) )
@@ -211,13 +123,11 @@ if (mfm) {
 if (arcade) {
   makeMameJsonPromise.then( mameJson => {
 
-  //manualOutput(mameJson)
+  //manualOutput(mameJson, winIconDir, outputDir) //these manual tests could be an integration test
 
   /* make the romdata the user selected. its a reduce 
    * what to operate on =  tickObject. what the accumulator is = mameJson
    * what to do to accum each time around =  if (filterThisProp) makeFilteredJson(thisProp'sFilter)(mameJson)*/
-
-  //so put that together
   const applyFilter = (tick, mameJson) => tick.value? makeFilteredJson(tick.filter)(mameJson): mameJson
     
   const applyFilters = (tickObject, mameJson) =>
@@ -232,7 +142,6 @@ if (arcade) {
   const applySplits = (splitObject, mameJson) =>
     R.map( tick => applySplit(tick, mameJson), splitObject )
   applySplits(splitObject, userFilteredJson)
-
 
   return userFilteredJson
   })
