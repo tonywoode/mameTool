@@ -13,7 +13,11 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
     const thisSplitJson = makeFilteredJson(splitFilter)(json)
     //make a folder per genre
     const thisFolderName = `${outputDir}/${jsonKey}/${value
-      .replace(`.`, ``) //but windows interprets the . in Misc. oddly
+      //there's a lot of stuff windows won't allow in a filename...
+      .replace(/\?/g, ``)
+      .replace(`<unknown>`, `unknown`) 
+      .replace(`.`, ``) 
+      .replace(`:`, ``) 
       .replace(/ \/ /, "/") //use the slash to make subfolders, but the spaces around the slash cause "SNK" and "SNK "
     }`
     generateRomdata(emuType, thisFolderName, winIconDir)(thisSplitJson)
