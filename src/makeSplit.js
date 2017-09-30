@@ -13,11 +13,8 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
     const thisSplitJson = makeFilteredJson(splitFilter)(json)
     //make a folder per genre
     const thisFolderName = `${outputDir}/${jsonKey}/${value
-      //there's a lot of stuff windows won't allow in a filename...
-      .replace(/\?/g, ``)
-      .replace(`<unknown>`, `unknown`) 
-      .replace(`.`, ``) 
-      .replace(`:`, ``) 
+      .replace(/[\\\.\:\*"<>\|]+/g, ``) //there's a lot of stuff windows won't allow in a filename...
+      .replace(/\?/g, `x`) //if we were to replace with nothing, only 1 game was made in 1990
       .replace(/ \/ /, "/") //use the slash to make subfolders, but the spaces around the slash cause "SNK" and "SNK "
     }`
     generateRomdata(emuType, thisFolderName, winIconDir)(thisSplitJson)
