@@ -15,7 +15,8 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
     const thisFolderName = `${outputDir}/${jsonKey}/${value
       .replace(/[\\\.\:\*"<>\|]+/g, ``) //there's a lot of stuff windows won't allow in a filename...
       .replace(/\?/g, `x`) //if we were to replace with nothing, only 1 game was made in 1990
-      .replace(/ \/ /, "/") //use the slash to make subfolders, but the spaces around the slash cause "SNK" and "SNK "
+      .replace(/ \/ /g, "/") //use the slash to make subfolders, but the spaces around the slash cause "SNK" and "SNK "
+      .trim() //there aren't any left atm, but windows hates trailing space folder names, refuses to delete
     }`
     const thisIsASplit = true
     generateRomdata(emuType, thisFolderName, winIconDir, thisIsASplit)(thisSplitJson)
