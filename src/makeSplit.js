@@ -17,7 +17,8 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
       .replace(/\?/g, `x`) //if we were to replace with nothing, only 1 game was made in 1990
       .replace(/ \/ /, "/") //use the slash to make subfolders, but the spaces around the slash cause "SNK" and "SNK "
     }`
-    generateRomdata(emuType, thisFolderName, winIconDir)(thisSplitJson)
+    const thisIsASplit = true
+    generateRomdata(emuType, thisFolderName, winIconDir, thisIsASplit)(thisSplitJson)
   
   }, valuesArray)
  

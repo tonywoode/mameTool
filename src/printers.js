@@ -2,6 +2,7 @@
 
 const mkdirp                      = require('mkdirp')
 const {writeFileSync, existsSync} = require('fs')
+const path                        = require('path')
 const _throw                      = m => { throw new Error(m) }
 
 const makeRomdata                 = require('./makeRomdata.js')
@@ -58,19 +59,27 @@ CmbIcon=${iconName}.ico
 //  TODO: check that baseDir exists....
 //  TODO: convert params to object, clearer at callsite
 
-const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName) => romdata => {
+const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, split) => romdata => {
   mkdirp.sync(`${romdataOutDir}`)
   existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
+  
   //when making a collection folder like 'genre', we might miss a level of ico printing
-  //const collectionFolder = `${baseDir}/${romdataOutDir}/..`
- // existsSync(`${collectionFolder}/folders.ini`) || printIconFile(collectionFolder, ``, iconName)
+  //  counfouding matters, for company split we use mame's separator as a path seperator,
+  //  so we must check 'empty' parents (those without romdatas) and give them icos if they lack
+  //  problem we then have is we don't want to ascent further than the root outputdir...
+  //  the most elegant thing seems atm to pass a param of rootdir and act if its set
+  if (split) {
+  const collectionFolder = path.dirname(`${romdataOutDir}`)
+  existsSync(`${collectionFolder}/folders.ini`) || printIconFile(collectionFolder, ``, iconName)
+  }
+
   printIconFile(`${romdataOutDir}`, mameExtrasDir, iconName)
   return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
 
-exports.generateRomdata = (emu, romdataOutDir, mameExtrasDir) => mameJson => {
+exports.generateRomdata = (emu, romdataOutDir, mameExtrasDir, split) => mameJson => {
     const mameRomdata  = makeRomdata(emu)(mameJson)
     const emuIcon = /RetroArch/i.test(emu)? `RetroArch` : `Mame`
-    printRomdataFolder(romdataOutDir, mameExtrasDir, emuIcon)(mameRomdata)
+    printRomdataFolder(romdataOutDir, mameExtrasDir, emuIcon, split)(mameRomdata)
     return mameJson
 }
