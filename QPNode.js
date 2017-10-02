@@ -11,7 +11,7 @@ const {makeSystemsAsync}               = require('./src/readMameXml.js')
 const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
 const {printJson, generateRomdata}     = require('./src/printers.js')
 const {makeFilteredJson, applyFilters} = require('./src/filterMameJson.js')
-const {applySplits}                    = require('./src/makeSplit.js')
+const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
 
 program

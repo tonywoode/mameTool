@@ -17,7 +17,7 @@ const {
 
 const {makeFilteredJson} = require('./filterMameJson.js')
 const {generateRomdata}  = require('./printers.js')
-const {applySplits}      = require('./makeSplit.js')
+const {applySplits}      = require('./makeSplits.js')
 
 module.exports = (emu, mameJson, winIconDir, outputDir) => {
     const noMatureJson              = makeFilteredJson(matureFilter)(mameJson)
