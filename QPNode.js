@@ -13,6 +13,7 @@ const {printJson, generateRomdata}     = require('./src/printers.js')
 const {makeFilteredJson, applyFilters} = require('./src/filterMameJson.js')
 const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
+const filters                          = require('./src/filters.js') 
 
 program
     .option('--output-dir [path]')
@@ -34,35 +35,19 @@ const iniDir             = strategy.iniDir
 const emu                = strategy.mameExe //dev mode is going to give undef
 const jsonOutName        = `mame.json`
 
-const {
-   arcadeFilter 
- , biosFilter   
- , casinoFilter      
- , clonesFilter      
- , matureFilter      
- , mechanicalFilter  
- , messFilter        
- , preliminaryFilter 
- , printClubFilter   
- , simulatorFilter   
- , tableTopFilter    
- , quizFilter        
- , utilitiesFilter    
-} = require('./src/filters.js') 
-
 const tickObject = [
-   { name: `noBios`       , value: parseInt(strategy.tickBios)       , filter: biosFilter        }      
- , { name: `noCasino`     , value: parseInt(strategy.tickCasino)     , filter: casinoFilter      }    
- , { name: `noClones`     , value: parseInt(strategy.tickClones)     , filter: clonesFilter      }    
- , { name: `noMature`     , value: parseInt(strategy.tickMature)     , filter: matureFilter      }    
- , { name: `noMechanical` , value: parseInt(strategy.tickMechanical) , filter: mechanicalFilter  }
- , { name: `noMess`       , value: parseInt(strategy.tickMess)       , filter: messFilter        }      
- , { name: `noPreliminary`, value: parseInt(strategy.tickPreliminary), filter: preliminaryFilter }
- , { name: `noPrintClub`  , value: parseInt(strategy.tickPrintClub)  , filter: printClubFilter   }
- , { name: `noSimulator`  , value: parseInt(strategy.tickSimulator)  , filter: simulatorFilter   }
- , { name: `noTableTop`   , value: parseInt(strategy.tickTableTop)   , filter: tableTopFilter    }
- , { name: `noQuiz`       , value: parseInt(strategy.tickQuiz)       , filter: quizFilter        }
- , { name: `noUtilities`  , value: parseInt(strategy.tickUtilities)  , filter: utilitiesFilter   }
+   { name: `noBios`       , value: parseInt(strategy.tickBios)       , filter: filters.biosFilter        }      
+ , { name: `noCasino`     , value: parseInt(strategy.tickCasino)     , filter: filters.casinoFilter      }    
+ , { name: `noClones`     , value: parseInt(strategy.tickClones)     , filter: filters.clonesFilter      }    
+ , { name: `noMature`     , value: parseInt(strategy.tickMature)     , filter: filters.matureFilter      }    
+ , { name: `noMechanical` , value: parseInt(strategy.tickMechanical) , filter: filters.mechanicalFilter  }
+ , { name: `noMess`       , value: parseInt(strategy.tickMess)       , filter: filters.messFilter        }      
+ , { name: `noPreliminary`, value: parseInt(strategy.tickPreliminary), filter: filters.preliminaryFilter }
+ , { name: `noPrintClub`  , value: parseInt(strategy.tickPrintClub)  , filter: filters.printClubFilter   }
+ , { name: `noSimulator`  , value: parseInt(strategy.tickSimulator)  , filter: filters.simulatorFilter   }
+ , { name: `noTableTop`   , value: parseInt(strategy.tickTableTop)   , filter: filters.tableTopFilter    }
+ , { name: `noQuiz`       , value: parseInt(strategy.tickQuiz)       , filter: filters.quizFilter        }
+ , { name: `noUtilities`  , value: parseInt(strategy.tickUtilities)  , filter: filters.utilitiesFilter   }
 ]
 
 const splitObject = [
