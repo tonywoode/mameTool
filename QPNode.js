@@ -14,6 +14,7 @@ const {makeFilteredJson, applyFilters} = require('./src/filterMameJson.js')
 const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
 const filters                          = require('./src/filters.js') 
+const paths                            = require('./src/paths.js')
 
 program
     .option('--output-dir [path]')
@@ -26,8 +27,21 @@ const mfm               = program.mfm
 const arcade            = program.arcade
 const devMode           = program.dev
 const outputDir         = program.outputDir
-//bring in settings from quickplay's ini file, or use the nix dev settings
-const strategy = devMode? require('./src/devPaths') : require('./src/livePaths.js')
+
+/*bring in settings from quickplay's ini file, or use the nix dev settings
+ * paths takes the qp ini file path, and will set the mame extras inis path to a computed value, unless you
+ * specify a value (to cope with nix dev being an entirely different rooted path) */
+
+const strategy = devMode? 
+    paths(`./settings.ini`, `/Volumes/GAMES/MAME/EXTRAs/folders`)
+  : paths(`dats\\settings.ini`)
+
+console.log(`mame xml path set to ${strategy.mameXMLInPath}`)  
+console.log(`mame file manager path set to ${strategy.mfmTextFileInPath}`)  
+console.log(`mame extras path set to ${strategy.mameExtrasPath}`)
+console.log(`mame icons path set to ${strategy.winIconDir}`) 
+console.log(`mame exe set to ${strategy.mameExe}` )
+
 const mameXMLStream      = strategy.mameXMLStream
 const mfmTextFileStream  = strategy.mfmTextFileStream
 const winIconDir         = strategy.winIconDir    
