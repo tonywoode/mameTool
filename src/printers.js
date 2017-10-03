@@ -17,8 +17,6 @@ exports.printJson = (outputDir, jsonOutName) => systems => {
 const printRomdata = (romdataOutDir, romdataOutName) => romdata => {
   const romdataOutPath = `${romdataOutDir}/${romdataOutName}`
   writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
-  console.log(romdata)
-
   return romdata
 }
 
@@ -69,7 +67,7 @@ const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => 
    *    problem we then have is we don't want to ascent further than the root outputdir...
    *    the most elegant thing seems atm to pass a param of rootdir and act if its set */
   if (rootDir) {
-    const printIntermediaryIconFiles = (dir) => {
+    const printIntermediaryIconFiles = dir => {
       const collectionFolder = path.dirname(dir)
       if (collectionFolder !== rootDir) {
         existsSync(`${collectionFolder}/folders.ini`)  
@@ -85,9 +83,11 @@ const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => 
   return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
 
-exports.generateRomdata = (emu, romdataOutDir, mameExtrasDir, rootDir) => mameJson => {
+exports.generateRomdata = (emu, romdataOutDir, mameExtrasDir, fullLogging, rootDir) => mameJson => {
     const mameRomdata  = makeRomdata(emu)(mameJson)
     const emuIcon = /RetroArch/i.test(emu)? `RetroArch` : `Mame`
-    printRomdataFolder(romdataOutDir, mameExtrasDir, emuIcon, rootDir)(mameRomdata)
-    return mameJson
+    const romdata = printRomdataFolder(romdataOutDir, mameExtrasDir, emuIcon, rootDir)(mameRomdata)
+    console.log(`printing ${romdataOutDir}`)
+    if (fullLogging) console.log(romdata)
+    return romdata
 }

@@ -5,7 +5,7 @@ const {getUniqueProps, makeFilteredJson} = require('./filterMameJson.js')
 const {generateRomdata}                  = require('./printers.js')
 
 // let's make folder split by e.g.: genre, set type will be the folder name eg: 'full', 'mature'
-const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
+const processSplit = (jsonKey, outputDir, emuType, winIconDir, fullLogging, json) => {
   const valuesArray = getUniqueProps(jsonKey)(json)
   //now for each genre we need to make a folder with a romdata in it
   R.map( value => {
@@ -19,7 +19,7 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
       .trim() //there aren't any left atm, but windows hates trailing space folder names, refuses to delete
     }`
     //the last param tells us if this is a split
-    generateRomdata(emuType, thisFolderName, winIconDir, outputDir)(thisSplitJson)
+    generateRomdata(emuType, thisFolderName, winIconDir, fullLogging, outputDir)(thisSplitJson)
   
   }, valuesArray)
  
@@ -30,10 +30,10 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
   * we use the same (filtered) json for each filter */
 
 // a function that is used on an individual split by the below map
-const applySplit = (tick, outputDir, emu, winIconDir, mameJson) => 
-  tick.value? processSplit(tick.name, outputDir, emu, winIconDir, mameJson):``
+const applySplit = (tick, outputDir, emu, winIconDir, fullLogging, mameJson) => 
+  tick.value? processSplit(tick.name, outputDir, emu, winIconDir, fullLogging, mameJson):``
 //map all splits the user selected over the same json
-const applySplits = (splitObject, outputDir, emu, winIconDir, mameJson) => 
-  R.map( tick => applySplit(tick, outputDir, emu, winIconDir, mameJson), splitObject )
+const applySplits = (splitObject, outputDir, emu, winIconDir, fullLogging, mameJson) => 
+  R.map( tick => applySplit(tick, outputDir, emu, winIconDir, fullLogging, mameJson), splitObject )
   
 module.exports = {processSplit, applySplit, applySplits}

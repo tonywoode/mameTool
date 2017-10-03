@@ -117,7 +117,7 @@ if (mfm) {
     mfmReaderAsync(mfmTextFileStream) 
       .then( (mfmArray) => {
         const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
-        generateRomdata(emu, outputDir, winIconDir)(mfmFilteredJson)
+        generateRomdata(emu, outputDir, winIconDir, devMode)(mfmFilteredJson)
 
         return mameJson
       })
@@ -132,10 +132,10 @@ if (arcade) {
   //manualOutput(`Retroarch Arcade (Mame) Win32`, mameJson, winIconDir, outputDir) //these manual tests could be an integration test
 
   const userFilteredJson = applyFilters(tickObject, mameJson)
-  generateRomdata(emu, outputDir, winIconDir)(userFilteredJson)
+  generateRomdata(emu, outputDir, winIconDir, devMode)(userFilteredJson)
 
   //now use that romdata to make the splits the user wants
-  applySplits(splitObject, outputDir, emu, winIconDir, userFilteredJson)
+  applySplits(splitObject, outputDir, emu, winIconDir, devMode, userFilteredJson)
 
   return userFilteredJson
   })
