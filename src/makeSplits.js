@@ -18,8 +18,8 @@ const processSplit = (jsonKey, outputDir, emuType, winIconDir, json) => {
       .replace(/ \/ /g, "/") //use the slash to make subfolders, but the spaces around the slash cause "SNK" and "SNK "
       .trim() //there aren't any left atm, but windows hates trailing space folder names, refuses to delete
     }`
-    const thisIsASplit = true
-    generateRomdata(emuType, thisFolderName, winIconDir, thisIsASplit)(thisSplitJson)
+    //the last param tells us if this is a split
+    generateRomdata(emuType, thisFolderName, winIconDir, outputDir)(thisSplitJson)
   
   }, valuesArray)
  

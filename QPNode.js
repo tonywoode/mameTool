@@ -10,7 +10,7 @@ const {iniToJson}                      = require('./src/fillFromIni.js')
 const {makeSystemsAsync}               = require('./src/readMameXml.js')
 const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
 const {printJson, generateRomdata}     = require('./src/printers.js')
-const {makeFilteredJson, applyFilters} = require('./src/filterMameJson.js')
+const {applyFilters}                   = require('./src/filterMameJson.js')
 const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
 const filters                          = require('./src/filters.js') 
@@ -84,7 +84,7 @@ const splitObject = [
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
     err? resolve(makeSystemsAsync(mameXMLStream) ) : (  
-        console.log(`existing MAME XML data found`)
+        console.log(`existing MAME XML data found...`)
       , resolve(JSON.parse(data) )      
     )
   )
