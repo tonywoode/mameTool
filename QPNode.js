@@ -36,18 +36,24 @@ const strategy = devMode?
     paths(`./settings.ini`, `/Volumes/GAMES/MAME/EXTRAs/folders`)
   : paths(`dats\\settings.ini`)
 
-console.log(`mame xml path set to ${strategy.mameXMLInPath}`)  
-console.log(`mame file manager path set to ${strategy.mfmTextFileInPath}`)  
-console.log(`mame extras path set to ${strategy.mameExtrasPath}`)
-console.log(`mame icons path set to ${strategy.winIconDir}`) 
-console.log(`mame exe set to ${strategy.mameExe}` )
+console.log(
+`Output dir:             ${outputDir}
+MAME xml file:          ${strategy.mameXMLInPath}  
+MAME file manager file: ${strategy.mfmTextFileInPath}  
+MAME extras dir:        ${strategy.mameExtrasPath}
+MAME ini dir:           ${strategy.iniDir}
+MAME icons dir:         ${strategy.winIconDir} 
+MAME exe:               ${strategy.mameExe}
+Dev mode:               ${devMode? `on`: `off`}
+\n`
+)
 
-const mameXMLStream      = strategy.mameXMLStream
-const mfmTextFileStream  = strategy.mfmTextFileStream
-const winIconDir         = strategy.winIconDir    
-const iniDir             = strategy.iniDir
-const emu                = strategy.mameExe //dev mode is going to give undef
-const jsonOutName        = `mame.json`
+const mameXMLStream     = strategy.mameXMLStream
+const mfmTextFileStream = strategy.mfmTextFileStream
+const winIconDir        = strategy.winIconDir    
+const iniDir            = strategy.iniDir
+const emu               = strategy.mameExe //dev mode is going to give undef
+const jsonOutName       = `mame.json`
 
 const tickObject = [
    { name: `noBios`       , value: parseInt(strategy.tickBios)       , filter: filters.biosFilter        }      
@@ -74,11 +80,13 @@ const splitObject = [
  , { name: `year`     , value: parseInt(strategy.tickSplitYear    )}
 ]
 
-console.log(`output dir is ${outputDir}`)
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
-    err? resolve(makeSystemsAsync(mameXMLStream) ) : resolve(JSON.parse(data) )  
+    err? resolve(makeSystemsAsync(mameXMLStream) ) : (  
+        console.log(`existing MAME XML data found`)
+      , resolve(JSON.parse(data) )      
+    )
   )
 )
 
