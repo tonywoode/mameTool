@@ -76,7 +76,7 @@ const makeFilteredJson = filterArray => mameJson =>
  * what to operate on =  tickObject. what the accumulator is = mameJson
  * what to do to accum each time around =  if (filterThisProp) makeFilteredJson(thisProp'sFilter)(mameJson) */
 
-//this is the function that gers applied each time round
+//this is the function that gets applied each time round
 const applyFilter = (tick, mameJson) => tick.value? makeFilteredJson(tick.filter)(mameJson): mameJson
 
 //this applies that function to each tickbox
