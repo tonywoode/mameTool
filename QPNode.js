@@ -95,12 +95,12 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 //   n.b.: to add an ini to romdata, also populate it in makeRomdata
 const inis = require('./src/inis.json') 
 
-//do thejson generation, processing etc that applies whichever optionsis chosen
+//do thejson generation, processing etc that applies whichever options is chosen
 const makeMameJsonPromise = decideWhetherToXMLAsync()
   .then( systems => {
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
-      iniToJson(iniDir, ini.iniName, ini.iniType, ini.sectionName)(systems), systems ) 
+      iniToJson(iniDir, ini)(systems), systems ) 
     // post-process the data-complete json, printing it becomes a gatepost
     const mameJson = R.pipe(
         cleanJson 

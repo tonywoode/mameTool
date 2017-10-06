@@ -55,14 +55,14 @@ describe(`iniReader`, () => {
 
   describe(`#loadIni`, () => {
     const revert = iniReader.__set__("fs", { readFileSync: () => mockBareIni })
-    const ini = loadIni(`randomdir`, `anything`, `bare`)
+    const ini = loadIni(`randomdir`, { iniName: `anything`, iniType: `bare`})
     revert()
     it(`routes an ini type to the correct function to handle it`, () => {
       expect(ini[`005`]).to.be.true
     })
     it(`throws on a non-existant ini type`, () => {
       //wrap throw in function - don't execute right away, give the test framework an opportunity to handle the error - stack 18925884
-      expect( () => loadIni(`randomdir`, `anything`, `fake`)).to.throw(
+      expect( () => loadIni(`randomdir`, { iniName: `anything`, iniType: `fake`}) ).to.throw(
         `iniType "fake" not defined, you need to supply a first param of e.g."bare"/"kv"/"section"`)
     })
     
@@ -105,7 +105,7 @@ describe(`iniReader`, () => {
       expect(kvIni[`10yard`]).to.equal(`2P alt`)
     })
     it(`throws if you ask for a kv ini converter without specifying the name of the section header`, () => {
-      expect( () => loadIni(`randomdir`, `anything`, `kv`)).to.throw(`you didn't supply a section name`) 
+      expect( () => loadIni(`randomdir`, {iniName: `anything`, iniType: `kv`}) ).to.throw(`you didn't supply a section name`) 
     })
   })
 

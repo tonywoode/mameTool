@@ -40,15 +40,15 @@ const loadSectionIni = (iniDir, iniName) => iniFlattener(loadGenericIni(iniDir, 
 
 
 // Main function which chooses between the above https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/
-const loadIni = (iniDir, iniName, iniType, sectionName) => {
+const loadIni = (iniDir, ini) => {
   const iniTypes = {
-      bare    : () => loadBareIni(iniDir, iniName)
-    , kv      : () => loadKVIni(iniDir, iniName, sectionName )
-    , section : () => loadSectionIni(iniDir, iniName)
+      bare    : () => loadBareIni(iniDir, ini.iniName)
+    , kv      : () => loadKVIni(iniDir, ini.iniName, ini.sectionName )
+    , section : () => loadSectionIni(iniDir, ini.iniName)
   }
 
-  return iniTypes[iniType]? iniTypes[iniType]() : 
-    _throw(`iniType "${iniType}" not defined, you need to supply a first param of e.g."bare"/"kv"/"section"`)
+  return iniTypes[ini.iniType]? iniTypes[ini.iniType]() : 
+    _throw(`iniType "${ini.iniType}" not defined, you need to supply a first param of e.g."bare"/"kv"/"section"`)
 
 }
 

@@ -14,9 +14,9 @@ const fillFromIni = (typeOfIni, ini) => map( game => {
 
 // parse, format and incorporate an ini into our mame JSON,
 //   note this works by the ini name being the same as they key in the json
-const iniToJson = (iniDir, iniName, iniType, sectionName) => {
-  const parsedIni = loadIni(iniDir, iniName, iniType, sectionName)
-  return fillFromIni(iniName, parsedIni) 
+const iniToJson = (iniDir, ini) => {
+  const parsedIni = loadIni(iniDir, ini)
+  return fillFromIni(ini.iniName, parsedIni) 
 }
 
 module.exports = { iniToJson, getEntryFromIni, fillFromIni }
