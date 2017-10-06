@@ -129,8 +129,9 @@ if (mfm) {
 if (arcade) {
   makeMameJsonPromise.then( mameJson => {
 
-  //manualOutput(`Mame64 Win32`, mameJson, winIconDir, outputDir) //these manual tests could be an integration test
-  //manualOutput(`Retroarch Arcade (Mame) Win32`, mameJson, winIconDir, outputDir) //these manual tests could be an integration test
+  //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
+  //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
+  //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
 
   const userFilteredJson = applyFilters(tickObject, mameJson)
   generateRomdata(outputDir, romdataConfig)(userFilteredJson)
