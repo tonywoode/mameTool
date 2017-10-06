@@ -17,76 +17,42 @@ const fullLogging = false
 const json        = [
   {
   	"call": "18wheelr",
-  	"romof": "naomi",
-  	"system": "18 Wheeler (deluxe) (Rev A)",
-  	"year": "2000",
-  	"company": "Sega",
-  	"display": {
-  		"tag": "screen",
-  		"type": "raster",
-  		"rotate": "0",
-  		"width": "640",
-  		"height": "480"
-  	},
-  	"control": {
-  		"type": "pedal",
-  		"minimum": "0",
-  		"maximum": "65280"
-  	},
-  	"status": "preliminary",
-  	"arcade": true,
-  	"arcade_NOBIOS": true,
-  	"category": "Driving",
-  	"catlist": "Driving",
-  	"genre": "Driving",
-  	"languages": "Japanese",
-  	"nplayers": "1P",
-  	"series": "18 Wheeler.:*<>|",
+  	"series": "18 Wheeler\\.:*\"<>|",
   	"version": "0.134u4"
   },
   {
   	"call": "18wheels",
-  	"cloneof": "18wheelr",
-  	"romof": "18wheelr",
-  	"system": "18 Wheeler (standard)",
-  	"year": "2000",
-  	"company": "Sega",
-  	"display": {
-  		"tag": "screen",
-  		"type": "raster",
-  		"rotate": "0",
-  		"width": "640",
-  		"height": "480"
-  	},
-  	"control": {
-  		"type": "pedal",
-  		"minimum": "0",
-  		"maximum": "65280"
-  	},
-  	"status": "preliminary",
-  	"arcade": true,
-  	"arcade_NOBIOS": true,
-  	"category": "Driving",
-  	"catlist": "Driving",
-  	"genre": "Driving",
-  	"languages": "Japanese",
-  	"nplayers": "1P",
   	"series": "18 Wheeler\\.:*\"<>|",
   	"version": "0.144"
   },
+  {
+  	"call": "NOT18wheels",
+  	"version": "none"
+  },
 ]
 
+
 describe(`makeSplits`, () => {
-
   describe(`#processSplit`, () => {
-    before( () => sinon.stub(printers, 'generateRomdata').returns( ()=>{} ) )
-
     it(`should produce an expected foldername, omitting ntfs unsafe chars`, () => {
+      sinon.stub(printers, 'generateRomdata').returns( ()=>{} )
       splits.processSplit( jsonKey, outputDir, emu, winIconDir, fullLogging, json)
       expect(printers.generateRomdata.getCall(0).args[1]).to.equal(`./deleteme/series/18 Wheeler`)
+      printers.generateRomdata.restore()
+    })
+  
+    it(`should pass a json to be printed that's been filtered by the approrpriate value`, () => {
+      const mameJsonSpy = sinon.spy() //curry  https://stackoverflow.com/a/46603828/3536094
+      sinon.stub(printers, 'generateRomdata').returns(mameJsonSpy)
+      splits.processSplit( jsonKey, outputDir, emu, winIconDir, fullLogging, json)
+      expect(mameJsonSpy.getCall(0).args[0]).to.have.lengthOf(2)
+      //get all series values
+      const valuesOfSeriesKey = mameJsonSpy.getCall(0).args[0].map( game => game.series) 
+      //make a unique array from them
+      expect(Array.from(new Set(valuesOfSeriesKey))).to.have.lengthOf(1)
+      printers.generateRomdata.restore()
     })
 
-    after( () =>  printers.generateRomdata.restore() )
   })
 })
 
