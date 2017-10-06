@@ -5,7 +5,7 @@ const {getUniqueProps, makeFilteredJson} = require('./filterMameJson.js')
 const printers                           = require('./printers.js') //sinon doesn't like you to deconstruct this
 
 // let's make folder split by e.g.: genre, set type will be the folder name eg: 'full', 'mature'
-const processSplit = (jsonKey, outputDir, romdataConfig, json) => {
+const processSplit = (jsonKey, outputDir, romdataConfig) => json => {
   const valuesArray = getUniqueProps(jsonKey)(json)
   //now for each genre we need to make a folder with a romdata in it
   return R.map( value => {
@@ -28,12 +28,12 @@ const processSplit = (jsonKey, outputDir, romdataConfig, json) => {
   * we use the same (filtered) json for each filter */
 
 // a function that is used on an individual split by the below map
-const applySplit = (tick, outputDir, romdataConfig, mameJson) => { 
-  if (tick.value) processSplit(tick.name, outputDir, romdataConfig, mameJson)
+const applySplit = (tick, outputDir, romdataConfig) => mameJson => { 
+  if (tick.value) processSplit(tick.name, outputDir, romdataConfig)(mameJson)
 }
 
 //map all splits the user selected over the same json
-const applySplits = (splitObject, outputDir, romdataConfig, mameJson) => 
-  R.map( tick => applySplit(tick, outputDir, romdataConfig, mameJson), splitObject )
+const applySplits = (splitObject, outputDir, romdataConfig) => mameJson => 
+  R.map( tick => applySplit(tick, outputDir, romdataConfig)(mameJson), splitObject )
   
 module.exports = {processSplit, applySplit, applySplits}

@@ -136,7 +136,7 @@ if (arcade) {
   generateRomdata(outputDir, romdataConfig)(userFilteredJson)
 
   //now use that romdata to make the splits the user wants
-  applySplits(splitObject, outputDir, romdataConfig, userFilteredJson)
+  applySplits(splitObject, outputDir, romdataConfig)(userFilteredJson)
 
   return userFilteredJson
   })
