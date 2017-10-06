@@ -32,54 +32,55 @@ const outputDir         = program.outputDir
  * paths takes the qp ini file path, and will set the mame extras inis path to a computed value, unless you
  * specify a value (to cope with nix dev being an entirely different rooted path) */
 
-const strategy = devMode? 
+const settings = devMode? 
     paths(`./settings.ini`, `/Volumes/GAMES/MAME/EXTRAs/folders`)
   : paths(`dats\\settings.ini`)
 
+const tickObject = [
+   { name: `noBios`       , value: parseInt(settings.tickBios)       , filter: filters.biosFilter        }      
+ , { name: `noCasino`     , value: parseInt(settings.tickCasino)     , filter: filters.casinoFilter      }    
+ , { name: `noClones`     , value: parseInt(settings.tickClones)     , filter: filters.clonesFilter      }    
+ , { name: `noMature`     , value: parseInt(settings.tickMature)     , filter: filters.matureFilter      }    
+ , { name: `noMechanical` , value: parseInt(settings.tickMechanical) , filter: filters.mechanicalFilter  }
+ , { name: `noMess`       , value: parseInt(settings.tickMess)       , filter: filters.messFilter        }      
+ , { name: `noPreliminary`, value: parseInt(settings.tickPreliminary), filter: filters.preliminaryFilter }
+ , { name: `noPrintClub`  , value: parseInt(settings.tickPrintClub)  , filter: filters.printClubFilter   }
+ , { name: `noSimulator`  , value: parseInt(settings.tickSimulator)  , filter: filters.simulatorFilter   }
+ , { name: `noTableTop`   , value: parseInt(settings.tickTableTop)   , filter: filters.tableTopFilter    }
+ , { name: `noQuiz`       , value: parseInt(settings.tickQuiz)       , filter: filters.quizFilter        }
+ , { name: `noUtilities`  , value: parseInt(settings.tickUtilities)  , filter: filters.utilitiesFilter   }
+]
+
+const splitObject = [
+   { name: `company`  , value: parseInt(settings.tickSplitCompany )}
+ , { name: `genre`    , value: parseInt(settings.tickSplitGenre   )}
+ , { name: `nplayers` , value: parseInt(settings.tickSplitNPlayers)}
+ , { name: `bestgames`, value: parseInt(settings.tickSplitRating  )}
+ , { name: `series`   , value: parseInt(settings.tickSplitSeries  )}
+ , { name: `version`  , value: parseInt(settings.tickSplitVersion )}
+ , { name: `year`     , value: parseInt(settings.tickSplitYear    )}
+]
+
+
 console.log(
 `Output dir:             ${outputDir}
-MAME xml file:          ${strategy.mameXMLInPath}  
-MAME file manager file: ${strategy.mfmTextFileInPath}  
-MAME extras dir:        ${strategy.mameExtrasPath}
-MAME ini dir:           ${strategy.iniDir}
-MAME icons dir:         ${strategy.winIconDir} 
-MAME exe:               ${strategy.mameExe}
+MAME xml file:          ${settings.mameXMLInPath}  
+MAME file manager file: ${settings.mfmTextFileInPath}  
+MAME extras dir:        ${settings.mameExtrasPath}
+MAME ini dir:           ${settings.iniDir}
+MAME icons dir:         ${settings.winIconDir} 
+MAME exe:               ${settings.mameExe}
 Dev mode:               ${devMode? `on`: `off`}
 \n`
 )
 
-const mameXMLStream     = strategy.mameXMLStream
-const mfmTextFileStream = strategy.mfmTextFileStream
-const winIconDir        = strategy.winIconDir    
-const iniDir            = strategy.iniDir
-const emu               = strategy.mameExe //dev mode is going to give undef
+const mameXMLStream     = settings.mameXMLStream
+const mfmTextFileStream = settings.mfmTextFileStream
+const iniDir            = settings.iniDir
 const jsonOutName       = `mame.json`
 
-const tickObject = [
-   { name: `noBios`       , value: parseInt(strategy.tickBios)       , filter: filters.biosFilter        }      
- , { name: `noCasino`     , value: parseInt(strategy.tickCasino)     , filter: filters.casinoFilter      }    
- , { name: `noClones`     , value: parseInt(strategy.tickClones)     , filter: filters.clonesFilter      }    
- , { name: `noMature`     , value: parseInt(strategy.tickMature)     , filter: filters.matureFilter      }    
- , { name: `noMechanical` , value: parseInt(strategy.tickMechanical) , filter: filters.mechanicalFilter  }
- , { name: `noMess`       , value: parseInt(strategy.tickMess)       , filter: filters.messFilter        }      
- , { name: `noPreliminary`, value: parseInt(strategy.tickPreliminary), filter: filters.preliminaryFilter }
- , { name: `noPrintClub`  , value: parseInt(strategy.tickPrintClub)  , filter: filters.printClubFilter   }
- , { name: `noSimulator`  , value: parseInt(strategy.tickSimulator)  , filter: filters.simulatorFilter   }
- , { name: `noTableTop`   , value: parseInt(strategy.tickTableTop)   , filter: filters.tableTopFilter    }
- , { name: `noQuiz`       , value: parseInt(strategy.tickQuiz)       , filter: filters.quizFilter        }
- , { name: `noUtilities`  , value: parseInt(strategy.tickUtilities)  , filter: filters.utilitiesFilter   }
-]
-
-const splitObject = [
-   { name: `company`  , value: parseInt(strategy.tickSplitCompany )}
- , { name: `genre`    , value: parseInt(strategy.tickSplitGenre   )}
- , { name: `nplayers` , value: parseInt(strategy.tickSplitNPlayers)}
- , { name: `bestgames`, value: parseInt(strategy.tickSplitRating  )}
- , { name: `series`   , value: parseInt(strategy.tickSplitSeries  )}
- , { name: `version`  , value: parseInt(strategy.tickSplitVersion )}
- , { name: `year`     , value: parseInt(strategy.tickSplitYear    )}
-]
-
+const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode}
+console.log(romdataConfig)
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
@@ -90,9 +91,9 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
   )
 )
 
-// these are the available inis, specifying their type (and their internal name if necessary)
-//   there are three types of ini file (see iniReader.js)
-//   n.b.: to add an ini to romdata, also populate it in makeRomdata
+/* these are the available inis, specifying their type (and their internal name if necessary)
+ *   there are three types of ini file (see iniReader.js)
+ *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
 const inis = require('./src/inis.json') 
 
 //do thejson generation, processing etc that applies whichever options is chosen
@@ -117,7 +118,7 @@ if (mfm) {
     mfmReaderAsync(mfmTextFileStream) 
       .then( (mfmArray) => {
         const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
-        generateRomdata(emu, outputDir, winIconDir, devMode)(mfmFilteredJson)
+        generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
 
         return mameJson
       })
@@ -132,10 +133,10 @@ if (arcade) {
   //manualOutput(`Retroarch Arcade (Mame) Win32`, mameJson, winIconDir, outputDir) //these manual tests could be an integration test
 
   const userFilteredJson = applyFilters(tickObject, mameJson)
-  generateRomdata(emu, outputDir, winIconDir, devMode)(userFilteredJson)
+  generateRomdata(outputDir, romdataConfig)(userFilteredJson)
 
   //now use that romdata to make the splits the user wants
-  applySplits(splitObject, outputDir, emu, winIconDir, devMode, userFilteredJson)
+  applySplits(splitObject, outputDir, romdataConfig, userFilteredJson)
 
   return userFilteredJson
   })

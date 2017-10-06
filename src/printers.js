@@ -52,10 +52,8 @@ CmbIcon=${iconName}.ico
 
 }
 
-// print both a romdata file and the icon config that goes with it, in a folder in the specified dir
-//  remember the top level also needs a basic icon, give it the child's icon
-//  TODO: check that baseDir exists....
-//  TODO: convert params to object, clearer at callsite
+/* print both a romdata file and the icon config that goes with it, in a folder in the specified dir
+ * remember the top level also needs a basic icon, give it the child's icon */
 
 const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => romdata => {
   mkdirp.sync(`${romdataOutDir}`)
@@ -83,11 +81,12 @@ const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => 
   return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
 
-exports.generateRomdata = (emu, romdataOutDir, mameExtrasDir, fullLogging, rootDir) => mameJson => {
-    const mameRomdata  = makeRomdata(emu)(mameJson)
-    const emuIcon = /RetroArch/i.test(emu)? `RetroArch` : `Mame`
-    const romdata = printRomdataFolder(romdataOutDir, mameExtrasDir, emuIcon, rootDir)(mameRomdata)
+// this makes and prints a romdata using all the above
+exports.generateRomdata = (romdataOutDir, romdataConfig, rootDir) => mameJson => {
+    const mameRomdata  = makeRomdata(romdataConfig.emu)(mameJson)
+    const emuIcon = /RetroArch/i.test(romdataConfig.emu)? `RetroArch` : `Mame`
+    const romdata = printRomdataFolder(romdataOutDir, romdataConfig.winIconDir, emuIcon, rootDir)(mameRomdata)
     console.log(`printing ${romdataOutDir}`)
-    if (fullLogging) console.log(romdata)
+    if (romdataConfig.devMode) console.log(romdata)
     return romdata
 }

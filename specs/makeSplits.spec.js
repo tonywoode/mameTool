@@ -13,7 +13,10 @@ const jsonKey     = tick.name
 const outputDir   = `./deleteme`
 const emu         = `mame` 
 const winIconDir  = `F:\MAME\EXTRAs\Icons`
-const fullLogging = false
+const devMode = false
+
+const romdataConfig = {emu, winIconDir, devMode}
+
 const json        = [
   {
   	"call": "18wheelr",
@@ -36,15 +39,16 @@ describe(`makeSplits`, () => {
   describe(`#processSplit`, () => {
     it(`should produce an expected foldername, omitting ntfs unsafe chars`, () => {
       sinon.stub(printers, 'generateRomdata').returns( ()=>{} )
-      splits.processSplit( jsonKey, outputDir, emu, winIconDir, fullLogging, json)
-      expect(printers.generateRomdata.getCall(0).args[1]).to.equal(`./deleteme/series/18 Wheeler`)
+      splits.processSplit( jsonKey, outputDir, romdataConfig, json)
+      expect(printers.generateRomdata.getCall(0).args[0]).to.equal(`./deleteme/series/18 Wheeler`)
       printers.generateRomdata.restore()
     })
   
     it(`should pass a json to be printed that's been filtered by the approrpriate value`, () => {
+      //TODO: if above test fails, this will complain about re-wrapping, need before/after to work
       const mameJsonSpy = sinon.spy() //curry  https://stackoverflow.com/a/46603828/3536094
       sinon.stub(printers, 'generateRomdata').returns(mameJsonSpy)
-      splits.processSplit( jsonKey, outputDir, emu, winIconDir, fullLogging, json)
+      splits.processSplit( jsonKey, outputDir, romdataConfig, json)
       expect(mameJsonSpy.getCall(0).args[0]).to.have.lengthOf(2)
       //get all series values
       const valuesOfSeriesKey = mameJsonSpy.getCall(0).args[0].map( game => game.series) 
