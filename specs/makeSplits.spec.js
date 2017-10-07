@@ -37,17 +37,21 @@ const json        = [
 
 describe(`makeSplits`, () => {
   describe(`#processSplit`, () => {
+
+    let sandbox
+    beforeEach( () => { sandbox = sinon.sandbox.create() } )
+    afterEach(  () => { sandbox.restore() } )
+
     it(`should produce an expected foldername, omitting ntfs unsafe chars`, () => {
-      sinon.stub(printers, 'generateRomdata').returns( ()=>{} )
+      sandbox.stub(printers, 'generateRomdata').returns( ()=>{} )
       splits.processSplit(jsonKey, outputDir, romdataConfig)(json)
       expect(printers.generateRomdata.getCall(0).args[0]).to.equal(`./deleteme/series/18 Wheeler`)
       printers.generateRomdata.restore()
     })
   
     it(`should pass a json to be printed that's been filtered by the approrpriate value`, () => {
-      //TODO: if above test fails, this will complain about re-wrapping, need before/after to work
-      const mameJsonSpy = sinon.spy() //curry  https://stackoverflow.com/a/46603828/3536094
-      sinon.stub(printers, 'generateRomdata').returns(mameJsonSpy)
+      const mameJsonSpy = sandbox.spy() //curry  https://stackoverflow.com/a/46603828/3536094
+      sandbox.stub(printers, 'generateRomdata').returns(mameJsonSpy)
       splits.processSplit( jsonKey, outputDir, romdataConfig)(json)
       expect(mameJsonSpy.getCall(0).args[0]).to.have.lengthOf(2)
       //get all series values
