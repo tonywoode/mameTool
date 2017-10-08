@@ -1,7 +1,7 @@
 'use strict'
 
-const mkdirp                      = require('mkdirp')
-const {writeFileSync, existsSync} = require('fs')
+let   fs                          = require('fs') //rewired in test, don't try and const or destructure
+let   mkdirp                      = require('mkdirp') //ditto
 const path                        = require('path')
 const _throw                      = m => { throw new Error(m) }
 
@@ -9,14 +9,14 @@ const makeRomdata                 = require('./makeRomdata.js')
 
 exports.printJson = (outputDir, jsonOutName) => systems => {
   const jsonOutPath = `${outputDir}/${jsonOutName}`
-  existsSync(outputDir) || mkdirp(outputDir) && _throw(`Can't write Json to ${jsonOutPath}`)
-  writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`)) 
+  fs.existsSync(outputDir) || mkdirp(outputDir)
+  fs.writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`))  || _throw(`Can't write Json to ${jsonOutPath}`)
   return systems
 }
 
 const printRomdata = (romdataOutDir, romdataOutName) => romdata => {
   const romdataOutPath = `${romdataOutDir}/${romdataOutName}`
-  writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
+  fs.writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
   return romdata
 }
 
@@ -48,7 +48,7 @@ ChkIcon=1
 CmbIcon=${iconName}.ico
 `
 
-  writeFileSync(`${romdataOutDir}/folders.ini`, iconTemplate)
+  fs.writeFileSync(`${romdataOutDir}/folders.ini`, iconTemplate)
 
 }
 
@@ -57,7 +57,7 @@ CmbIcon=${iconName}.ico
 
 const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => romdata => {
   mkdirp.sync(`${romdataOutDir}`)
-  existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
+  fs.existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
   
   /*  when making a collection folder like 'genre', we might miss a level of ico printing
    *    counfouding matters, for company split we use mame's separator as a path seperator,
@@ -68,7 +68,7 @@ const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => 
     const printIntermediaryIconFiles = dir => {
       const collectionFolder = path.dirname(dir)
       if (collectionFolder !== rootDir) {
-        existsSync(`${collectionFolder}/folders.ini`)  
+        fs.existsSync(`${collectionFolder}/folders.ini`)  
           || printIconFile(collectionFolder, ``, iconName)
         printIntermediaryIconFiles(collectionFolder)
       }
