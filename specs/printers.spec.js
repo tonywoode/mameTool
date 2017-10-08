@@ -3,7 +3,7 @@
 const rewire   = require('rewire')
 const mkdirp   = require('mkdirp')
 const printers = rewire('../src/printers.js')
-
+const fs       = require('fs') //to get methods back when fs itself is rewired
 
 const mameJson        = [
   {
@@ -19,28 +19,36 @@ const mameJson        = [
   {
   	"call": "NOT18wheels",
   	"version": "none"
-  },
+  }
 ]
-
-//so printJson just makes a path out of the two input dirs, makes a dir if it doesn't exist, and writes the systems into it
-// do we need to test it? I can't see why
-// ah hell let's just do it, but DELETE IT IF ITS NOT TRIVIAL
-//
 
 describe(`printers`, () => {
   describe(`#printJson`, () => {
-    it(`should make a directory if the file doesn't exist`, () => {
     const testPath = `this directory does not exist here`
-    const revertFs = printers.__set__(`fs`, { 
-        existsSync:  () => false 
-      , writeFileSync: (path, json) => ()=>{}
+    const testJsonName = `anything`
+
+    it(`should make a directory if the file doesn't exist`, () => {
+      printers.__with__({
+          fs: { 
+              existsSync:  () => false 
+            , writeFileSync: (path, json) => ()=>{}
+          } 
+        , mkdirp: path => expect(path).to.equal(testPath)
+      })( () => printers.printJson(testPath, testJsonName )(mameJson) ) //__with__ requires fn
     })
-    const revertMkdirp = printers.__set__(`mkdirp`, path => expect(path).to.equal(testPath))
-    printers.printJson(testPath, `anything`)(mameJson)
-    revertFs() && revertMkdirp()
+
+    it(`should throw an exception if it can't write the json because the ouptut dir doesn't exist`, () => {
+      printers.__with__({
+          fs: { 
+              existsSync:  path => true 
+            , writeFileSync: fs.writeFileSync  //TODO: how to avoid having to do this?
+          }
+        , mkdirp: path => true
+      })( () => expect(printers.printJson(testPath, `anything`)).to.throw( //note no curry
+        `ENOENT: no such file or directory, open '${testPath}/${testJsonName}'`
+      ))
     })
+
   })
 })
-
-//printRomdata does the same but joins the array of romdata rows into a file (where's the header then?)
 

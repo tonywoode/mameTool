@@ -9,8 +9,8 @@ const makeRomdata                 = require('./makeRomdata.js')
 
 exports.printJson = (outputDir, jsonOutName) => systems => {
   const jsonOutPath = `${outputDir}/${jsonOutName}`
-  fs.existsSync(outputDir) || mkdirp(outputDir)
-  fs.writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`))  || _throw(`Can't write Json to ${jsonOutPath}`)
+  fs.existsSync(outputDir) || mkdirp(outputDir) 
+  fs.writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`))  
   return systems
 }
 
