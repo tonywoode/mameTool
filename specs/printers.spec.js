@@ -49,6 +49,20 @@ describe(`printers`, () => {
       ))
     })
 
+    it(`should return the object passed in, so the fn can be chained`, () => {
+      printers.__with__({
+          fs: { 
+              existsSync:  path => true 
+            , writeFileSync: path => true
+          }
+        , mkdirp: path => true
+      })( () => {
+        const result = printers.printJson(testPath, `anything`)(mameJson)
+        expect(result).to.equal(mameJson)
+      })
+    })
+
+
   })
 })
 
