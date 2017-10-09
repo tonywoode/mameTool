@@ -52,36 +52,30 @@ CmbIcon=${iconName}.ico
 
 }
 
-/* print both a romdata file and the icon config that goes with it, in a folder in the specified dir
- * remember the top level also needs a basic icon, give it the child's icon */
+  /*  when making a collection folder like 'genre', we might miss a level of ico printing
+   *    confouding matters, for company split we use mame's separator as a path seperator,
+   *    so we must check 'empty' parents (those without romdatas) and give them icos if they lack
+   *    problem we then have is we don't want to ascent further than the root outputdir...
+   *    pass a param of rootdir and act if its set */
+const printIntermediaryIconFiles = (rootDir, iconName, dir) => {
+  const collectionFolder = path.dirname(dir)
+  if (collectionFolder !== rootDir) {
+    fs.existsSync(`${collectionFolder}/folders.ini`)  
+      || printIconFile(collectionFolder, ``, iconName)
+    printIntermediaryIconFiles(rootDir, iconName, collectionFolder)
+  }
+}
 
+// print both a romdata file and the icon config that goes with it, in a folder in the specified dir
 const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => romdata => {
   mkdirp.sync(`${romdataOutDir}`)
   fs.existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
-  
-  /*  when making a collection folder like 'genre', we might miss a level of ico printing
-   *    counfouding matters, for company split we use mame's separator as a path seperator,
-   *    so we must check 'empty' parents (those without romdatas) and give them icos if they lack
-   *    problem we then have is we don't want to ascent further than the root outputdir...
-   *    the most elegant thing seems atm to pass a param of rootdir and act if its set */
-  if (rootDir) {
-    const printIntermediaryIconFiles = dir => {
-      const collectionFolder = path.dirname(dir)
-      if (collectionFolder !== rootDir) {
-        fs.existsSync(`${collectionFolder}/folders.ini`)  
-          || printIconFile(collectionFolder, ``, iconName)
-        printIntermediaryIconFiles(collectionFolder)
-      }
-    }
-
-    printIntermediaryIconFiles(romdataOutDir)
-  }
-
+  if (rootDir) printIntermediaryIconFiles(rootDir, iconName, romdataOutDir) 
   printIconFile(`${romdataOutDir}`, mameExtrasDir, iconName)
   return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
 
-// this makes and prints a romdata using all the above
+// makes and prints a romdata using all the above
 exports.generateRomdata = (romdataOutDir, romdataConfig, rootDir) => mameJson => {
     const mameRomdata  = makeRomdata(romdataConfig.emu)(mameJson)
     const emuIcon = /RetroArch/i.test(romdataConfig.emu)? `RetroArch` : `Mame`
