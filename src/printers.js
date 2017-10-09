@@ -57,20 +57,22 @@ CmbIcon=${iconName}.ico
    *    so we must check 'empty' parents (those without romdatas) and give them icos if they lack
    *    problem we then have is we don't want to ascent further than the root outputdir...
    *    pass a param of rootdir and act if its set */
-const printIntermediaryIconFiles = (rootDir, iconName, dir) => {
+exports.printIntermediaryIconFiles = (rootDir, iconName) => dir => {
+  const curry = exports.printIntermediaryIconFiles(rootDir, iconName)
   const collectionFolder = path.dirname(dir)
   if (collectionFolder !== rootDir) {
     fs.existsSync(`${collectionFolder}/folders.ini`)  
       || printIconFile(collectionFolder, ``, iconName)
-    printIntermediaryIconFiles(rootDir, iconName, collectionFolder)
+    curry(collectionFolder)
   }
 }
 
 // print both a romdata file and the icon config that goes with it, in a folder in the specified dir
+// the parent may also need an icon file (hang on hasn't my intermediary fn rendered that pointless?)
 const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => romdata => {
   mkdirp.sync(`${romdataOutDir}`)
   fs.existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
-  if (rootDir) printIntermediaryIconFiles(rootDir, iconName, romdataOutDir) 
+  if (rootDir) exports.printIntermediaryIconFiles(rootDir, iconName)(romdataOutDir) 
   printIconFile(`${romdataOutDir}`, mameExtrasDir, iconName)
   return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
