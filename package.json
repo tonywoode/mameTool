@@ -23,7 +23,7 @@
     "fulldebug": "trash $npm_package_directories_outputDir && npm run debug --",
     "test": "mocha -- --require ./specs/init.js $(eval $npm_package_config_getSpecs)",
     "package": "pkg QPNode.js -t win --out-path $npm_package_directories_binOutputDir",
-    "packageParallels": "pkg QPNode.js -t win --out-path $npm_package_directories_binOutputDirParallels" 
+    "packageParallels": "pkg QPNode.js -t win --out-path $npm_package_directories_binOutputDirParallels"
   },
   "author": "",
   "license": "ISC",
@@ -41,6 +41,7 @@
     "chai-as-promised": "^7.1.1",
     "into-stream": "^3.1.0",
     "mocha": "^3.4.2",
+    "mock-fs": "^4.4.1",
     "pkg": "^4.2.4",
     "rewire": "^2.5.2",
     "rimraf": "^2.6.1",

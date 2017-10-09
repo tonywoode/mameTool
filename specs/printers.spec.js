@@ -1,5 +1,6 @@
 'use strict'
 
+const mock     = require('mock-fs')
 const rewire   = require('rewire')
 const mkdirp   = require('mkdirp')
 const printers = rewire('../src/printers.js')
@@ -27,7 +28,7 @@ describe(`printers`, () => {
     const testPath = `this directory does not exist here`
     const testJsonName = `anything`
 
-    it(`should make a directory if the file doesn't exist`, () => {
+    it(`should Ymake a directory if the file doesn't exist`, () => {
       printers.__with__({
           fs: { 
               existsSync:  () => false 
@@ -62,7 +63,25 @@ describe(`printers`, () => {
       })
     })
 
-
   })
+
+  describe(`#printIntermediaryIconFiles`, () => {
+
+    beforeEach( () => { 
+      mock( { 'path/to/fake/dir': {} } ) //create a little file system using mockfs
+    ,  printers.printIntermediaryIconFiles(`./path/to`, `mame`)(`./path/to/fake/dir`)
+    })
+
+    it(`should print icon files in intermediary folders`, () => {
+      expect(fs.readdirSync('./path/to/fake') ).to.include(`folders.ini`)   
+    })
+
+    it(`should not try and print an icon config file above the root folder`, () => {
+      expect(fs.readdirSync('./path/to') ).to.not.include(`folders.ini`)   
+    })
+
+    afterEach( () => {  mock.restore() })
+  })
+
 })
 

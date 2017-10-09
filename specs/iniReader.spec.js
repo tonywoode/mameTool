@@ -54,7 +54,7 @@ invadpt2br`
 describe(`iniReader`, () => {
 
   describe(`#loadIni`, () => {
-    const revert = iniReader.__set__("fs", { readFileSync: () => mockBareIni })
+    const revert = iniReader.__set__(`fs`, { readFileSync: () => mockBareIni })
     const ini = loadIni(`randomdir`, { iniName: `anything`, iniType: `bare`})
     revert()
     it(`routes an ini type to the correct function to handle it`, () => {
@@ -100,7 +100,7 @@ describe(`iniReader`, () => {
 
   describe(`#loadKVIni`, () => {
     it(`when passed a KV-style ini, treat it generically and hence return an expected kv`, () => {
-      iniReader.__set__("fs", { readFileSync: () => mockKVIni })
+      iniReader.__set__(`fs`, { readFileSync: () => mockKVIni })
       const kvIni = loadKVIni(`randomdir`, `fakeName`, `NPlayers`)
       expect(kvIni[`10yard`]).to.equal(`2P alt`)
     })
@@ -111,7 +111,7 @@ describe(`iniReader`, () => {
 
   describe(`#loadBareIni`, () => {
     it(`when passed a Bare-style ini, treat it generically and hence return an expected kv`, () => {
-    iniReader.__set__("fs", { readFileSync: () => mockBareIni })
+    iniReader.__set__(`fs`, { readFileSync: () => mockBareIni })
     const bareIni = loadBareIni(`randomdir`, `fakeName` )
     expect(bareIni[`10yard`]).to.equal(true)
     })
@@ -119,7 +119,7 @@ describe(`iniReader`, () => {
 
   describe(`#loadSectionIni`, () => {
     it(`when passed a Section-style ini, treat it generically and hence return an expected kv`, () => {
-    iniReader.__set__("fs", { readFileSync: () => mockSectionIni })
+    iniReader.__set__(`fs`, { readFileSync: () => mockSectionIni })
     const sectionIni = loadSectionIni(`randomdir`, `fakeName`)
     expect(sectionIni[`bazookabr`]).to.equal(`Brazilian Portuguese`)
     })
