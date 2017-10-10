@@ -79,8 +79,9 @@ const mfmTextFileStream = settings.mfmTextFileStream
 const iniDir            = settings.iniDir
 const jsonOutName       = `mame.json`
 
+//these same settings get immutably passed to many things now
 const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode}
-console.log(romdataConfig)
+
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
