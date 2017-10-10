@@ -85,9 +85,9 @@ const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, d
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
-    err? resolve(makeSystemsAsync(mameXMLStream) ) : (  
-        console.log(`existing MAME XML data found...`)
-      , resolve(JSON.parse(data) )      
+    err? resolve(makeSystemsAsync(mameXMLStream) ) 
+      : (console.log(`existing MAME XML data found...`)
+        , resolve(JSON.parse(data) )      
     )
   )
 )
@@ -99,7 +99,14 @@ const inis = require('./src/inis.json')
 
 //do thejson generation, processing etc that applies whichever options is chosen
 const makeMameJsonPromise = decideWhetherToXMLAsync()
-  .then( systems => {
+  .then( sysObj => {
+    // did we get back the mameJson alone from file, or the version info with it from the xml reader?
+    let systems
+    let mameXmlVersion
+    sysObj.versionInfo? (
+        systems = sysObj.systems 
+      , mameXmlVersion = sysObj.versionInfo
+    ) : systems = sysObj
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
       iniToJson(iniDir, ini)(systems), systems ) 

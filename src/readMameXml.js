@@ -1,22 +1,28 @@
-"use strict"
+'use strict'
 
 const XmlStream = require('xml-stream')
 //Parse the mame xml pulling out the fields we need but only from systems which actually work
 const makeSystems = (mameXMLStream, nodeback) => {
   const systems = []
   const xml     = new XmlStream(mameXMLStream)
-
+  const versionInfo = {}
   console.log(`Reading a very large xml file, patience...`)
+
+  xml.on(`startElement: mame`, mame => {
+    versionInfo.mameVersion       = mame.$.build
+    versionInfo.mameConfigVersion = mame.$.mameconfig
+  })
+
+  //xml.on(`end`, () => console.log(versionInfo))
+
   xml.on(`updateElement: machine`, machine => {
-    if ( 
-       machine.$.runnable  !== `no`
-    ) {
+    if (machine.$.runnable !== `no`) {
       const node          = {}
       node.call           = machine.$.name
       node.isbios         = machine.$.isbios
       node.isdevice       = machine.$.isdevice
       node.ismechanical   = machine.$.ismechanical
-      //node.runnable       = machine.runnable
+      //node.runnable       = machine.runnable //see above
       node.cloneof        = machine.$.cloneof
       node.romof          = machine.$.romof
       node.system         = machine.description
@@ -31,18 +37,20 @@ const makeSystems = (mameXMLStream, nodeback) => {
     }
   })
 
-  xml.on(`end`, () => nodeback(null, systems) )
-  xml.on('error', (message) => nodeback(
-    console.error(`XML parsing failed with ${message}`), null)
-  )
+  xml.on(`end`, () => {
+    console.log(`Success: Read XML ${versionInfo.mameVersion}`)
+    nodeback(null, {versionInfo, systems}) 
+  })
+  xml.on(`error`, (message) => 
+    nodeback(console.error(`XML parsing failed with ${message}`), null) )
 
 }
 
 const makeSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) => 
-    makeSystems(mameXMLInPath, (err, systems) =>
-      !err? resolve(systems) : reject(err)
+    makeSystems(mameXMLInPath, (err, sysObj) =>
+      !err? resolve(sysObj) : reject(err)
     )
   )
 
-module.exports = { makeSystemsAsync}
+module.exports = {makeSystemsAsync}
 

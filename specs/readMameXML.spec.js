@@ -1,5 +1,5 @@
 const intoStream = require('into-stream')
-const { makeSystemsAsync, convertToBool, cleanKey, shortenDisplay } = require('../src/readMameXML.js')
+const { makeSystemsAsync } = require('../src/readMameXML.js')
 
 const mockXml = 
 `<?xml version="1.0"?>
@@ -72,9 +72,9 @@ const mockMameXMLStream = intoStream(mockXml)
 describe(`readMameXML`, () => {
   describe('#makeSystems', () => {
     let systems = null
-    before( () => makeSystemsAsync(mockMameXMLStream).then(systemsAsRead => (systems = systemsAsRead) ) )
+    before( () => makeSystemsAsync(mockMameXMLStream).then(sysObj => (systems = sysObj.systems) ) )
     it(`should convert an item in mameXML format to a populated array`, () => { 
-      expect(systems).to.be.an('array').that.is.not.empty
+      expect(systems).to.be.an(`array`).that.is.not.empty
     })
 
     it(`should return a correct value for a given key`, () => {
