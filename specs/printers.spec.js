@@ -1,29 +1,77 @@
 'use strict'
 
-const mock     = require('mock-fs')
-const rewire   = require('rewire')
-const mkdirp   = require('mkdirp')
-const printers = rewire('../src/printers.js')
-const fs       = require('fs') //to get methods back when fs itself is rewired
+const fs            = require('fs') //to get methods back when fs itself is rewired
 
-const mameJson        = [
+const mock          = require('mock-fs')
+const rewire        = require('rewire')
+const mkdirp        = require('mkdirp')
+const printers      = rewire('../src/printers.js')
+const makeRomdata   = rewire('../src/makeRomdata.js')
+
+const emu           = `another retroarch emulator` 
+const winIconDir    = `F:\MAME\EXTRAs\Icons`
+const devMode       = false
+const romdataConfig = {emu, winIconDir, devMode}
+
+const mameJson      = [
   {
-  	"call": "18wheelr",
-  	"series": "18 Wheeler\\.:*\"<>|",
-  	"version": "0.134u4"
+    call: "005",
+    series: "gamesThatBeginWithNumbers",
+    system: "005",
+    year: "1981",
+    company: "Sega",
+    display: {
+      tag: "screen",
+      type: "raster",
+      rotate: "270",
+      width: "256",
+      height: "224"
+    },
+    control: {
+      type: "joy",
+      player: "2",
+      buttons: "1"
+    },
+    status: "imperfect",
+    arcade: true,
+    arcade_NOBIOS: true,
+    bestgames: "10 to 20 (Horrible)",
+    category: "Maze / Shooter Small",
+    catlist: "Maze / Shooter Small",
+    genre: "Maze",
+    languages: "English",
+    mamescore: true,
+    nplayers: "2P alt",
+    version: "0.030"
   },
   {
-  	"call": "18wheels",
-  	"series": "18 Wheeler\\.:*\"<>|",
-  	"version": "0.144"
-  },
-  {
-  	"call": "NOT18wheels",
-  	"version": "none"
+    call: "100lions",
+    series: "gamesThatBeginWithNumbers",
+    romof: "aristmk6",
+    system: "100 Lions (10219211, NSW/ACT)",
+    year: "2006",
+    company: "Aristocrat",
+    display: {
+      tag: "screen",
+      type: "raster",
+      rotate: "0",
+      width: "640",
+      height: "480"
+    },
+    status: "preliminary",
+    arcade: true,
+    arcade_NOBIOS: true,
+    category: "Casino / Reels",
+    catlist: "Casino / Reels",
+    genre: "Casino",
+    languages: "English",
+    nplayers: "???",
+    version: "0.173"
   }
 ]
 
 describe(`printers`, () => {
+
   describe(`#printJson`, () => {
     const testPath = `this directory does not exist here`
     const testJsonName = `anything`
@@ -66,7 +114,6 @@ describe(`printers`, () => {
   })
 
   describe(`#printIntermediaryIconFiles`, () => {
-
     beforeEach( () => { 
       mock( { 'path/to/fake/dir': {} } ) //create a little file system using mockfs
     ,  printers.printIntermediaryIconFiles(`./path/to`, `mame`)(`./path/to/fake/dir`)
@@ -81,6 +128,22 @@ describe(`printers`, () => {
     })
 
     afterEach( () => {  mock.restore() })
+  })
+
+  describe(`#generateRomdata`, () => {
+
+    let sandbox
+    beforeEach( () => { sandbox = sinon.sandbox.create() } )
+    afterEach(  () => { sandbox.restore() } )
+
+    it(`should determine which icon to use based on the emulator name`, () => {
+      sandbox.stub(printers, `printRomdataFolder`).returns( ()=>{} )
+      //sandbox.stub(makeRomdata, `makeRomdata`).returns( ()=>{} ) //because sinon needs an object+method, we'd have makeRomdata.makeRomata in caller
+      const revert = printers.__set__(`makeRomdata`, ()=> ()=> {`Romdata text`} ) //so let's rewire instead (its a curried callsite)
+      printers.generateRomdata(`./randomOutputDir`, romdataConfig)(`anything`) 
+      expect(printers.printRomdataFolder.getCall(0).args[2]).to.equal(`RetroArch`)
+      revert()
+    })
   })
 
 })

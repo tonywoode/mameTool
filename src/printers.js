@@ -5,9 +5,9 @@ let   mkdirp                      = require('mkdirp') //ditto
 const path                        = require('path')
 const _throw                      = m => { throw new Error(m) }
 
-const makeRomdata                 = require('./makeRomdata.js')
+let   makeRomdata                 = require('./makeRomdata.js') //rewired in test
 
-exports.printJson = (outputDir, jsonOutName) => systems => {
+const printJson = (outputDir, jsonOutName) => systems => {
   const jsonOutPath = `${outputDir}/${jsonOutName}`
   fs.existsSync(outputDir) || mkdirp(outputDir) 
   fs.writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`))  
@@ -57,8 +57,8 @@ CmbIcon=${iconName}.ico
    *    so we must check 'empty' parents (those without romdatas) and give them icos if they lack
    *    problem we then have is we don't want to ascent further than the root outputdir...
    *    pass a param of rootdir and act if its set */
-exports.printIntermediaryIconFiles = (rootDir, iconName) => dir => {
-  const curry = exports.printIntermediaryIconFiles(rootDir, iconName)
+const printIntermediaryIconFiles = (rootDir, iconName) => dir => {
+  const curry = printIntermediaryIconFiles(rootDir, iconName)
   const collectionFolder = path.dirname(dir)
   if (collectionFolder !== rootDir) {
     fs.existsSync(`${collectionFolder}/folders.ini`)  
@@ -72,17 +72,20 @@ exports.printIntermediaryIconFiles = (rootDir, iconName) => dir => {
 const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => romdata => {
   mkdirp.sync(`${romdataOutDir}`)
   fs.existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
-  if (rootDir) exports.printIntermediaryIconFiles(rootDir, iconName)(romdataOutDir) 
+  if (rootDir) printIntermediaryIconFiles(rootDir, iconName)(romdataOutDir) 
   printIconFile(`${romdataOutDir}`, mameExtrasDir, iconName)
   return printRomdata(`${romdataOutDir}`, `romdata.dat`)(romdata)
 }
 
 // makes and prints a romdata using all the above
-exports.generateRomdata = (romdataOutDir, romdataConfig, rootDir) => mameJson => {
+const generateRomdata = (romdataOutDir, romdataConfig, rootDir) => mameJson => {
     const mameRomdata  = makeRomdata(romdataConfig.emu)(mameJson)
     const emuIcon = /RetroArch/i.test(romdataConfig.emu)? `RetroArch` : `Mame`
-    const romdata = printRomdataFolder(romdataOutDir, romdataConfig.winIconDir, emuIcon, rootDir)(mameRomdata)
-    console.log(`printing ${romdataOutDir}`)
+    //for testing we must stub the exported fn https://stackoverflow.com/a/35754124/3536094
+    const romdata = module.exports.printRomdataFolder(romdataOutDir, romdataConfig.winIconDir, emuIcon, rootDir)(mameRomdata)
+    console.log(`printing ${romdataOutDir}`) 
     if (romdataConfig.devMode) console.log(romdata)
     return romdata
 }
+
+module.exports = { printJson, printIntermediaryIconFiles, printRomdataFolder, generateRomdata }

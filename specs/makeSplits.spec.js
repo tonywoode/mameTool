@@ -43,7 +43,7 @@ describe(`makeSplits`, () => {
     afterEach(  () => { sandbox.restore() } )
 
     it(`should produce an expected foldername, omitting ntfs unsafe chars`, () => {
-      sandbox.stub(printers, 'generateRomdata').returns( ()=>{} )
+      sandbox.stub(printers, `generateRomdata`).returns( ()=>{} )
       splits.processSplit(jsonKey, outputDir, romdataConfig)(mameJson)
       expect(printers.generateRomdata.getCall(0).args[0]).to.equal(`./deleteme/series/18 Wheeler`)
       printers.generateRomdata.restore()
@@ -51,7 +51,7 @@ describe(`makeSplits`, () => {
   
     it(`should pass a json to be printed that's been filtered by the approrpriate value`, () => {
       const mameJsonSpy = sandbox.spy() //curry  https://stackoverflow.com/a/46603828/3536094
-      sandbox.stub(printers, 'generateRomdata').returns(mameJsonSpy)
+      sandbox.stub(printers, `generateRomdata`).returns(mameJsonSpy)
       splits.processSplit( jsonKey, outputDir, romdataConfig)(mameJson)
       expect(mameJsonSpy.getCall(0).args[0]).to.have.lengthOf(2)
       //get all series values
