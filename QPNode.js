@@ -1,7 +1,6 @@
 'use strict'
 
 const R                                = require('ramda')
-const {readFile}                       = require('fs')
 const program                          = require('commander')
 const _throw                           = m => { throw new Error(m) }
 
@@ -15,6 +14,8 @@ const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
 const filters                          = require('./src/filters.js') 
 const paths                            = require('./src/paths.js')
+const fs                              = require('fs')
+const ini                              = require('ini')
 
 program
     .option('--output-dir [path]')
@@ -32,9 +33,15 @@ const outputDir         = program.outputDir
  * paths takes the qp ini file path, and will set the mame extras inis path to a computed value, unless you
  * specify a value (to cope with nix dev being an entirely different rooted path) */
 
+
+const devIni = `./settings.ini`
+const liveIni = `dats\\settings.ini`
+
+const qpIni = devMode? devIni : liveIni
+
 const settings = devMode? 
-    paths(`./settings.ini`, `/Volumes/GAMES/MAME/EXTRAs/folders`)
-  : paths(`dats\\settings.ini`)
+    paths(devIni, `/Volumes/GAMES/MAME/EXTRAs/folders`)
+  : paths(liveIni)
 
 const tickObject = [
    { name: `noBios`       , value: parseInt(settings.tickBios)       , filter: filters.biosFilter        }      
@@ -84,7 +91,7 @@ const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, d
 
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
-  readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
+  fs.readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
     err? resolve(makeSystemsAsync(mameXMLStream) ) 
       : (console.log(`existing MAME XML data found...`)
         , resolve(JSON.parse(data) )      
@@ -102,10 +109,13 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
   .then( sysObj => {
     // did we get back the mameJson alone from file, or the version info with it from the xml reader?
     let systems
-    let mameXmlVersion
+    let config
     sysObj.versionInfo? (
         systems = sysObj.systems 
-      , mameXmlVersion = sysObj.versionInfo
+      , config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
+      , config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
+      //TODO: if the xml read didn't work, we need to wipe this setting
+      , fs.writeFileSync(qpIni, ini.stringify(config))
     ) : systems = sysObj
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
