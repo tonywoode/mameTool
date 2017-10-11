@@ -2,6 +2,8 @@
 
 const R                                = require('ramda')
 const program                          = require('commander')
+const fs                               = require('fs')
+const ini                              = require('ini')
 const _throw                           = m => { throw new Error(m) }
 
 const {cleanJson}                      = require('./src/cleanJson.js')
@@ -14,8 +16,6 @@ const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
 const filters                          = require('./src/filters.js') 
 const paths                            = require('./src/paths.js')
-const fs                              = require('fs')
-const ini                              = require('ini')
 
 program
     .option('--output-dir [path]')
@@ -34,10 +34,14 @@ const outputDir         = program.outputDir
  * specify a value (to cope with nix dev being an entirely different rooted path) */
 
 
-const devIni = `./settings.ini`
-const liveIni = `dats\\settings.ini`
+const devIni         = `./settings.ini`
+const liveIni        = `dats\\settings.ini`
+const qpIni          = devMode? devIni : liveIni
 
-const qpIni = devMode? devIni : liveIni
+const jsonOutName    = `mame.json`
+const devJsonOutDir  = outputDir
+const liveJsonOutDir = `dats`
+const jsonOutDir     = devMode? devJsonOutDir : liveJsonOutDir
 
 const settings = devMode? 
     paths(devIni, `/Volumes/GAMES/MAME/EXTRAs/folders`)
@@ -84,14 +88,13 @@ Dev mode:               ${devMode? `on`: `off`}
 const mameXMLStream     = settings.mameXMLStream
 const mfmTextFileStream = settings.mfmTextFileStream
 const iniDir            = settings.iniDir
-const jsonOutName       = `mame.json`
 
 //these same settings get immutably passed to many things now
 const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode}
 
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
-  fs.readFile(`${outputDir}/${jsonOutName}`, (err, data) =>
+  fs.readFile(`${jsonOutDir}/${jsonOutName}`, (err, data) =>
     err? resolve(makeSystemsAsync(mameXMLStream) ) 
       : (console.log(`existing MAME XML data found...`)
         , resolve(JSON.parse(data) )      
@@ -112,6 +115,7 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
     let config
     sysObj.versionInfo? (
         systems = sysObj.systems 
+      //save the eversion information into quickplay's ini file
       , config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
       , config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
       //TODO: if the xml read didn't work, we need to wipe this setting
@@ -123,7 +127,7 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
     // post-process the data-complete json, printing it becomes a gatepost
     const mameJson = R.pipe(
         cleanJson 
-      , printJson(outputDir, jsonOutName)
+      , printJson(jsonOutDir, jsonOutName)
     )(filledSystems) 
  
    return mameJson
