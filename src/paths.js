@@ -1,7 +1,8 @@
 'use strict'
 
-const {readFileSync, createReadStream, existsSync} 
-               = require('fs')
+//paths is agnostic, it doesn't know about live or dev, that's for the caller
+
+const {readFileSync, createReadStream, existsSync} = require('fs')
 const ini      = require('ini')
 const _throw   = m => { throw new Error(m) }
 

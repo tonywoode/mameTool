@@ -29,23 +29,14 @@ const arcade            = program.arcade
 const devMode           = program.dev
 const outputDir         = program.outputDir
 
-/*bring in settings from quickplay's ini file, or use the nix dev settings
- * paths takes the qp ini file path, and will set the mame extras inis path to a computed value, unless you
- * specify a value (to cope with nix dev being an entirely different rooted path) */
+//json will sit in the frontends config dir
+const jsonOutName       = `mame.json`
+const jsonOutDir        = devMode? outputDir : `dats`
 
-
-const devIni         = `./settings.ini`
-const liveIni        = `dats\\settings.ini`
-const qpIni          = devMode? devIni : liveIni
-
-const jsonOutName    = `mame.json`
-const devJsonOutDir  = outputDir
-const liveJsonOutDir = `dats`
-const jsonOutDir     = devMode? devJsonOutDir : liveJsonOutDir
-
-const settings = devMode? 
-    paths(devIni, `/Volumes/GAMES/MAME/EXTRAs/folders`)
-  : paths(liveIni)
+// Bring in settings from quickplay's ini file, or use the nix dev settings
+const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini`
+const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
+const settings          = paths(qpIni, devExtrasOverride)
 
 const tickObject = [
    { name: `noBios`       , value: parseInt(settings.tickBios)       , filter: filters.biosFilter        }      
@@ -96,7 +87,7 @@ const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, d
 const decideWhetherToXMLAsync = () => new Promise( resolve =>
   fs.readFile(`${jsonOutDir}/${jsonOutName}`, (err, data) =>
     err? resolve(makeSystemsAsync(mameXMLStream) ) 
-      : (console.log(`existing MAME XML data found...`)
+      : (console.log(`existing MAME XML data found...${JSON.parse(data).versionInfo.mameVersion}`)
         , resolve(JSON.parse(data) )      
     )
   )
@@ -110,26 +101,22 @@ const inis = require('./src/inis.json')
 //do thejson generation, processing etc that applies whichever options is chosen
 const makeMameJsonPromise = decideWhetherToXMLAsync()
   .then( sysObj => {
-    // did we get back the mameJson alone from file, or the version info with it from the xml reader?
-    let systems
-    let config
-    sysObj.versionInfo? (
-        systems = sysObj.systems 
-      //save the eversion information into quickplay's ini file
-      , config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
-      , config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
+    const systems = sysObj.systems //still referring to sysObj, so we'll print version info later 
+      //save the version information into quickplay's ini file
+      const config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
+      config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
       //TODO: if the xml read didn't work, we need to wipe this setting
-      , fs.writeFileSync(qpIni, ini.stringify(config))
-    ) : systems = sysObj
+      fs.writeFileSync(qpIni, ini.stringify(config))
+   
     // process all the inis into the json
     const filledSystems = inis.reduce( (systems, ini) => 
       iniToJson(iniDir, ini)(systems), systems ) 
     // post-process the data-complete json, printing it becomes a gatepost
     const mameJson = R.pipe(
         cleanJson 
-      , printJson(jsonOutDir, jsonOutName)
     )(filledSystems) 
  
+   printJson(jsonOutDir, jsonOutName)(sysObj) //print out json with inis included, and also version info
    return mameJson
   })
   .catch(err => _throw(err) )
@@ -148,6 +135,7 @@ if (mfm) {
   .catch(err => _throw(err) )
 }
 
+//fulfil a call to make an arcade set from a set of filter choices
 if (arcade) {
   makeMameJsonPromise.then( mameJson => {
 
