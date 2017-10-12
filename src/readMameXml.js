@@ -3,7 +3,7 @@
 const XmlStream = require('xml-stream')
 //Parse the mame xml pulling out the fields we need but only from systems which actually work
 const makeSystems = (mameXMLStream, nodeback) => {
-  const systems = []
+  const arcade = []
   const xml     = new XmlStream(mameXMLStream)
   const versionInfo = {}
   console.log(`Reading a very large xml file, patience...`)
@@ -33,13 +33,13 @@ const makeSystems = (mameXMLStream, nodeback) => {
       node.status         = machine.driver.$.status
       node.savestate      = machine.driver.$.savestate
       if (machine.softwarelist) node.hasSoftwarelist = true
-      systems.push(node)
+      arcade.push(node)
     }
   })
 
   xml.on(`end`, () => {
     console.log(`Success: Read XML ${versionInfo.mameVersion}`)
-    nodeback(null, {versionInfo, systems}) 
+    nodeback(null, {versionInfo, arcade}) 
   })
   xml.on(`error`, (message) => 
     nodeback(console.error(`XML parsing failed with ${message}`), null) )

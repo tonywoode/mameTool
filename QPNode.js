@@ -101,23 +101,22 @@ const inis = require('./src/inis.json')
 //do thejson generation, processing etc that applies whichever options is chosen
 const makeMameJsonPromise = decideWhetherToXMLAsync()
   .then( sysObj => {
-    const systems = sysObj.systems //still referring to sysObj, so we'll print version info later 
-      //save the version information into quickplay's ini file
-      const config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
-      config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
-      //TODO: if the xml read didn't work, we need to wipe this setting
-      fs.writeFileSync(qpIni, ini.stringify(config))
+    const {arcade} = sysObj 
+
+    //save the version information into quickplay's ini file
+    const config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
+    config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
+    fs.writeFileSync(qpIni, ini.stringify(config)) //TODO: what happens if xml/json read didn't work?
    
     // process all the inis into the json
-    const filledSystems = inis.reduce( (systems, ini) => 
-      iniToJson(iniDir, ini)(systems), systems ) 
-    // post-process the data-complete json, printing it becomes a gatepost
-    const mameJson = R.pipe(
-        cleanJson 
-    )(filledSystems) 
- 
-   printJson(jsonOutDir, jsonOutName)(sysObj) //print out json with inis included, and also version info
-   return mameJson
+    const mameJson = R.pipe( arcade =>
+      inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade ) 
+      , cleanJson 
+    )(arcade)
+
+    const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson }
+    printJson(jsonOutDir, jsonOutName)(newSysObj) //print out json with inis included, and also version info
+    return mameJson
   })
   .catch(err => _throw(err) )
 
