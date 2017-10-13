@@ -16,16 +16,19 @@ const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
 const filters                          = require('./src/filters.js') 
 const paths                            = require('./src/paths.js')
+const inis = require('./src/inis.json') 
 
 program
     .option('--output-dir [path]')
     .option(`--mfm`) //so to make a dev mfm run: npm start -- --dev
     .option(`--arcade`)
     .option(`--dev`)
+    .option(`--scan`)
     .parse(process.argv)
 
 const mfm               = program.mfm
 const arcade            = program.arcade
+const scan              = program.scan
 const devMode           = program.dev
 const outputDir         = program.outputDir
 
@@ -93,13 +96,9 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
   )
 )
 
-/* these are the available inis, specifying their type (and their internal name if necessary)
- *   there are three types of ini file (see iniReader.js)
- *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
-const inis = require('./src/inis.json') 
-
 //do thejson generation, processing etc that applies whichever options is chosen
-const makeMameJsonPromise = decideWhetherToXMLAsync()
+//if you've explicitly said 'just process json' then don't choose...
+const makeMameJsonPromise = scan? makeSystemsAsync(mameXMLStream) :   decideWhetherToXMLAsync()
   .then( sysObj => {
     const {arcade} = sysObj 
 
@@ -108,7 +107,9 @@ const makeMameJsonPromise = decideWhetherToXMLAsync()
     config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
     fs.writeFileSync(qpIni, ini.stringify(config)) //TODO: what happens if xml/json read didn't work?
    
-    // process all the inis into the json
+    /* process all the inis into the json we specify their type (and their internal name if necessary)
+     *   there are three types of ini file (see iniReader.js)
+     *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
     const mameJson = R.pipe( arcade =>
       inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade ) 
       , cleanJson 
