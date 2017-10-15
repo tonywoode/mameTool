@@ -72,13 +72,13 @@ const mockMameXMLStream = intoStream(mockXml)
 describe(`readMameXML`, () => {
   describe('#makeSystems', () => {
     let systems = null
-    before( () => makeSystemsAsync(mockMameXMLStream).then(sysObj => (systems = sysObj.systems) ) )
+    before( () => makeSystemsAsync(mockMameXMLStream).then(sysObj => (arcade = sysObj.arcade) ) )
     it(`should convert an item in mameXML format to a populated array`, () => { 
-      expect(systems).to.be.an(`array`).that.is.not.empty
+      expect(arcade).to.be.an(`array`).that.is.not.empty
     })
 
     it(`should return a correct value for a given key`, () => {
-      expect(systems[0].year).to.equal(`1981`)
+      expect(arcade[0].year).to.equal(`1981`)
     })
   })
   

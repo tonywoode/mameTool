@@ -18,8 +18,7 @@ module.exports = (settingsIniPath, mameInisOverridePath ) => {
   return { 
       mameXMLInPath     : s.MameXMLPath                               || _throw('theres no MAME XML')   
     , mameXMLStream     : createReadStream(s.MameXMLPath )            || _throw(`there's no MAME XML Stream`)
-    , mfmTextFileInPath : s.MameFileManagerFilePath                   || _throw(`there's no MFM File`) 
-    , mfmTextFileStream : createReadStream(s.MameFileManagerFilePath) || _throw(`there's no MFM File Stream`)
+    , mfmTextFileInPath : s.MameFileManagerFilePath                   //TODO: need to catch a lack of this later (else we'll throw when generating the json
     , mameExtrasPath    : s.MameExtrasPath 
     , winIconDir        : `${s.MameExtrasPath}\\Icons`
     , mameExe           : s.MametoolMameExePath

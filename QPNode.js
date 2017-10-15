@@ -69,6 +69,7 @@ const splitObject = [
 
 console.log(
 `Output dir:             ${outputDir}
+MAME Json Out           ${jsonOutDir}
 MAME xml file:          ${settings.mameXMLInPath}  
 MAME file manager file: ${settings.mfmTextFileInPath}  
 MAME extras dir:        ${settings.mameExtrasPath}
@@ -80,7 +81,6 @@ Dev mode:               ${devMode? `on`: `off`}
 )
 
 const mameXMLStream     = settings.mameXMLStream
-const mfmTextFileStream = settings.mfmTextFileStream
 const iniDir            = settings.iniDir
 
 //these same settings get immutably passed to many things now
@@ -98,10 +98,9 @@ const decideWhetherToXMLAsync = () => new Promise( resolve =>
 
 //do thejson generation, processing etc that applies whichever options is chosen
 //if you've explicitly said 'just process json' then don't choose...
-const makeMameJsonPromise = scan? makeSystemsAsync(mameXMLStream) :   decideWhetherToXMLAsync()
+const makeMameJsonPromise = (scan? makeSystemsAsync(mameXMLStream) :  decideWhetherToXMLAsync())
   .then( sysObj => {
     const {arcade} = sysObj 
-
     //save the version information into quickplay's ini file
     const config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
     config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
@@ -123,6 +122,8 @@ const makeMameJsonPromise = scan? makeSystemsAsync(mameXMLStream) :   decideWhet
 
 //fulfil a call to make a mame file manager filtered romdata
 if (mfm) {
+  settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
+  const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
   makeMameJsonPromise.then( mameJson =>
     mfmReaderAsync(mfmTextFileStream) 
       .then( (mfmArray) => {
