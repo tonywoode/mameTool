@@ -9,6 +9,7 @@ const _throw                           = m => { throw new Error(m) }
 const {cleanJson}                      = require('./src/cleanJson.js')
 const {iniToJson}                      = require('./src/fillFromIni.js')
 const {makeSystemsAsync}               = require('./src/readMameXml.js')
+const readMameJson                     = require('./src/readMameJson.js')
 const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
 const {printJson, generateRomdata}     = require('./src/printers.js')
 const {applyFilters}                   = require('./src/filterMameJson.js')
@@ -18,6 +19,7 @@ const filters                          = require('./src/filters.js')
 const paths                            = require('./src/paths.js')
 const inis                             = require('./src/inis.json') 
 
+//cmd-line options as parsed by commander
 program
     .option('--output-dir [path]')
     .option(`--scan`)
@@ -27,57 +29,37 @@ program
     .option(`--testArcadeRun`)
     .parse(process.argv)
 
-const devMode = program.dev
-const outputDir = program.outputDir
-
-//json will sit in the frontends config dir
+//calcualte these
+const outputDir         = program.outputDir
 const jsonOutName       = `mame.json`
-const jsonOutDir        = devMode? outputDir : `dats`
-
-// Bring in settings from quickplay's ini file, or use the nix dev settings
-const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini`
+const devMode           = program.dev
+const jsonOutDir        = devMode? outputDir : `dats` //json will sit in the frontends config dir, or for dev in the passed-in dir
+const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini` //settings from QP's ini file, or nix dev settings
 const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
-const settings          = paths(qpIni, devExtrasOverride)
-
 console.log(
 `Output dir:             ${outputDir}
-MAME Json Out           ${jsonOutDir}
-MAME xml file:          ${settings.mameXMLInPath}  
-MAME file manager file: ${settings.mfmTextFileInPath}  
-MAME extras dir:        ${settings.mameExtrasPath}
-MAME ini dir:           ${settings.iniDir}
+MAME Json dir:          ${jsonOutDir}
+Dev mode:               ${devMode? `on`: `off`}` )
+
+//read settings from the ini file
+const settings          = paths(qpIni, devExtrasOverride)
+const romdataConfig     = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode} //these same settings get immutably passed to many things
+console.log(
+`MAME extras dir:        ${settings.mameExtrasPath}
 MAME icons dir:         ${settings.winIconDir} 
-MAME exe:               ${settings.mameExe}
-Dev mode:               ${devMode? `on`: `off`}
-\n`
-)
-settings.mameXMLInPath  || _throw(`there's no MAME XML`)
-const  mameXMLStream    = fs.createReadStream(settings.mameXMLInPath)
-
-const iniDir            = settings.iniDir
-
-//these same settings get immutably passed to many things now
-const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode}
-
-//we must run with --scan before using another option
-const readMameJson = () => new Promise( resolve =>
-  fs.readFile(`${jsonOutDir}/${jsonOutName}`, (err, data) =>
-    err? _throw(`can't find MAME JSON - run me first with '--scan' `) 
-      : (console.log(`existing MAME XML scan found...${JSON.parse(data).versionInfo.mameVersion}`)
-        , resolve(JSON.parse(data) )      
-    )
-  )
-)
+MAME exe:               ${settings.mameExe}` )
 
 //scanning means filter a mame xml into json, adding all inis to the json, then making a file of it
 const scan = () => {
+  console.log(
+`MAME xml file:          ${settings.mameXMLInPath}  
+MAME ini dir:           ${settings.iniDir}` )
+  const iniDir            = settings.iniDir
+  settings.mameXMLInPath  || _throw(`there's no MAME XML`)
+  const  mameXMLStream    = fs.createReadStream(settings.mameXMLInPath)
   makeSystemsAsync(mameXMLStream) 
     .then( sysObj => {
       const {arcade} = sysObj 
-      //save the version information into quickplay's ini file
-      const config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
-      config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
-      fs.writeFileSync(qpIni, ini.stringify(config)) //TODO: what happens if xml/json read didn't work?
      
       /* process all the inis into the json we specify their type (and their internal name if necessary)
        *   there are three types of ini file (see iniReader.js)
@@ -89,7 +71,13 @@ const scan = () => {
   
       const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson }
       printJson(jsonOutDir, jsonOutName)(newSysObj) //print out json with inis included, and also version info
-      return mameJson
+
+      //save the version information into quickplay's ini file, do it last then a throw will end up least contradictory
+      const config = ini.parse(fs.readFileSync(qpIni, `utf-8`))
+      config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
+      fs.writeFileSync(qpIni, ini.stringify(config)) 
+
+      return newSysObj
     })
     .catch(err => _throw(err) )
 }
@@ -121,14 +109,14 @@ const arcade = () => {
    , { name: `year`     , value: parseInt(settings.tickSplitYear    )}
   ]
 
-  readMameJson().then( sysObj => {
+  readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
     const {arcade} = sysObj 
     const userFilteredArcade = applyFilters(tickObject, arcade)
     generateRomdata(outputDir, romdataConfig)(userFilteredArcade)
     //now use that romdata to make the splits the user wants
     applySplits(splitObject, outputDir, romdataConfig)(userFilteredArcade)
 
-    return userFilteredArcade
+    return sysObj
   })
   .catch(err => _throw(err) )
 }
@@ -136,16 +124,17 @@ const arcade = () => {
 
 //fulfil a call to make a mame file manager filtered romdata
 const mfm = () => {
+  console.log(`MAME file manager file: ${settings.mfmTextFileInPath}` )
   settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
   const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
-  readMameJson().then( sysObj => {
+  readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
     const {arcade} = sysObj 
     mfmReaderAsync(mfmTextFileStream) 
       .then( (mfmArray) => {
         const mfmFilteredJson = mfmFilter(mfmArray)(arcade) 
         generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
 
-        return mfmFilteredJson
+        return sysObj
       })
   })
   .catch(err => _throw(err) )
@@ -153,12 +142,12 @@ const mfm = () => {
 
 //these manual prints from an early version could be an integration test
 const testArcadeRun = () => {
-  readMameJson().then( sysObj => {
+  readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
     const {arcade} = sysObj 
     //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
     manualOutput(outputDir, romdataConfig)(arcade) 
 
-    return "Test Finished"
+    return sysObj
   })
   .catch(err => _throw(err) )
 }
