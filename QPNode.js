@@ -20,19 +20,15 @@ const inis                             = require('./src/inis.json')
 
 program
     .option('--output-dir [path]')
-    .option(`--mfm`) //so to make a dev mfm run: npm start -- --dev
-    .option(`--arcade`)
-    .option(`--dev`)
     .option(`--scan`)
-    .option(`--testArcadeIntegration`)
+    .option(`--arcade`)
+    .option(`--mfm`)
+    .option(`--dev`)
+    .option(`--testArcadeRun`)
     .parse(process.argv)
 
-const mfm               = program.mfm
-const arcade            = program.arcade
-const scan              = program.scan
-const devMode           = program.dev
-const outputDir         = program.outputDir
-const testArcadeIntegration = program.testArcadeIntegration 
+const devMode = program.dev
+const outputDir = program.outputDir
 
 //json will sit in the frontends config dir
 const jsonOutName       = `mame.json`
@@ -42,32 +38,6 @@ const jsonOutDir        = devMode? outputDir : `dats`
 const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini`
 const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
 const settings          = paths(qpIni, devExtrasOverride)
-
-const tickObject = [
-   { name: `noBios`       , value: parseInt(settings.tickBios)       , filter: filters.biosFilter        }      
- , { name: `noCasino`     , value: parseInt(settings.tickCasino)     , filter: filters.casinoFilter      }    
- , { name: `noClones`     , value: parseInt(settings.tickClones)     , filter: filters.clonesFilter      }    
- , { name: `noMature`     , value: parseInt(settings.tickMature)     , filter: filters.matureFilter      }    
- , { name: `noMechanical` , value: parseInt(settings.tickMechanical) , filter: filters.mechanicalFilter  }
- , { name: `noMess`       , value: parseInt(settings.tickMess)       , filter: filters.messFilter        }      
- , { name: `noPreliminary`, value: parseInt(settings.tickPreliminary), filter: filters.preliminaryFilter }
- , { name: `noPrintClub`  , value: parseInt(settings.tickPrintClub)  , filter: filters.printClubFilter   }
- , { name: `noSimulator`  , value: parseInt(settings.tickSimulator)  , filter: filters.simulatorFilter   }
- , { name: `noTableTop`   , value: parseInt(settings.tickTableTop)   , filter: filters.tableTopFilter    }
- , { name: `noQuiz`       , value: parseInt(settings.tickQuiz)       , filter: filters.quizFilter        }
- , { name: `noUtilities`  , value: parseInt(settings.tickUtilities)  , filter: filters.utilitiesFilter   }
-]
-
-const splitObject = [
-   { name: `company`  , value: parseInt(settings.tickSplitCompany )}
- , { name: `genre`    , value: parseInt(settings.tickSplitGenre   )}
- , { name: `nplayers` , value: parseInt(settings.tickSplitNPlayers)}
- , { name: `bestgames`, value: parseInt(settings.tickSplitRating  )}
- , { name: `series`   , value: parseInt(settings.tickSplitSeries  )}
- , { name: `version`  , value: parseInt(settings.tickSplitVersion )}
- , { name: `year`     , value: parseInt(settings.tickSplitYear    )}
-]
-
 
 console.log(
 `Output dir:             ${outputDir}
@@ -99,9 +69,8 @@ const readMameJson = () => new Promise( resolve =>
   )
 )
 
-
-if (scan) {
-//do thejson generation, processing etc that applies whichever options is chosen
+//scanning means filter a mame xml into json, adding all inis to the json, then making a file of it
+const scan = () => {
   makeSystemsAsync(mameXMLStream) 
     .then( sysObj => {
       const {arcade} = sysObj 
@@ -125,8 +94,48 @@ if (scan) {
     .catch(err => _throw(err) )
 }
 
+//fulfil a call to make an arcade set from a set of filter choices
+const arcade = () => {
+  const tickObject = [
+     { name: `noBios`       , value: parseInt(settings.tickBios)       , filter: filters.biosFilter        }      
+   , { name: `noCasino`     , value: parseInt(settings.tickCasino)     , filter: filters.casinoFilter      }    
+   , { name: `noClones`     , value: parseInt(settings.tickClones)     , filter: filters.clonesFilter      }    
+   , { name: `noMature`     , value: parseInt(settings.tickMature)     , filter: filters.matureFilter      }    
+   , { name: `noMechanical` , value: parseInt(settings.tickMechanical) , filter: filters.mechanicalFilter  }
+   , { name: `noMess`       , value: parseInt(settings.tickMess)       , filter: filters.messFilter        }      
+   , { name: `noPreliminary`, value: parseInt(settings.tickPreliminary), filter: filters.preliminaryFilter }
+   , { name: `noPrintClub`  , value: parseInt(settings.tickPrintClub)  , filter: filters.printClubFilter   }
+   , { name: `noSimulator`  , value: parseInt(settings.tickSimulator)  , filter: filters.simulatorFilter   }
+   , { name: `noTableTop`   , value: parseInt(settings.tickTableTop)   , filter: filters.tableTopFilter    }
+   , { name: `noQuiz`       , value: parseInt(settings.tickQuiz)       , filter: filters.quizFilter        }
+   , { name: `noUtilities`  , value: parseInt(settings.tickUtilities)  , filter: filters.utilitiesFilter   }
+  ]
+
+  const splitObject = [
+     { name: `company`  , value: parseInt(settings.tickSplitCompany )}
+   , { name: `genre`    , value: parseInt(settings.tickSplitGenre   )}
+   , { name: `nplayers` , value: parseInt(settings.tickSplitNPlayers)}
+   , { name: `bestgames`, value: parseInt(settings.tickSplitRating  )}
+   , { name: `series`   , value: parseInt(settings.tickSplitSeries  )}
+   , { name: `version`  , value: parseInt(settings.tickSplitVersion )}
+   , { name: `year`     , value: parseInt(settings.tickSplitYear    )}
+  ]
+
+  readMameJson().then( sysObj => {
+    const {arcade} = sysObj 
+    const userFilteredArcade = applyFilters(tickObject, arcade)
+    generateRomdata(outputDir, romdataConfig)(userFilteredArcade)
+    //now use that romdata to make the splits the user wants
+    applySplits(splitObject, outputDir, romdataConfig)(userFilteredArcade)
+
+    return userFilteredArcade
+  })
+  .catch(err => _throw(err) )
+}
+
+
 //fulfil a call to make a mame file manager filtered romdata
-if (mfm) {
+const mfm = () => {
   settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
   const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
   readMameJson().then( sysObj => {
@@ -142,29 +151,21 @@ if (mfm) {
   .catch(err => _throw(err) )
 }
 
-//fulfil a call to make an arcade set from a set of filter choices
-if (arcade) {
-  readMameJson().then( sysObj => {
-    const {arcade} = sysObj 
-    const userFilteredArcade = applyFilters(tickObject, arcade)
-    generateRomdata(outputDir, romdataConfig)(userFilteredArcade)
-    //now use that romdata to make the splits the user wants
-    applySplits(splitObject, outputDir, romdataConfig)(userFilteredArcade)
-
-    return userFilteredArcade
-  })
-  .catch(err => _throw(err) )
-}
-
-
-
-if (testArcadeIntegration) {
+//these manual prints from an early version could be an integration test
+const testArcadeRun = () => {
   readMameJson().then( sysObj => {
     const {arcade} = sysObj 
     //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
-    manualOutput(outputDir, romdataConfig)(arcade) //these manual tests could be an integration test
+    manualOutput(outputDir, romdataConfig)(arcade) 
 
     return "Test Finished"
   })
   .catch(err => _throw(err) )
 }
+
+
+//TODO: promisify these so you can run combinations
+program.scan          && scan()
+program.mfm           && mfm()
+program.arcade        && arcade()
+program.testArcadeRun && testArcadeRun()
