@@ -8,16 +8,16 @@ const _throw                           = m => { throw new Error(m) }
 
 const {cleanJson}                      = require('./src/cleanJson.js')
 const {iniToJson}                      = require('./src/fillFromIni.js')
-const {makeSystemsAsync}               = require('./src/readMameXml.js')
-const readMameJson                     = require('./src/readMameJson.js')
-const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
-const {printJson, generateRomdata}     = require('./src/printers.js')
 const {applyFilters}                   = require('./src/filterMameJson.js')
+const filters                          = require('./src/filters.js') 
+const inis                             = require('./src/inis.json') 
 const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
-const filters                          = require('./src/filters.js') 
+const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
 const paths                            = require('./src/paths.js')
-const inis                             = require('./src/inis.json') 
+const {printJson, generateRomdata}     = require('./src/printers.js')
+const {makeSystemsAsync}               = require('./src/readMameXml.js')
+const readMameJson                     = require('./src/readMameJson.js')
 
 //cmd-line options as parsed by commander
 program
@@ -29,7 +29,21 @@ program
     .option(`--testArcadeRun`)
     .parse(process.argv)
 
-//calcualte these
+
+if (!process.argv.slice(2).length) {
+  console.log( 
+`MAMETOOL TEST USAGE: 
+npm run full -- --scan deletes the whole outputs folder, full must be run with scan
+'npm start -- --scan' will make a mame json output file, which is used by the arcade and mfm flags
+'npm start -- --arcade' will make an arcade set to the ini flags in settings.ini, and output to ./outputs
+'npm start -- --mfm' will make an arcade set to a fatfile list output of mame file manager, and output to ./outputs
+'npm debug -- --arcade' will break on ln1 of making an arcade set to the ini flags in settings.ini, and output to ./outputs)`
+)
+  process.exit()
+}
+
+
+//calculate these
 const outputDir         = program.outputDir
 const jsonOutName       = `mame.json`
 const devMode           = program.dev
@@ -37,23 +51,26 @@ const jsonOutDir        = devMode? outputDir : `dats` //json will sit in the fro
 const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini` //settings from QP's ini file, or nix dev settings
 const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
 console.log(
-`Output dir:             ${outputDir}
-MAME Json dir:          ${jsonOutDir}
-Dev mode:               ${devMode? `on`: `off`}` )
+`Dev mode:               ${devMode? `on`: `off`}
+Output dir:             ${outputDir}
+MAME Json dir:          ${jsonOutDir}` 
+)
 
-//read settings from the ini file
+//read these from the ini
 const settings          = paths(qpIni, devExtrasOverride)
 const romdataConfig     = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode} //these same settings get immutably passed to many things
 console.log(
 `MAME extras dir:        ${settings.mameExtrasPath}
 MAME icons dir:         ${settings.winIconDir} 
-MAME exe:               ${settings.mameExe}` )
+MAME exe:               ${settings.mameExe}`
+)
 
-//scanning means filter a mame xml into json, adding all inis to the json, then making a file of it
+//scanning means filter a mame xml into json, add inis to the json, then make a file of it
 const scan = () => {
   console.log(
 `MAME xml file:          ${settings.mameXMLInPath}  
-MAME ini dir:           ${settings.iniDir}` )
+MAME ini dir:           ${settings.iniDir}`
+)
   const iniDir            = settings.iniDir
   settings.mameXMLInPath  || _throw(`there's no MAME XML`)
   const  mameXMLStream    = fs.createReadStream(settings.mameXMLInPath)
@@ -113,8 +130,7 @@ const arcade = () => {
     const {arcade} = sysObj 
     const userFilteredArcade = applyFilters(tickObject, arcade)
     generateRomdata(outputDir, romdataConfig)(userFilteredArcade)
-    //now use that romdata to make the splits the user wants
-    applySplits(splitObject, outputDir, romdataConfig)(userFilteredArcade)
+    applySplits(splitObject, outputDir, romdataConfig)(userFilteredArcade) //now use that romdata to make the splits the user wants 
 
     return sysObj
   })
@@ -144,9 +160,9 @@ const mfm = () => {
 const testArcadeRun = () => {
   readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
     const {arcade} = sysObj 
-    //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
-    manualOutput(outputDir, romdataConfig)(arcade) 
-
+    manualOutput(`${outputDir}/MAME`, romdataConfig)(arcade) 
+    romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
+    manualOutput(`${outputDir}/RetroArch`, romdataConfig)(arcade) 
     return sysObj
   })
   .catch(err => _throw(err) )
