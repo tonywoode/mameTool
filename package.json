@@ -14,7 +14,9 @@
   },
   "scripts": {
     "comment": "full run deletes the whole outputs folder",
-    "comment2": "eg: 'npm start -- --arcade' will make an arcade set to the ini flags in settings.ini, and output to ./outputs",
+    "comment2": "eg: 'npm start -- --scan' will make a mame json output file, which is used by the arcade and mfm flags",
+    "comment3": "eg: 'npm start -- --arcade' will make an arcade set to the ini flags in settings.ini, and output to ./outputs",
+    "comment4": "eg: 'npm debug -- --arcade' will break on ln1 of making an arcade set to the ini flags in settings.ini, and output to ./outputs",
     "base": "node QPNode.js",
     "start": "node QPNode.js --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags",
     "full": "trash $npm_package_directories_outputDir && npm run start --",

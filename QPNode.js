@@ -88,70 +88,72 @@ const iniDir            = settings.iniDir
 const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode}
 
 // If there's an xml that parses in the jsonOutDir, don't parse it all again
-const decideWhetherToXMLAsync = () => new Promise( resolve =>
+const readMameJson = () => new Promise( resolve =>
   fs.readFile(`${jsonOutDir}/${jsonOutName}`, (err, data) =>
-    err? resolve(makeSystemsAsync(mameXMLStream) ) 
-      : (console.log(`existing MAME XML data found...${JSON.parse(data).versionInfo.mameVersion}`)
+    err? _throw(`can't find MAME JSON - run me first with '--scan' `) 
+      : (console.log(`existing MAME XML scan found...${JSON.parse(data).versionInfo.mameVersion}`)
         , resolve(JSON.parse(data) )      
     )
   )
 )
 
-//do thejson generation, processing etc that applies whichever options is chosen
-//if you've explicitly said 'just process json' then don't choose...
-const makeMameJsonPromise = (scan? makeSystemsAsync(mameXMLStream) :  decideWhetherToXMLAsync())
-  .then( sysObj => {
-    const {arcade} = sysObj 
-    //save the version information into quickplay's ini file
-    const config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
-    config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
-    fs.writeFileSync(qpIni, ini.stringify(config)) //TODO: what happens if xml/json read didn't work?
-   
-    /* process all the inis into the json we specify their type (and their internal name if necessary)
-     *   there are three types of ini file (see iniReader.js)
-     *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
-    const mameJson = R.pipe( arcade =>
-      inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade ) 
-      , cleanJson 
-    )(arcade)
 
-    const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson }
-    printJson(jsonOutDir, jsonOutName)(newSysObj) //print out json with inis included, and also version info
-    return mameJson
-  })
-  .catch(err => _throw(err) )
+if (scan) {
+//do thejson generation, processing etc that applies whichever options is chosen
+  makeSystemsAsync(mameXMLStream) 
+    .then( sysObj => {
+      const {arcade} = sysObj 
+      //save the version information into quickplay's ini file
+      const config = ini.parse(fs.readFileSync(qpIni, 'utf-8'))
+      config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
+      fs.writeFileSync(qpIni, ini.stringify(config)) //TODO: what happens if xml/json read didn't work?
+     
+      /* process all the inis into the json we specify their type (and their internal name if necessary)
+       *   there are three types of ini file (see iniReader.js)
+       *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
+      const mameJson = R.pipe( arcade =>
+        inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade ) 
+        , cleanJson 
+      )(arcade)
+  
+      const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson }
+      printJson(jsonOutDir, jsonOutName)(newSysObj) //print out json with inis included, and also version info
+      return mameJson
+    })
+    .catch(err => _throw(err) )
+}
 
 //fulfil a call to make a mame file manager filtered romdata
 if (mfm) {
   settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
   const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
-  makeMameJsonPromise.then( mameJson =>
+  readMameJson().then( sysObj => {
+    const {arcade} = sysObj 
     mfmReaderAsync(mfmTextFileStream) 
       .then( (mfmArray) => {
-        const mfmFilteredJson = mfmFilter(mfmArray)(mameJson) 
+        const mfmFilteredJson = mfmFilter(mfmArray)(arcade) 
         generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
 
-        return mameJson
+        return sysObj
       })
-  )
+  })
   .catch(err => _throw(err) )
 }
 
 //fulfil a call to make an arcade set from a set of filter choices
 if (arcade) {
-  makeMameJsonPromise.then( mameJson => {
+  readMameJson().then( sysObj => {
+    const {arcade} = sysObj 
+    //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
+    //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
+    //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
 
-  //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
-  //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
-  //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
+    const userFilteredArcade = applyFilters(tickObject, arcade)
+    generateRomdata(outputDir, romdataConfig)(userFilteredArcade)
+    //now use that romdata to make the splits the user wants
+    applySplits(splitObject, outputDir, romdataConfig)(userFilteredArcade)
 
-  const userFilteredJson = applyFilters(tickObject, mameJson)
-  generateRomdata(outputDir, romdataConfig)(userFilteredJson)
-
-  //now use that romdata to make the splits the user wants
-  applySplits(splitObject, outputDir, romdataConfig)(userFilteredJson)
-
-  return userFilteredJson
+    return userFilteredArcade
   })
   .catch(err => _throw(err) )
 }
