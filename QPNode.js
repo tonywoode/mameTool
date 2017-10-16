@@ -16,7 +16,7 @@ const {applySplits}                    = require('./src/makeSplits.js')
 const manualOutput                     = require('./src/manualOutput.js')
 const filters                          = require('./src/filters.js') 
 const paths                            = require('./src/paths.js')
-const inis = require('./src/inis.json') 
+const inis                             = require('./src/inis.json') 
 
 program
     .option('--output-dir [path]')
@@ -24,6 +24,7 @@ program
     .option(`--arcade`)
     .option(`--dev`)
     .option(`--scan`)
+    .option(`--testArcadeIntegration`)
     .parse(process.argv)
 
 const mfm               = program.mfm
@@ -31,6 +32,7 @@ const arcade            = program.arcade
 const scan              = program.scan
 const devMode           = program.dev
 const outputDir         = program.outputDir
+const testArcadeIntegration = program.testArcadeIntegration 
 
 //json will sit in the frontends config dir
 const jsonOutName       = `mame.json`
@@ -87,7 +89,7 @@ const iniDir            = settings.iniDir
 //these same settings get immutably passed to many things now
 const romdataConfig = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode}
 
-// If there's an xml that parses in the jsonOutDir, don't parse it all again
+//we must run with --scan before using another option
 const readMameJson = () => new Promise( resolve =>
   fs.readFile(`${jsonOutDir}/${jsonOutName}`, (err, data) =>
     err? _throw(`can't find MAME JSON - run me first with '--scan' `) 
@@ -134,7 +136,7 @@ if (mfm) {
         const mfmFilteredJson = mfmFilter(mfmArray)(arcade) 
         generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
 
-        return sysObj
+        return mfmFilteredJson
       })
   })
   .catch(err => _throw(err) )
@@ -144,16 +146,25 @@ if (mfm) {
 if (arcade) {
   readMameJson().then( sysObj => {
     const {arcade} = sysObj 
-    //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
-    //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
-    //manualOutput(outputDir, romdataConfig)(mameJson) //these manual tests could be an integration test
-
     const userFilteredArcade = applyFilters(tickObject, arcade)
     generateRomdata(outputDir, romdataConfig)(userFilteredArcade)
     //now use that romdata to make the splits the user wants
     applySplits(splitObject, outputDir, romdataConfig)(userFilteredArcade)
 
     return userFilteredArcade
+  })
+  .catch(err => _throw(err) )
+}
+
+
+
+if (testArcadeIntegration) {
+  readMameJson().then( sysObj => {
+    const {arcade} = sysObj 
+    //romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
+    manualOutput(outputDir, romdataConfig)(arcade) //these manual tests could be an integration test
+
+    return "Test Finished"
   })
   .catch(err => _throw(err) )
 }
