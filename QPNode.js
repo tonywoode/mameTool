@@ -79,8 +79,9 @@ MAME exe:               ${settings.mameExe}
 Dev mode:               ${devMode? `on`: `off`}
 \n`
 )
+settings.mameXMLInPath  || _throw(`there's no MAME XML`)
+const  mameXMLStream    = fs.createReadStream(settings.mameXMLInPath)
 
-const mameXMLStream     = settings.mameXMLStream
 const iniDir            = settings.iniDir
 
 //these same settings get immutably passed to many things now
