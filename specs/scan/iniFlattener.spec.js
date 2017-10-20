@@ -1,4 +1,4 @@
-const iniFlattener = require('../src/iniFlattener.js')
+const iniFlattener = require('../../src/scan/iniFlattener.js')
 
 const mockIni = { 
   '3D': 

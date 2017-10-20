@@ -1,7 +1,7 @@
-const filters            = require('./filters.js') 
-const {makeFilteredJson} = require('./filterMameJson.js')
+const filters            = require('./arcade/filters.js') 
+const {makeFilteredJson} = require('./arcade/filterMameJson.js')
 const {generateRomdata}  = require('./printers.js')
-const {applySplits}      = require('./makeSplits.js')
+const {applySplits}      = require('./arcade/makeSplits.js')
 
 // this was the original scripted output, it could be an integration test
 

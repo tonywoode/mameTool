@@ -6,18 +6,13 @@ const fs                               = require('fs')
 const ini                              = require('ini')
 const _throw                           = m => { throw new Error(m) }
 
-const {cleanJson}                      = require('./src/cleanJson.js')
-const {iniToJson}                      = require('./src/fillFromIni.js')
-const {applyFilters}                   = require('./src/filterMameJson.js')
-const filters                          = require('./src/filters.js') 
-const inis                             = require('./src/inis.json') 
-const {applySplits}                    = require('./src/makeSplits.js')
-const manualOutput                     = require('./src/manualOutput.js')
-const {mfmReaderAsync, mfmFilter}      = require('./src/mfmReader.js')
-const paths                            = require('./src/paths.js')
-const {printJson, generateRomdata}     = require('./src/printers.js')
-const {makeSystemsAsync}               = require('./src/readMameXml.js')
-const readMameJson                     = require('./src/readMameJson.js')
+const {makeSystemsAsync, cleanJson, iniToJson, inis} = require('./scan')
+const {filters, applyFilters, applySplits}           = require('./arcade')
+const {mfmReaderAsync, mfmFilter}                    = require('./mfm')
+const manualOutput                                   = require('./manualOutput.js')
+const paths                                          = require('./paths.js')
+const {printJson, generateRomdata}                   = require('./printers.js')
+const readMameJson                                   = require('./readMameJson.js')
 
 //cmd-line options as parsed by commander
 program

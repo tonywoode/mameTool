@@ -1,6 +1,6 @@
 'use strict'
 
-const { getEntryFromIni, fillFromIni } = require(`../src/fillFromIni.js`)
+const { getEntryFromIni, fillFromIni } = require(`../../src/scan/fillFromIni.js`)
 
 const mockJson = [
      {

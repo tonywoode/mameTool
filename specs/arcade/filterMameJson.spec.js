@@ -1,7 +1,7 @@
 'use strict'
 
 const { sublist, doesPropHaveThisValue, removeBool, keepBool
-  , getUniqueProps, keepProp, removeProp, makeFilteredJson } = require(`../src/filterMameJson.js`)
+  , getUniqueProps, keepProp, removeProp, makeFilteredJson } = require(`../../src/arcade/filterMameJson.js`)
 
 const mockSystems = [
 	{

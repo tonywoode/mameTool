@@ -1,7 +1,7 @@
 'use strict'
 
-const splits   = require('../src/makeSplits.js')
-const printers = require('../src/printers.js')
+const splits   = require('../../src/arcade/makeSplits.js')
+const printers = require('../../src/printers.js')
 
 const splitObject = [
     {name: `series`, value: 1}

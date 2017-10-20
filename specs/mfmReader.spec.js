@@ -1,6 +1,6 @@
 'use strict'
 
-const {mfmReaderAsync, mfmFilter} = require(`../src/mfmReader.js`)
+const {mfmReaderAsync, mfmFilter} = require(`../src/mfm/mfmReader.js`)
 
 const intoStream = require('into-stream')
 const stream = require('stream')

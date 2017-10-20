@@ -1,4 +1,4 @@
-const {convertToBool, cleanKey, shortenSubObject, savestateToBool} = require('../src/cleanJson.js')
+const {convertToBool, cleanKey, shortenSubObject, savestateToBool} = require('../../src/scan/cleanJson.js')
 
 const mockDollarList = [
   {

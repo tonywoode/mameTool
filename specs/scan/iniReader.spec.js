@@ -1,5 +1,5 @@
 const rewire = require(`rewire`)
-const iniReader = rewire('../src/iniReader.js')
+const iniReader = rewire('../../src/scan/iniReader.js')
 const { loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
 
 const mockBareIni =
