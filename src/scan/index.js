@@ -3,4 +3,5 @@ module.exports = {
   , cleanJson        : require('./cleanJson.js').cleanJson
   , iniToJson        : require('./fillFromIni.js').iniToJson
   , inis             : require('./inis.json')
+  , printJson        : require('./printJson')
 }

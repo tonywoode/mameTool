@@ -6,12 +6,12 @@ const fs                               = require('fs')
 const ini                              = require('ini')
 const _throw                           = m => { throw new Error(m) }
 
-const {makeSystemsAsync, cleanJson, iniToJson, inis} = require('./scan')
+const {makeSystemsAsync, cleanJson, iniToJson, inis, printJson} = require('./scan')
 const {filters, applyFilters, applySplits}           = require('./arcade')
 const {mfmReaderAsync, mfmFilter}                    = require('./mfm')
 const manualOutput                                   = require('./manualOutput.js')
 const paths                                          = require('./paths.js')
-const {printJson, generateRomdata}                   = require('./printers.js')
+const {generateRomdata}                   = require('./printers.js')
 const readMameJson                                   = require('./readMameJson.js')
 
 //cmd-line options as parsed by commander

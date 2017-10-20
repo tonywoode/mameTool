@@ -7,13 +7,6 @@ const _throw                      = m => { throw new Error(m) }
 
 let   makeRomdata                 = require('./makeRomdata.js') //rewired in test
 
-const printJson = (outputDir, jsonOutName) => systems => {
-  const jsonOutPath = `${outputDir}/${jsonOutName}`
-  fs.existsSync(outputDir) || mkdirp(outputDir) 
-  fs.writeFileSync(jsonOutPath, JSON.stringify(systems, null, `\t`))  
-  return systems
-}
-
 const printRomdata = (romdataOutDir, romdataOutName) => romdata => {
   const romdataOutPath = `${romdataOutDir}/${romdataOutName}`
   fs.writeFileSync(romdataOutPath, romdata.join(`\n`), `latin1`) //utf8 isn't possible at this time
@@ -88,4 +81,4 @@ const generateRomdata = (romdataOutDir, romdataConfig, rootDir) => mameJson => {
     return romdata
 }
 
-module.exports = { printJson, printIntermediaryIconFiles, printRomdataFolder, generateRomdata }
+module.exports = { printIntermediaryIconFiles, printRomdataFolder, generateRomdata }
