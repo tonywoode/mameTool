@@ -2,7 +2,7 @@
 
 const R                                  = require('ramda')
 const {getUniqueProps, makeFilteredJson} = require('./filterMameJson.js')
-const printers                           = require('../printers.js') //sinon doesn't like you to deconstruct this
+const printRomdata                           = require('../printRomdata.js') //sinon doesn't like you to deconstruct this
 
 // let's make folder split by e.g.: genre, set type will be the folder name eg: 'full', 'mature'
 const processSplit = (jsonKey, outputDir, romdataConfig) => json => {
@@ -19,7 +19,7 @@ const processSplit = (jsonKey, outputDir, romdataConfig) => json => {
       .trim() //there aren't any left atm, but windows hates trailing space folder names, refuses to delete
     }`
    //outputDir tells callee if this is a split
-   return printers.generateRomdata(thisFolderName, romdataConfig, outputDir)(thisSplitJson)
+   return printRomdata.generateRomdata(thisFolderName, romdataConfig, outputDir)(thisSplitJson)
   
   }, valuesArray)
 }

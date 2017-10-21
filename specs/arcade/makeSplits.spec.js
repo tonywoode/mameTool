@@ -1,7 +1,7 @@
 'use strict'
 
 const splits   = require('../../src/arcade/makeSplits.js')
-const printers = require('../../src/printers.js')
+const printRomdata = require('../../src/printRomdata.js')
 
 const splitObject = [
     {name: `series`, value: 1}
@@ -43,22 +43,22 @@ describe(`makeSplits`, () => {
     afterEach(  () => { sandbox.restore() } )
 
     it(`should produce an expected foldername, omitting ntfs unsafe chars`, () => {
-      sandbox.stub(printers, `generateRomdata`).returns( ()=>{} )
+      sandbox.stub(printRomdata, `generateRomdata`).returns( ()=>{} )
       splits.processSplit(jsonKey, outputDir, romdataConfig)(mameJson)
-      expect(printers.generateRomdata.getCall(0).args[0]).to.equal(`./deleteme/series/18 Wheeler`)
-      printers.generateRomdata.restore()
+      expect(printRomdata.generateRomdata.getCall(0).args[0]).to.equal(`./deleteme/series/18 Wheeler`)
+      printRomdata.generateRomdata.restore()
     })
   
     it(`should pass a json to be printed that's been filtered by the approrpriate value`, () => {
       const mameJsonSpy = sandbox.spy() //curry  https://stackoverflow.com/a/46603828/3536094
-      sandbox.stub(printers, `generateRomdata`).returns(mameJsonSpy)
+      sandbox.stub(printRomdata, `generateRomdata`).returns(mameJsonSpy)
       splits.processSplit( jsonKey, outputDir, romdataConfig)(mameJson)
       expect(mameJsonSpy.getCall(0).args[0]).to.have.lengthOf(2)
       //get all series values
       const valuesOfSeriesKey = mameJsonSpy.getCall(0).args[0].map( game => game.series) 
       //make a unique array from them
       expect(Array.from(new Set(valuesOfSeriesKey))).to.have.lengthOf(1)
-      printers.generateRomdata.restore()
+      printRomdata.generateRomdata.restore()
     })
 
   })

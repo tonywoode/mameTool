@@ -46,9 +46,9 @@ CmbIcon=${iconName}.ico
 }
 
   /*  when making a collection folder like 'genre', we might miss a level of ico printing
-   *    confouding matters, for company split we use mame's separator as a path seperator,
-   *    so we must check 'empty' parents (those without romdatas) and give them icos if they lack
-   *    problem we then have is we don't want to ascent further than the root outputdir...
+   *    confounding matters, for company split we use mame's separator as a path seperator,
+   *    so we must check 'empty' parents (those without romdatas) and give them icos if they lack.
+   *  Problem we then have is we don't want to ascent further than the root outputdir...
    *    pass a param of rootdir and act if its set */
 const printIntermediaryIconFiles = (rootDir, iconName) => dir => {
   const curry = printIntermediaryIconFiles(rootDir, iconName)
@@ -61,7 +61,7 @@ const printIntermediaryIconFiles = (rootDir, iconName) => dir => {
 }
 
 // print both a romdata file and the icon config that goes with it, in a folder in the specified dir
-// the parent may also need an icon file (hang on hasn't my intermediary fn rendered that pointless?)
+// the parent may also need an icon file (TODO: has my intermediary fn rendered that pointless?)
 const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => romdata => {
   mkdirp.sync(`${romdataOutDir}`)
   fs.existsSync(`${romdataOutDir}/folders.ini`) || printIconFile(romdataOutDir, ``, iconName)
