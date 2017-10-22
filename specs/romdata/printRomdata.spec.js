@@ -4,7 +4,7 @@ const fs            = require('fs') //to get methods back when fs itself is rewi
 
 const mock          = require('mock-fs')
 const rewire        = require('rewire')
-const printRomdata  = rewire('../src/printRomdata.js')
+const printRomdata  = rewire('../../src/romdata/printRomdata.js')
 
 const emu           = `another retroarch emulator` 
 const winIconDir    = `F:\MAME\EXTRAs\Icons`

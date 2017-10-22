@@ -1,6 +1,6 @@
 'use strict'
 
-const makeRomdata = require(`../src/makeRomdata.js`)
+const makeRomdata = require(`../../src/romdata/makeRomdata.js`)
 
 const mockJson = [
 	{

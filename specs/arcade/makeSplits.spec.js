@@ -1,7 +1,7 @@
 'use strict'
 
 const splits   = require('../../src/arcade/makeSplits.js')
-const printRomdata = require('../../src/printRomdata.js')
+const printRomdata = require('../../src/romdata/printRomdata.js')
 
 const splitObject = [
     {name: `series`, value: 1}

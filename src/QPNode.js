@@ -11,8 +11,8 @@ const {filters, applyFilters, applySplits} = require('./arcade')
 const {mfmReaderAsync, mfmFilter}          = require('./mfm')
 const manualOutput                         = require('./testing/manualOutput.js')
 const paths                                = require('./paths.js')
-const {generateRomdata}                    = require('./printRomdata.js')
-const readMameJson                         = require('./readMameJson.js')
+const {generateRomdata}                    = require('./romdata/printRomdata.js')
+const readMameJson                         = require('./romdata/readMameJson.js')
 
 //cmd-line options as parsed by commander
 program
