@@ -1,11 +1,15 @@
 'use strict'
 
+const R                                = require('ramda')
+const program                          = require('commander')
 const fs                               = require('fs')
 const ini                              = require('ini')
-const program                          = require('commander')
-const R                                = require('ramda')
 const _throw                           = m => { throw new Error(m) }
 
+const {makeSystemsAsync, cleanJson, iniToJson, inis, printJson} = require('./scan')
+const {filters, applyFilters, applySplits} = require('./arcade')
+const {mfmReaderAsync, mfmFilter}          = require('./mfm')
+const manualOutput                         = require('./testing/manualOutput.js')
 const paths                                = require('./paths.js')
 const {generateRomdata}                    = require('./romdata/printRomdata.js')
 const readMameJson                         = require('./romdata/readMameJson.js')
@@ -19,6 +23,7 @@ program
     .option(`--dev`)
     .option(`--testArcadeRun`)
     .parse(process.argv)
+
 
 if (!process.argv.slice(2).length) {
   console.log( 
@@ -57,7 +62,6 @@ MAME exe:               ${settings.mameExe}`
 
 //scanning means filter a mame xml into json, add inis to the json, then make a file of it
 const scan = () => {
-  const {makeSystemsAsync, cleanJson, iniToJson, inis, printJson} = require('./scan')
   console.log(
 `MAME xml file:          ${settings.mameXMLInPath}  
 MAME ini dir:           ${settings.iniDir}`
@@ -92,7 +96,6 @@ MAME ini dir:           ${settings.iniDir}`
 
 //fulfil a call to make an arcade set from a set of filter choices
 const arcade = () => {
-  const {filters, applyFilters, applySplits} = require('./arcade')
   const tickObject = [
      { name: `noBios`       , value: parseInt(settings.tickBios)       , filter: filters.biosFilter        }      
    , { name: `noCasino`     , value: parseInt(settings.tickCasino)     , filter: filters.casinoFilter      }    
@@ -132,7 +135,6 @@ const arcade = () => {
 
 //fulfil a call to make a mame file manager filtered romdata
 const mfm = () => {
-  const {mfmReaderAsync, mfmFilter}          = require('./mfm')
   console.log(`MAME file manager file: ${settings.mfmTextFileInPath}` )
   settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
   const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
@@ -151,7 +153,6 @@ const mfm = () => {
 
 //these manual prints from an early version could be an integration test
 const testArcadeRun = () => {
-  const manualOutput                         = require('./testing/manualOutput.js')
   readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
     const {arcade} = sysObj 
     manualOutput(`${outputDir}/MAME`, romdataConfig)(arcade) 
