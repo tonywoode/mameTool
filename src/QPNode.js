@@ -9,7 +9,7 @@ const _throw                           = m => { throw new Error(m) }
 const {makeSystemsAsync, cleanJson, iniToJson, inis, printJson} = require('./scan')
 const {filters, applyFilters, applySplits} = require('./arcade')
 const {mfmReaderAsync, mfmFilter}          = require('./mfm')
-const manualOutput                         = require('./manualOutput.js')
+const manualOutput                         = require('./testing/manualOutput.js')
 const paths                                = require('./paths.js')
 const {generateRomdata}                    = require('./printRomdata.js')
 const readMameJson                         = require('./readMameJson.js')
