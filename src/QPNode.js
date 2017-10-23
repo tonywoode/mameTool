@@ -1,14 +1,16 @@
 'use strict'
 
-const fs                               = require('fs')
-const ini                              = require('ini')
-const program                          = require('commander')
-const R                                = require('ramda')
-const _throw                           = m => { throw new Error(m) }
+const fs                = require('fs')
+const program           = require('commander')
+const R                 = require('ramda')
+const _throw            = m => { throw new Error(m) }
 
-const paths                                = require('./paths.js')
-const {generateRomdata}                    = require('./romdata/printRomdata.js')
-const readMameJson                         = require('./romdata/readMameJson.js')
+const paths             = require('./paths.js')
+const {generateRomdata} = require('./romdata/printRomdata.js')
+const readMameJson      = require('./romdata/readMameJson.js')
+
+
+const {scan} = require('./scan')
 
 //cmd-line options as parsed by commander
 program
@@ -65,40 +67,6 @@ MAME icons dir:         ${settings.winIconDir}
 MAME exe:               ${settings.mameExe}`
 )
 
-//scanning means filter a mame xml into json, add inis to the json, then make a file of it
-const scan = () => {
-  const {makeSystemsAsync, cleanJson, iniToJson, inis, printJson} = require('./scan')
-  console.log(
-`MAME xml file:          ${settings.mameXMLInPath}  
-MAME ini dir:           ${settings.iniDir}`
-)
-  const iniDir            = settings.iniDir
-  settings.mameXMLInPath  || _throw(`there's no MAME XML`)
-  const  mameXMLStream    = fs.createReadStream(settings.mameXMLInPath)
-  makeSystemsAsync(mameXMLStream) 
-    .then( sysObj => {
-      const {arcade} = sysObj 
-     
-      /* process all the inis into the json we specify their type (and their internal name if necessary)
-       *   there are three types of ini file (see iniReader.js)
-       *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
-      const mameJson = R.pipe( arcade =>
-        inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade ) 
-        , cleanJson 
-      )(arcade)
-  
-      const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson }
-      printJson(jsonOutDir, jsonOutName)(newSysObj) //print out json with inis included, and also version info
-
-      //save the version information into quickplay's ini file, do it last then a throw will end up least contradictory
-      const config = ini.parse(fs.readFileSync(qpIni, `utf-8`))
-      config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
-      fs.writeFileSync(qpIni, ini.stringify(config)) 
-
-      return newSysObj
-    })
-    .catch(err => _throw(err) )
-}
 
 //fulfil a call to make an arcade set from a set of filter choices
 const arcade = () => {
@@ -316,11 +284,11 @@ const embedded = () => {
 }
 
 //TODO: promisify these so you can run combinations
-program.scan          && scan()
+program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
 program.mfm           && mfm()
 program.arcade        && arcade()
 program.testArcadeRun && testArcadeRun()
 //messtool options
-program.datAndEfind      && datAndEfind()
-program.softlists && softlists()
-program.embedded  && embedded()
+program.datAndEfind   && datAndEfind()
+program.softlists     && softlists()
+program.embedded      && embedded()
