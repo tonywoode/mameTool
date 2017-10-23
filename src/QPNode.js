@@ -13,6 +13,7 @@ const {scan}             = require('./scan')
 const {arcade}           = require('./arcade')
 const {mfm}              = require('./mfm')
 const {testArcadeRun}    = require('./testing')
+const {datAndEfind}      = require('./datAndEfind')
 
 //cmd-line options as parsed by commander
 program
@@ -72,63 +73,7 @@ MAME exe:               ${settings.mameExe}`
 
 //FROM HERE ARE THE MESSTOOL OPTIONS
 
-//JSON, DAT AND EFIND MAKER
-const datAndEfind = () => {
-  const XmlStream      = require('xml-stream')
-  const {
-      readMameXML
-    , cleanSoftlists
-    , cleanDevices
-    , mungeCompanyAndSystemNames
-    , mungeCompanyForType
-    , makeFinalSystemTypes
-    , removeBoringSystems
-    , print
-    , printSysdatAndJson
-  }                    = require('./datAndEfind')
-  
-  const 
-      datInPath        = `inputs/systems.dat`
-    , datInStream      = fs.createReadStream(datInPath)
-    , mameXMLInPath    = `inputs/mame187.xml`
-    , stream           = fs.createReadStream(mameXMLInPath)
-    , xml              = new XmlStream(stream)
-    , mameIniOutPath   = `outputs/Mess_Mame.ini`
-    , rarchIniOutPath  = `outputs/Mess_Retroarch.ini`
-    , datOutPath       = `outputs/systems.dat`
-    , jsonOutPath      = `outputs/systems.json`
-  
-  //set simple console logging
-  const
-      logIni  = false
-    , logDat  = false
-    , logJSON = false
-  
-  //program flow
-  readMameXML( xml, systems => {
-  
-    R.pipe(
-       cleanSoftlists
-    ,  cleanDevices
-    ,  mungeCompanyAndSystemNames
-    ,  mungeCompanyForType
-    ,  makeFinalSystemTypes
-    ,  removeBoringSystems
-    ,  print(mameIniOutPath, rarchIniOutPath, logIni)
-    ,  printSysdatAndJson(logDat, logJSON, datInStream, datOutPath, jsonOutPath)
-    )(systems)
-  
-  })
-  
-  
-  function mockSystems(jsonOutPath, callback) {
-    const input   = fs.readFileSync(jsonOutPath)
-        , systems = JSON.parse(input)
-    
-    callback(systems, callback)
-  }
 
-}
 
 
 //SOFTLISTS
