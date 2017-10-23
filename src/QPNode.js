@@ -6,14 +6,16 @@ const R                 = require('ramda')
 const _throw            = m => { throw new Error(m) }
 
 const paths             = require('./paths.js')
+//these two are used by multiple modules and are being passed in as dependecies
 const {generateRomdata} = require('./romdata/printRomdata.js')
 const readMameJson      = require('./romdata/readMameJson.js')
 
-const {scan}             = require('./scan')
-const {arcade}           = require('./arcade')
-const {mfm}              = require('./mfm')
-const {testArcadeRun}    = require('./testing')
-const {datAndEfind}      = require('./datAndEfind')
+const {scan}            = require('./scan')
+const {arcade}          = require('./arcade')
+const {mfm}             = require('./mfm')
+const {testArcadeRun}   = require('./testing')
+const {datAndEfind}     = require('./datAndEfind')
+const {softlists}       = require('./softlists')
 
 //cmd-line options as parsed by commander
 program
@@ -69,59 +71,6 @@ console.log(
 MAME icons dir:         ${settings.winIconDir} 
 MAME exe:               ${settings.mameExe}`
 )
-
-
-//FROM HERE ARE THE MESSTOOL OPTIONS
-
-
-
-
-//SOFTLISTS
-const softlists = () => {
-  const {
-      callSheet
-    , filterSoftlists
-    , chooseDefaultEmus
-    , makeParams
-    , readSoftlistXML
-    , cleanSoftlist
-    , setRegionalEmu
-    , printSoftlistRomdata
-  }                   = require('./softlists')
-  
-  const hashDir       = `inputs/hash/`
-    , outputDir       = `outputs/`
-    , systemsJsonFile = fs.readFileSync(`${outputDir}systems.json`)
-    , systems         = JSON.parse(systemsJsonFile)
-    //TODO - you can append the DTD at the top of the file if it isn't being read correctly
-  
-    //decide what we want to print to console
-    , logGames        = false
-    , logChoices      = false
-    , logRegions      = false
-    , logExclusions   = false
-    , logPrinter      = false
-  
-  //program flow at list level
-  R.pipe(
-      callSheet(logExclusions)
-    , filterSoftlists(hashDir)
-    , chooseDefaultEmus(logChoices)
-    , makeSoftlists 
-  )(systems)
-  
-  //program flow at emu level
-  function makeSoftlists(emuSystems) {
-    R.map(emu => {
-          const softlistParams = makeParams(hashDir, outputDir, emu)
-          readSoftlistXML(softlistParams.xml, softlist => {
-            const cleanedSoftlist = cleanSoftlist(softlist)
-            printSoftlistRomdata(logGames, logExclusions, logRegions, logPrinter, softlistParams, setRegionalEmu, cleanedSoftlist)
-          })
-        }, emuSystems)
-  }
-
-}
 
 
 //EMBEDDED SYSTEMS

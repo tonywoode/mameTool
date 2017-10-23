@@ -1,8 +1,8 @@
 'use strict'
 
-const fs                = require('fs')
-const R                 = require('ramda')
-const XmlStream         = require('xml-stream')
+const fs                         = require('fs')
+const R                          = require('ramda')
+const XmlStream                  = require('xml-stream')
 
 const readMameXML                = require('./readMameXML.js')
 const cleanSoftlists             = require('./cleanSoftlists.js')
@@ -18,15 +18,15 @@ const printSysdatAndJson         = require('./printSysdatAndJson.js')
 const datAndEfind = () => {
  
   const 
-      datInPath        = `inputs/systems.dat`
-    , datInStream      = fs.createReadStream(datInPath)
-    , mameXMLInPath    = `inputs/mame187.xml`
-    , stream           = fs.createReadStream(mameXMLInPath)
-    , xml              = new XmlStream(stream)
-    , mameIniOutPath   = `outputs/Mess_Mame.ini`
-    , rarchIniOutPath  = `outputs/Mess_Retroarch.ini`
-    , datOutPath       = `outputs/systems.dat`
-    , jsonOutPath      = `outputs/systems.json`
+      datInPath       = `inputs/systems.dat`
+    , datInStream     = fs.createReadStream(datInPath)
+    , mameXMLInPath   = `inputs/mame187.xml`
+    , stream          = fs.createReadStream(mameXMLInPath)
+    , xml             = new XmlStream(stream)
+    , mameIniOutPath  = `outputs/Mess_Mame.ini`
+    , rarchIniOutPath = `outputs/Mess_Retroarch.ini`
+    , datOutPath      = `outputs/systems.dat`
+    , jsonOutPath     = `outputs/systems.json`
   
   //set simple console logging
   const
