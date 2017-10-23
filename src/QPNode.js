@@ -9,10 +9,10 @@ const paths             = require('./paths.js')
 const {generateRomdata} = require('./romdata/printRomdata.js')
 const readMameJson      = require('./romdata/readMameJson.js')
 
-
-const {scan}   = require('./scan')
-const {arcade} = require('./arcade')
-const {mfm}    = require('./mfm')
+const {scan}             = require('./scan')
+const {arcade}           = require('./arcade')
+const {mfm}              = require('./mfm')
+const {testArcadeRun}    = require('./testing')
 
 //cmd-line options as parsed by commander
 program
@@ -68,22 +68,6 @@ console.log(
 MAME icons dir:         ${settings.winIconDir} 
 MAME exe:               ${settings.mameExe}`
 )
-
-
-
-
-//these manual prints from an early version could be an integration test
-const testArcadeRun = () => {
-  const manualOutput                         = require('./testing/manualOutput.js')
-  readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
-    const {arcade} = sysObj 
-    manualOutput(`${outputDir}/MAME`, romdataConfig)(arcade) 
-    romdataConfig.emu = `Retroarch Arcade (Mame) Win32`
-    manualOutput(`${outputDir}/RetroArch`, romdataConfig)(arcade) 
-    return sysObj
-  })
-  .catch(err => _throw(err) )
-}
 
 
 //FROM HERE ARE THE MESSTOOL OPTIONS
@@ -232,7 +216,7 @@ const embedded = () => {
 program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
 program.mfm           && mfm(settings, readMameJson, jsonOutDir, jsonOutName, generateRomdata, outputDir, romdataConfig)
 program.arcade        && arcade(settings, jsonOutDir, jsonOutName, outputDir, romdataConfig, readMameJson, generateRomdata)
-program.testArcadeRun && testArcadeRun()
+program.testArcadeRun && testArcadeRun(readMameJson, jsonOutDir, jsonOutName, outputDir, romdataConfig)
 //messtool options
 program.datAndEfind   && datAndEfind()
 program.softlists     && softlists()

@@ -1,3 +1,5 @@
+'use strict'
+
 const filters      = require('./filters.js')
 const applyFilters = require('./filterMameJson.js').applyFilters
 const applySplits  = require('./makeSplits.js').applySplits
