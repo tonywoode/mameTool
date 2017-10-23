@@ -16,6 +16,7 @@ const {mfm}             = require('./mfm')
 const {testArcadeRun}   = require('./testing')
 const {datAndEfind}     = require('./datAndEfind')
 const {softlists}       = require('./softlists')
+const {embedded}        = require('./embeddedSystems')
 
 //cmd-line options as parsed by commander
 program
@@ -49,7 +50,6 @@ npm run full -- --scan deletes the whole outputs folder, full must be run with s
   process.exit()
 }
 
-
 //calculate these
 const outputDir         = program.outputDir
 const jsonOutName       = `mame.json`
@@ -71,40 +71,6 @@ console.log(
 MAME icons dir:         ${settings.winIconDir} 
 MAME exe:               ${settings.mameExe}`
 )
-
-
-//EMBEDDED SYSTEMS
-/* here we pair down the imp elsewhere to print us a set of embedded systems in mess
- * its important to note that this is only possible atm because there is still a standalone
- * mess executable you can ask to --listdevices. The mess team say that there won't be
- * this standalone exe in the future. If that comes to pass, they need a 'isMess' key. 
- * This class uses the mecahanics of the other classes in this module, but has a far
- * narrower scope, its an afterthought */
-
-const embedded = () => {
-  const XmlStream      = require('xml-stream')
-  const {
-      readMameXMLembedded
-    , mungeCompanyAndSystemNamesEmbedded
-    , removeBoringSystemsEmbedded
-    , printRomdata 
-  }                 = require('./embeddedSystems')
-  
-  const 
-      mameXMLInPathEmbedded = `inputs/mess.xml`
-    , streamEmbedded        = fs.createReadStream(mameXMLInPathEmbedded)
-    , xmlEmbedded           = new XmlStream(streamEmbedded)
-  
-  //program flow
-  readMameXMLembedded( xmlEmbedded, systems => {
-    R.pipe(
-       mungeCompanyAndSystemNamesEmbedded
-     , removeBoringSystemsEmbedded
-     , printRomdata
-    )(systems)
-  })
-
-}
 
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
