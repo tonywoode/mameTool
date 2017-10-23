@@ -12,6 +12,7 @@ const readMameJson      = require('./romdata/readMameJson.js')
 
 const {scan}   = require('./scan')
 const {arcade} = require('./arcade')
+const {mfm}    = require('./mfm')
 
 //cmd-line options as parsed by commander
 program
@@ -69,24 +70,7 @@ MAME exe:               ${settings.mameExe}`
 )
 
 
-//fulfil a call to make a mame file manager filtered romdata
-const mfm = () => {
-  const {mfmReaderAsync, mfmFilter}          = require('./mfm')
-  console.log(`MAME file manager file: ${settings.mfmTextFileInPath}` )
-  settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
-  const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
-  readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
-    const {arcade} = sysObj 
-    mfmReaderAsync(mfmTextFileStream) 
-      .then( (mfmArray) => {
-        const mfmFilteredJson = mfmFilter(mfmArray)(arcade) 
-        generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
 
-        return sysObj
-      })
-  })
-  .catch(err => _throw(err) )
-}
 
 //these manual prints from an early version could be an integration test
 const testArcadeRun = () => {
@@ -246,7 +230,7 @@ const embedded = () => {
 
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
-program.mfm           && mfm()
+program.mfm           && mfm(settings, readMameJson, jsonOutDir, jsonOutName, generateRomdata, outputDir, romdataConfig)
 program.arcade        && arcade(settings, jsonOutDir, jsonOutName, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun()
 //messtool options
