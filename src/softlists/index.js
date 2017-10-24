@@ -18,25 +18,30 @@ const softlists = (hashDir, outputDir, log) => {
   const systemsJsonFile = fs.readFileSync(`${outputDir}/systems.json`)
   const systems         = JSON.parse(systemsJsonFile)
   //TODO - you can append the DTD at the top of the file if it isn't being read correctly
-  //program flow at list level
+  
+  //program flow at emu level
+  const  makeSoftlists = mameEmu => emuSystems => {
+    R.map(emu => {
+          const softlistParams = makeParams(mameEmu, hashDir, outputDir, emu)
+          readSoftlistXML(softlistParams.xml, softlist => {
+            const cleanedSoftlist = cleanSoftlist(softlist)
+            printSoftlistRomdata(mameEmu, log, softlistParams, setRegionalEmu, cleanedSoftlist)
+          })
+        }, emuSystems)
+
+    return emuSystems
+  }
+
+ //program flow at list level
   R.pipe(
       callSheet(log)
     , filterSoftlists(hashDir)
     , chooseDefaultEmus(log)
-    , makeSoftlists 
+    , makeSoftlists(`mame`) 
+    , makeSoftlists(`retroarch`) 
   )(systems)
   
-  //program flow at emu level
-  function makeSoftlists(emuSystems) {
-    R.map(emu => {
-          const softlistParams = makeParams(hashDir, outputDir, emu)
-          readSoftlistXML(softlistParams.xml, softlist => {
-            const cleanedSoftlist = cleanSoftlist(softlist)
-            printSoftlistRomdata(log, softlistParams, setRegionalEmu, cleanedSoftlist)
-          })
-        }, emuSystems)
-  }
-
+ 
 }
 
 module.exports = {softlists}

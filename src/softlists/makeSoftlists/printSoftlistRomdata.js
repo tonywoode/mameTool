@@ -4,7 +4,7 @@ const fs                = require('fs')
 const mkdirp            = require('mkdirp')
 const R                 = require('ramda')
 
-module.exports = (log, softlistParams, setRegionalEmu, softlist ) => {
+module.exports = (mameEmu, log, softlistParams, setRegionalEmu, softlist ) => {
   //don't make a dat or folder if all of the games for a softlist aren't supported
   if (!softlist.length) { 
     if (log.exclusions) console.log(
@@ -70,13 +70,9 @@ module.exports = (log, softlistParams, setRegionalEmu, softlist ) => {
     return console.error(`unsupported platform: ${platform}`)
   }, softlist)
 
-  const mameRomdata             = applyRomdata(softlist,  `mame`)
-  const retroarchRomdata        = applyRomdata(softlist,  `retroarch`)
-  const mameRomdataToPrint      = R.prepend(romdataHeader, mameRomdata) 
-  const retroarchRomdataToPrint = R.prepend(romdataHeader, retroarchRomdata) 
-
-  mkdirp.sync(softlistParams.mameOutNamePath)
-  mkdirp.sync(softlistParams.retroarchOutNamePath)
+  const romdata             = applyRomdata(softlist, mameEmu)
+  const romdataToPrint      = R.prepend(romdataHeader, romdata) 
+  mkdirp.sync(softlistParams.outNamePath)
   
   /* I already did work to enable MAME icons in QuickPlay, so just print this folder config with each dat
    *   there are 2 systems which don't have icons in the set i want, so just write an icon file for everything */
@@ -107,16 +103,14 @@ CmbIcon=${iconName}.ico
 `
 
   const machineMameName = softlistParams.thisEmulator.call
-  fs.writeFileSync(`${softlistParams.mameOutNamePath}/folders.ini`,      iconTemplate(machineMameName))
-  fs.writeFileSync(`${softlistParams.mameOutTypePath}/folders.ini`,      iconTemplate(machineMameName)) //last wins is fine
-  fs.writeFileSync(`${softlistParams.mameOutRootDir}/folders.ini`,       iconTemplate(`Mess`)) //last wins is fine
-  fs.writeFileSync(`${softlistParams.retroarchOutNamePath}/folders.ini`, iconTemplate(machineMameName))
-  fs.writeFileSync(`${softlistParams.retroarchOutTypePath}/folders.ini`, iconTemplate(machineMameName)) //last wins is fine
-  fs.writeFileSync(`${softlistParams.retroarchOutRootDir}/folders.ini`,  iconTemplate(`RetroArch`)) //last wins is fine
+
+  fs.writeFileSync(`${softlistParams.outNamePath}/folders.ini`,      iconTemplate(machineMameName))
+  fs.writeFileSync(`${softlistParams.outTypePath}/folders.ini`,      iconTemplate(machineMameName)) //last wins is fine
+  const icon = (mameEmu === `retroarch`? `RetroArch` : `Mess`)
+  fs.writeFileSync(`${softlistParams.outRootDir}/folders.ini`,       iconTemplate(icon)) //last wins is fine
   //now print the romdata itself
-  fs.writeFileSync(softlistParams.mameOutFullPath,      mameRomdataToPrint.join(`\n`),      `latin1`) //utf8 isn't possible at this time
-  fs.writeFileSync(softlistParams.retroarchOutFullPath, retroarchRomdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time
-  
+  fs.writeFileSync(softlistParams.outFullPath, romdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time
+ 
   return softlist
 
 }

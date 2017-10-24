@@ -3,7 +3,7 @@
 const fs        = require('fs')
 const XmlStream = require('xml-stream')
 
-module.exports = (hashDir, outputDir, emulator) => {
+module.exports = (mameEmu, hashDir, outputDir, emulator) => {
   
   const //I like forward slashes in system type. System doesn't...
       systemType              = emulator.systemType?
@@ -22,18 +22,22 @@ module.exports = (hashDir, outputDir, emulator) => {
     , thisEmulator            = emulator
     , stream                  = fs.createReadStream(`${hashDir}${name}.xml`)
     , xml                     = new XmlStream(stream)
-    , mameOutRootDir          = `${outputDir}/mame_softlists/`
-    , mameOutTypePath         = `${mameOutRootDir}/${systemType}`
-    , mameOutNamePath         = `${mameOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
-    , mameOutFullPath         = `${mameOutNamePath}/romdata.dat`
-    , retroarchOutRootDir     = `${outputDir}/retroarch_softlists/`
-    , retroarchOutTypePath    = `${retroarchOutRootDir}/${systemType}`
-    , retroarchOutNamePath    = `${retroarchOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
-    , retroarchOutFullPath    = `${retroarchOutNamePath}/romdata.dat`
+
+
+    , outRootDir          = `${outputDir}/${mameEmu}_softlists/`
+    , outTypePath         = `${outRootDir}/${systemType}`
+    , outNamePath         = `${outTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
+    , outFullPath         = `${outNamePath}/romdata.dat`
+
+  //  , mameOutRootDir          = `${outputDir}/mame_softlists/`
+//    , mameOutTypePath         = `${mameOutRootDir}/${systemType}`
+//    , mameOutNamePath         = `${mameOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
+//    , mameOutFullPath         = `${mameOutNamePath}/romdata.dat`
+//    , retroarchOutRootDir     = `${outputDir}/retroarch_softlists/`
+//    , retroarchOutTypePath    = `${retroarchOutRootDir}/${systemType}`
+//    , retroarchOutNamePath    = `${retroarchOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
+ //   , retroarchOutFullPath    = `${retroarchOutNamePath}/romdata.dat`
        
-  return  ({ 
-      systemType, name, thisEmulator, stream, xml, mameOutRootDir, mameOutTypePath, mameOutNamePath
-    , mameOutFullPath, retroarchOutRootDir, retroarchOutTypePath, retroarchOutNamePath, retroarchOutFullPath
-  })
+  return  ({systemType, name, thisEmulator, stream, xml, outRootDir, outTypePath, outNamePath , outFullPath})
 
 }  
