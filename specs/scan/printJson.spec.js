@@ -60,8 +60,8 @@ const mameJson      = [
   }
 ]
 describe(`printJson`, () => {
-  const testPath = `this directory does not exist here`
-  const testJsonName = `anything`
+  const testDir = `this directory does not exist here`
+  const testPath = `${testDir}/anything`
 
   it(`should make a directory if the file doesn't exist`, () => {
     printJson.__with__({
@@ -69,8 +69,8 @@ describe(`printJson`, () => {
             existsSync:  () => false 
           , writeFileSync: (path, json) => ()=>{}
         } 
-      , mkdirp: path => expect(path).to.equal(testPath)
-    })( () => printJson(testPath, testJsonName )(mameJson) ) //__with__ requires fn
+      , mkdirp: path => expect(path).to.equal(`this directory does not exist here`)
+    })( () => printJson(testPath)(mameJson) ) //__with__ requires fn
   })
 
   it(`should throw an exception if it can't write the json because the ouptut dir doesn't exist`, () => {
@@ -80,8 +80,8 @@ describe(`printJson`, () => {
           , writeFileSync: fs.writeFileSync  //TODO: how to avoid having to do this?
         }
       , mkdirp: path => true
-    })( () => expect(printJson(testPath, `anything`)).to.throw( //note no curry
-      `ENOENT: no such file or directory, open '${testPath}/${testJsonName}'`
+    })( () => expect(printJson(testPath)).to.throw( //note no curry
+      `ENOENT: no such file or directory, open '${testPath}'`
     ))
   })
 
@@ -93,7 +93,7 @@ describe(`printJson`, () => {
         }
       , mkdirp: path => true
     })( () => {
-      const result = printJson(testPath, `anything`)(mameJson)
+      const result = printJson(testPath)(mameJson)
       expect(result).to.equal(mameJson)
     })
   })

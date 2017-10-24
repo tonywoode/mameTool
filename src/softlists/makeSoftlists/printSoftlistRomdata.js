@@ -70,8 +70,8 @@ module.exports = (mameEmu, log, softlistParams, setRegionalEmu, softlist ) => {
     return console.error(`unsupported platform: ${platform}`)
   }, softlist)
 
-  const romdata             = applyRomdata(softlist, mameEmu)
-  const romdataToPrint      = R.prepend(romdataHeader, romdata) 
+  const romdata        = applyRomdata(softlist, mameEmu)
+  const romdataToPrint = R.prepend(romdataHeader, romdata) 
   mkdirp.sync(softlistParams.outNamePath)
   
   /* I already did work to enable MAME icons in QuickPlay, so just print this folder config with each dat
@@ -104,10 +104,10 @@ CmbIcon=${iconName}.ico
 
   const machineMameName = softlistParams.thisEmulator.call
 
-  fs.writeFileSync(`${softlistParams.outNamePath}/folders.ini`,      iconTemplate(machineMameName))
-  fs.writeFileSync(`${softlistParams.outTypePath}/folders.ini`,      iconTemplate(machineMameName)) //last wins is fine
+  fs.writeFileSync(`${softlistParams.outNamePath}/folders.ini`, iconTemplate(machineMameName))
+  fs.writeFileSync(`${softlistParams.outTypePath}/folders.ini`, iconTemplate(machineMameName)) //last wins is fine
   const icon = (mameEmu === `retroarch`? `RetroArch` : `Mess`)
-  fs.writeFileSync(`${softlistParams.outRootDir}/folders.ini`,       iconTemplate(icon)) //last wins is fine
+  fs.writeFileSync(`${softlistParams.outRootDir}/folders.ini`,  iconTemplate(icon)) //last wins is fine
   //now print the romdata itself
   fs.writeFileSync(softlistParams.outFullPath, romdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time
  
