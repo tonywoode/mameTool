@@ -15,25 +15,12 @@ const print                      = require('./print.js')
 const printSysdatAndJson         = require('./printSysdatAndJson.js')
 
 //JSON, DAT AND EFIND MAKER
-const datAndEfind = () => {
- 
-  const 
-      datInPath       = `inputs/systems.dat`
-    , datInStream     = fs.createReadStream(datInPath)
-    , mameXMLInPath   = `inputs/mame187.xml`
-    , stream          = fs.createReadStream(mameXMLInPath)
-    , xml             = new XmlStream(stream)
-    , mameIniOutPath  = `outputs/Mess_Mame.ini`
-    , rarchIniOutPath = `outputs/Mess_Retroarch.ini`
-    , datOutPath      = `outputs/systems.dat`
-    , jsonOutPath     = `outputs/systems.json`
-  
-  //set simple console logging
-  const
-      logIni  = false
-    , logDat  = false
-    , logJSON = false
-  
+const datAndEfind = (jsonOutDir, jsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, logIni, logDat, logJSON) => {
+  const jsonOutPath     = `${jsonOutDir}/${jsonOutName}`
+  const datInStream     = fs.createReadStream(datInPath)
+  const stream          = fs.createReadStream(mameXMLInPath)
+  const xml             = new XmlStream(stream)
+
   //program flow
   readMameXML( xml, systems => {
   
@@ -49,14 +36,6 @@ const datAndEfind = () => {
     )(systems)
   
   })
-  
-  
-  function mockSystems(jsonOutPath, callback) {
-    const input   = fs.readFileSync(jsonOutPath)
-        , systems = JSON.parse(input)
-    
-    callback(systems, callback)
-  }
 
 }
 

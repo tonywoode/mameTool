@@ -2,7 +2,6 @@
 
 const fs                = require('fs')
 const program           = require('commander')
-const R                 = require('ramda')
 const _throw            = m => { throw new Error(m) }
 
 const paths             = require('./paths.js')
@@ -72,12 +71,33 @@ MAME icons dir:         ${settings.winIconDir}
 MAME exe:               ${settings.mameExe}`
 )
 
+
+//mess paths
+//datAndEfind
+const messJsonOutName = `systems.json` //temporary, so called jsonOutName in callee
+const datInPath       = `inputs/systems.dat`
+const mameXMLInPath   = `inputs/mame187.xml`
+const mameIniOutPath  = `outputs/Mess_Mame.ini`
+const rarchIniOutPath = `outputs/Mess_Retroarch.ini`
+const datOutPath      = `outputs/systems.dat`
+const logIni          = false
+const logDat          = false
+const logJSON         = false
+  
+//TODO: give mess systems a proper mock
+  function mockSystems(jsonOutPath, callback) {
+    const input   = fs.readFileSync(jsonOutPath)
+        , systems = JSON.parse(input)
+    
+    callback(systems, callback)
+  }
+
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
 program.mfm           && mfm(settings, readMameJson, jsonOutDir, jsonOutName, generateRomdata, outputDir, romdataConfig)
 program.arcade        && arcade(settings, jsonOutDir, jsonOutName, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutDir, jsonOutName, outputDir, romdataConfig)
 //messtool options
-program.datAndEfind   && datAndEfind()
+program.datAndEfind   && datAndEfind(jsonOutDir, messJsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, logIni, logDat, logJSON)
 program.softlists     && softlists()
 program.embedded      && embedded()
