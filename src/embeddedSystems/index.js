@@ -18,6 +18,8 @@ const printRomdata                       = require('./printRomdata.js')
  * narrower scope, its an afterthought */
 
 const embedded = (messXMLInPathEmbedded) => {
+  const mamePlatform = "mame"
+  const retroarchPlatform = "retroarch"
   const streamEmbedded = fs.createReadStream(messXMLInPathEmbedded)
   const xmlEmbedded    = new XmlStream(streamEmbedded)
   
@@ -26,7 +28,8 @@ const embedded = (messXMLInPathEmbedded) => {
     R.pipe(
        mungeCompanyAndSystemNamesEmbedded
      , removeBoringSystemsEmbedded
-     , printRomdata
+     , printRomdata(mamePlatform)
+     , printRomdata(retroarchPlatform)
     )(systems)
   })
 

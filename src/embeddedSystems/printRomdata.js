@@ -4,7 +4,7 @@ const fs     = require('fs')
 const R      = require('ramda')
 const mkdirp = require('mkdirp')
 
-module.exports = systems => {
+module.exports = platform => systems => {
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` 
   const mameRomdataLine = ({name, MAMEName, parentName, path, company, year, comment}) =>
@@ -42,16 +42,11 @@ module.exports = systems => {
   }, systems)
 
   //TODO: why doesn't retroarch work?
-  const mameRomdata         = applyRomdata("mame")
-  const retroarchRomdata  = applyRomdata("retroarch")
-  const mameRomdataToPrint  = R.prepend(romdataHeader, mameRomdata) 
-  const retroarchRomdataToPrint = R.prepend(romdataHeader, retroarchRomdata) 
-  const mameSoftRoot        = `outputs/mame_softlists/`
-  const mameOut             = `${mameSoftRoot}/MESS Embedded Systems/`
-  const retroarchSoftRoot = `outputs/retroarch_softlists/`
-  const retroarchOut      = `${retroarchSoftRoot}/MESS Embedded Systems/`
-  mkdirp.sync(mameOut)
-  mkdirp.sync(retroarchOut)
+  const romdata = applyRomdata(platform)
+  const romdataToPrint  = R.prepend(romdataHeader, romdata) 
+  const softRoot  = (platform === `retroarch`)? `outputs/retroarch_softlists/`: `outputs/mame_softlists/`
+  const out             = `${softRoot}/MESS Embedded Systems/`
+  mkdirp.sync(out)
 
   const iconTemplate = `[GoodMerge]
 GoodMergeExclamationRoms=0
@@ -79,10 +74,8 @@ ChkIcon=1
 CmbIcon=mess.ico
 `
 
-  fs.writeFileSync(`${mameOut}folders.ini`, iconTemplate)
-  fs.writeFileSync(`${retroarchOut}folders.ini`, iconTemplate)
-  fs.writeFileSync(`${mameOut}romdata.dat`, mameRomdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time
-  fs.writeFileSync(`${retroarchOut}romdata.dat`, retroarchRomdataToPrint.join(`\n`), `latin1`) //not working in retroarch
+  fs.writeFileSync(`${out}folders.ini`, iconTemplate)
+  fs.writeFileSync(`${out}romdata.dat`, romdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time
   
   return systems
 
