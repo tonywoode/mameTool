@@ -92,6 +92,16 @@ const logJSON         = false
     callback(systems, callback)
   }
 
+//softlist paths
+const hashDir       = `inputs/hash/`
+const softlistOutputDir  = `outputs/`
+  
+const logGames        = false
+const logChoices      = false
+const logRegions      = false
+const logExclusions   = false
+const logPrinter      = false
+ 
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
 program.mfm           && mfm(settings, readMameJson, jsonOutDir, jsonOutName, generateRomdata, outputDir, romdataConfig)
@@ -99,5 +109,5 @@ program.arcade        && arcade(settings, jsonOutDir, jsonOutName, outputDir, ro
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutDir, jsonOutName, outputDir, romdataConfig)
 //messtool options
 program.datAndEfind   && datAndEfind(jsonOutDir, messJsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, logIni, logDat, logJSON)
-program.softlists     && softlists()
+program.softlists     && softlists(hashDir, softlistOutputDir, logGames, logChoices, logRegions, logExclusions, logPrinter)
 program.embedded      && embedded()
