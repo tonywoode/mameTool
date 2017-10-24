@@ -51,9 +51,10 @@ npm run full -- --scan deletes the whole outputs folder, full must be run with s
 
 //calculate these
 const outputDir         = program.outputDir
-const jsonOutName       = `mame.json`
 const devMode           = program.dev
 const jsonOutDir        = devMode? outputDir : `dats` //json will sit in the frontends config dir, or for dev in the passed-in dir
+const jsonOutName       = `mame.json`
+const jsonOutPath       = `${jsonOutDir}/${jsonOutName}`
 const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini` //settings from QP's ini file, or nix dev settings
 const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
 console.log(
@@ -87,6 +88,7 @@ const log = {
 //mess paths
 //datAndEfind
 const messJsonOutName = `systems.json` //temporary, so called jsonOutName in callee
+const messJsonOutPath = `${jsonOutDir}/${messJsonOutName}`
 const datInPath       = `inputs/systems.dat`
 const mameXMLInPath   = `inputs/mame187.xml`
 const mameIniOutPath  = `outputs/Mess_Mame.ini`
@@ -103,17 +105,16 @@ const datOutPath      = `outputs/systems.dat`
 
 //softlist paths
 const hashDir           = `inputs/hash/`
-const softlistOutputDir = `outputs/`
 
 //embedded systemes
 const messXMLInPathEmbedded = `inputs/mess.xml`
  
 //TODO: promisify these so you can run combinations
-program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
-program.mfm           && mfm(settings, readMameJson, jsonOutDir, jsonOutName, generateRomdata, outputDir, romdataConfig)
-program.arcade        && arcade(settings, jsonOutDir, jsonOutName, outputDir, romdataConfig, readMameJson, generateRomdata)
-program.testArcadeRun && testArcadeRun(readMameJson, jsonOutDir, jsonOutName, outputDir, romdataConfig)
+program.scan          && scan(settings, jsonOutPath, qpIni)
+program.mfm           && mfm(settings, readMameJson, jsonOutPath, generateRomdata, outputDir, romdataConfig)
+program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig, readMameJson, generateRomdata)
+program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
 //messtool options
-program.datAndEfind   && datAndEfind(jsonOutDir, messJsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, log)
-program.softlists     && softlists(hashDir, softlistOutputDir, log)
+program.datAndEfind   && datAndEfind(messJsonOutPath, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, log)
+program.softlists     && softlists(hashDir, outputDir, log)
 program.embedded      && embedded(messXMLInPathEmbedded)

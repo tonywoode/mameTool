@@ -13,7 +13,7 @@ const printJson        = require('./printJson')
 
 
 //scanning means filter a mame xml into json, add inis to the json, then make a file of it
-const scan = (settings, jsonOutDir, jsonOutName, qpIni) => {
+const scan = (settings, jsonOutPath, qpIni) => {
   console.log(
 `MAME xml file:          ${settings.mameXMLInPath}  
 MAME ini dir:           ${settings.iniDir}`
@@ -34,7 +34,7 @@ MAME ini dir:           ${settings.iniDir}`
       )(arcade)
   
       const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson }
-      printJson(jsonOutDir, jsonOutName)(newSysObj) //print out json with inis included, and also version info
+      printJson(jsonOutPath)(newSysObj) //print out json with inis included, and also version info
 
       //save the version information into quickplay's ini file, do it last then a throw will end up least contradictory
       const config = ini.parse(fs.readFileSync(qpIni, `utf-8`))

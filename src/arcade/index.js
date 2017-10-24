@@ -6,7 +6,7 @@ const applySplits  = require('./makeSplits.js').applySplits
 
 const _throw            = m => { throw new Error(m) }
 //fulfil a call to make an arcade set from a set of filter choices
-const arcade = (settings, jsonOutDir, jsonOutName, outputDir, romdataConfig, readMameJson, generateRomdata) => {
+const arcade = (settings, jsonOutPath, outputDir, romdataConfig, readMameJson, generateRomdata) => {
   const tickObject = [
      { name: `noBios`       , value: parseInt(settings.tickBios)       , filter: filters.biosFilter        }      
    , { name: `noCasino`     , value: parseInt(settings.tickCasino)     , filter: filters.casinoFilter      }    
@@ -32,7 +32,7 @@ const arcade = (settings, jsonOutDir, jsonOutName, outputDir, romdataConfig, rea
    , { name: `year`     , value: parseInt(settings.tickSplitYear    )}
   ]
 
-  readMameJson(jsonOutDir, jsonOutName).then( sysObj => {
+  readMameJson(jsonOutPath).then( sysObj => {
     const {arcade} = sysObj 
     const userFilteredArcade = applyFilters(tickObject, arcade)
     generateRomdata(outputDir, romdataConfig)(userFilteredArcade)

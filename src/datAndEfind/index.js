@@ -15,8 +15,7 @@ const print                      = require('./print.js')
 const printSysdatAndJson         = require('./printSysdatAndJson.js')
 
 //JSON, DAT AND EFIND MAKER
-const datAndEfind = (jsonOutDir, jsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, log) => {
-  const jsonOutPath     = `${jsonOutDir}/${jsonOutName}`
+const datAndEfind = (jsonOutPath, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, log) => {
   const datInStream     = fs.createReadStream(datInPath)
   const stream          = fs.createReadStream(mameXMLInPath)
   const xml             = new XmlStream(stream)

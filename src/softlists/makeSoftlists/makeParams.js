@@ -22,11 +22,11 @@ module.exports = (hashDir, outputDir, emulator) => {
     , thisEmulator            = emulator
     , stream                  = fs.createReadStream(`${hashDir}${name}.xml`)
     , xml                     = new XmlStream(stream)
-    , mameOutRootDir          = `${outputDir}mame_softlists/`
+    , mameOutRootDir          = `${outputDir}/mame_softlists/`
     , mameOutTypePath         = `${mameOutRootDir}/${systemType}`
     , mameOutNamePath         = `${mameOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
     , mameOutFullPath         = `${mameOutNamePath}/romdata.dat`
-    , retroarchOutRootDir     = `${outputDir}retroarch_softlists/`
+    , retroarchOutRootDir     = `${outputDir}/retroarch_softlists/`
     , retroarchOutTypePath    = `${retroarchOutRootDir}/${systemType}`
     , retroarchOutNamePath    = `${retroarchOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
     , retroarchOutFullPath    = `${retroarchOutNamePath}/romdata.dat`
