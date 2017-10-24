@@ -93,14 +93,17 @@ const logJSON         = false
   }
 
 //softlist paths
-const hashDir       = `inputs/hash/`
-const softlistOutputDir  = `outputs/`
+const hashDir           = `inputs/hash/`
+const softlistOutputDir = `outputs/`
   
 const logGames        = false
 const logChoices      = false
 const logRegions      = false
 const logExclusions   = false
 const logPrinter      = false
+
+//embedded systemes
+const messXMLInPathEmbedded = `inputs/mess.xml`
  
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutDir, jsonOutName, qpIni)
@@ -110,4 +113,4 @@ program.testArcadeRun && testArcadeRun(readMameJson, jsonOutDir, jsonOutName, ou
 //messtool options
 program.datAndEfind   && datAndEfind(jsonOutDir, messJsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, logIni, logDat, logJSON)
 program.softlists     && softlists(hashDir, softlistOutputDir, logGames, logChoices, logRegions, logExclusions, logPrinter)
-program.embedded      && embedded()
+program.embedded      && embedded(messXMLInPathEmbedded)

@@ -17,12 +17,9 @@ const printRomdata                       = require('./printRomdata.js')
  * This class uses the mecahanics of the other classes in this module, but has a far
  * narrower scope, its an afterthought */
 
-const embedded = () => {
-  
-  const 
-      mameXMLInPathEmbedded = `inputs/mess.xml`
-    , streamEmbedded        = fs.createReadStream(mameXMLInPathEmbedded)
-    , xmlEmbedded           = new XmlStream(streamEmbedded)
+const embedded = (messXMLInPathEmbedded) => {
+  const streamEmbedded = fs.createReadStream(messXMLInPathEmbedded)
+  const xmlEmbedded    = new XmlStream(streamEmbedded)
   
   //program flow
   readMameXMLembedded( xmlEmbedded, systems => {

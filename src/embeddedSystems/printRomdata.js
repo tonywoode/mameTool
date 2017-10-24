@@ -35,8 +35,8 @@ module.exports = systems => {
       , comment    : obj.cloneof? `clone of ${obj.cloneof}` : `` 
     }
 
-    if (platform === "mame")      return mameRomdataLine(romParams)
-    if (platform === "retroarch") return retroarchRomdataLine(romParams)
+    if (platform === `mame`)      return mameRomdataLine(romParams)
+    if (platform === `retroarch`) return retroarchRomdataLine(romParams)
     return console.error(`unsupported platform: ${platform}`)
 
   }, systems)
