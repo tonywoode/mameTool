@@ -43,15 +43,15 @@ module.exports = systems => {
 
   //TODO: why doesn't retroarch work?
   const mameRomdata         = applyRomdata("mame")
-  //const retroarchRomdata  = applyRomdata("retroarch")
+  const retroarchRomdata  = applyRomdata("retroarch")
   const mameRomdataToPrint  = R.prepend(romdataHeader, mameRomdata) 
-  //const retroarchRomdataToPrint = R.prepend(romdataHeader, retroarchRomdata) 
+  const retroarchRomdataToPrint = R.prepend(romdataHeader, retroarchRomdata) 
   const mameSoftRoot        = `outputs/mame_softlists/`
   const mameOut             = `${mameSoftRoot}/MESS Embedded Systems/`
-  //const retroarchSoftRoot = `outputs/retroarch_softlists/`
-  //const retroarchOut      = `${retroarchSoftRoot}/MESS Embedded Systems/`
+  const retroarchSoftRoot = `outputs/retroarch_softlists/`
+  const retroarchOut      = `${retroarchSoftRoot}/MESS Embedded Systems/`
   mkdirp.sync(mameOut)
-  //mkdirp.sync(retroarchOut)
+  mkdirp.sync(retroarchOut)
 
   const iconTemplate = `[GoodMerge]
 GoodMergeExclamationRoms=0
@@ -80,8 +80,9 @@ CmbIcon=mess.ico
 `
 
   fs.writeFileSync(`${mameOut}folders.ini`, iconTemplate)
+  fs.writeFileSync(`${retroarchOut}folders.ini`, iconTemplate)
   fs.writeFileSync(`${mameOut}romdata.dat`, mameRomdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time
-  //fs.writeFileSync(retroarchOut + `romdata.dat`, retroarchRomdataToPrint.join(`\n`), `latin1`) //not working in retroarch
+  fs.writeFileSync(`${retroarchOut}romdata.dat`, retroarchRomdataToPrint.join(`\n`), `latin1`) //not working in retroarch
   
   return systems
 
