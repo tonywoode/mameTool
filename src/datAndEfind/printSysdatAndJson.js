@@ -5,7 +5,7 @@ const readline       = require('readline')
 const R              = require('ramda')
 
 /* Now the ini is out, print out a systems list and the json that the softlist maker will use */
-module.exports = (logDat, logJSON, datInStream, datOutPath, jsonOutPath) => systems => {
+module.exports = (log, datInStream, datOutPath, jsonOutPath) => systems => {
 
   /* get the existing list of QuickPlay's system types into an array
    * (we are amending an existing list, not replacing it. MAME doesn't
@@ -28,13 +28,13 @@ module.exports = (logDat, logJSON, datInStream, datOutPath, jsonOutPath) => syst
     const joinedUnionDat  = orderedUnionDat.join(`\n`) 
    
     console.log(`Printing systems dat to ${datOutPath}`)
-    if (logDat) console.log(joinedUnionDat)
+    if (log.dat) console.log(joinedUnionDat)
     fs.writeFileSync(datOutPath, joinedUnionDat, `latin1`)  //utf8 isn't possible at this time
   
     //print out the json we made, romdatamaker.js uses it
     const pretty = JSON.stringify(systems, null, `\t`)
     console.log(`Printing systems JSON to ${jsonOutPath}`)
-    if (logJSON) console.log(pretty)
+    if (log.json) console.log(pretty)
     fs.writeFileSync(jsonOutPath, pretty)
     console.log(`done`)
     process.exit()

@@ -2,7 +2,7 @@
 
 const R = require('ramda')
 //read the json for softlists and make a list of those xmls to find. Need to grab emu name also and pass it all the way down our pipeline
-module.exports = logExclusions => systems => {
+module.exports = log => systems => {
   const isSoftlist = obj => !!obj.softlist //filter by softlist
 
   /* looking at the softlist, there are some that don't have any games. Doesn't mean to say they might not one day,
@@ -17,7 +17,7 @@ module.exports = logExclusions => systems => {
 
   const isThisSoftlistBoring = (list, machine) => {
     if (softlistsWithNoGames.includes(list.name)) { 
-      if (logExclusions) console.log(`INFO: Removing  ${list.name} from ${machine} because there are no games in the list`) 
+      if (log.exclusions) console.log(`INFO: Removing  ${list.name} from ${machine} because there are no games in the list`) 
       return softlistsWithNoGames.includes(list.name)
     }   
     return false

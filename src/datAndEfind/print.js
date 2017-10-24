@@ -8,7 +8,7 @@ const R              = require('ramda')
  *   MESS' original system name to capture what makes each system different. However there are some considerations that also apply to system munging 
  *   that need re-application, along with some new concerns regarding the output format
  */
-module.exports = (mameIniOutPath, rarchIniOutPath, logIni) =>  systems => {
+module.exports = (mameIniOutPath, rarchIniOutPath, log) =>  systems => {
 
   const spaceIsSeparator = ` `
   const  oneWord          = 1
@@ -108,8 +108,8 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
   const joinedMameDevices = mameDevices.join(`\n`)
   const joinedRetroarchDevices = retroarchDevices.join(`\n`)
   console.log(`Printing inis to ${mameIniOutPath} / ${rarchIniOutPath}`)
-  if (logIni) console.log(joinedMameDevices)
-  if (logIni) console.log(joinedRetroarchDevices)
+  if (log.ini) console.log(joinedMameDevices)
+  if (log.ini) console.log(joinedRetroarchDevices)
   fs.writeFileSync(mameIniOutPath,  joinedMameDevices,      `latin1`) //utf8 isn't possible at this time
   fs.writeFileSync(rarchIniOutPath, joinedRetroarchDevices, `latin1`) //utf8 isn't possible at this time
   

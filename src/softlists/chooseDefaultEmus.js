@@ -6,7 +6,7 @@ const R = require('ramda')
  *  that had a higher rating. if so don't write. We can achieve this by writing a `written` key in the object
  *  but that's not good enough we can't just have a bool because we need to know what the previous rating was for the softlist
  *  so we need to store an object structure liks "a2600" : "80" to know that for each softlist) */
-module.exports = logChoices => softlistEmus => {
+module.exports = log => softlistEmus => {
  
   //TODO: this whole function is very impure, yet isn't using anything outside what's passed in....
   const softlistRatings = {}, defaultEmus = {}, logDecisions = {}, rejectedEmus = []
@@ -40,7 +40,7 @@ module.exports = logChoices => softlistEmus => {
     const regionals = []
     const matchme = defaultEmu.emulatorName.match(/\(.*\)|only/) //actually this list is pretty good as it is ( it should contain all regions instead of that kleene)
       if (matchme) {
-        if (logChoices) console.log(`${defaultEmu.emulatorName} is a match`)
+        if (log.choices) console.log(`${defaultEmu.emulatorName} is a match`)
         //if it does, then look back in the rejected emus for those named the same except for the ()
         const nesRegex       = defaultEmu.emulatorName.replace(/ \/ Famicom /, ``)
         const snesRegex      = nesRegex.replace(/ \/ Super Famicom /, ``)
@@ -48,13 +48,13 @@ module.exports = logChoices => softlistEmus => {
         const regex1         = megadriveRegex.replace(/PAL|NTSC only/, ``)
         
         const regex = new RegExp(regex1.replace(/\(.*\)/, `(.*)`))//only relace first occurance
-        if (logChoices) console.log(regex)
+        if (log.choices) console.log(regex)
         R.map(rejected => rejected.emulatorName.match(regex)? (
-          logChoices? console.log(`---->>>> matches ${rejected.emulatorName}`) : ''
+          log.choices? console.log(`---->>>> matches ${rejected.emulatorName}`) : ''
             //add them to a key "regions", but filter by softlist name otherwise Atari 800 (NTSC) -SOFTLIST a800 matches Atari 800 (PAL) -SOFTLIST a800_flop
           , defaultEmu.name === rejected.name ? (  
                 regionals.push(rejected.emulatorName) 
-              , logChoices? console.log(regionals) : ''
+              , log.choices? console.log(regionals) : ''
           ): null
         )
         : null, rejectedEmus)

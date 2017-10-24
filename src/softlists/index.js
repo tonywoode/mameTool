@@ -13,16 +13,16 @@ const setRegionalEmu       = require('./makeSoftlists/setRegionalEmu.js')
 const printSoftlistRomdata = require('./makeSoftlists/printSoftlistRomdata.js')
 
 //SOFTLISTS
-const softlists = (hashDir, softlistOutputDir, logGames, logChoices, logRegions, logExclusions, logPrinter) => {
+const softlists = (hashDir, softlistOutputDir, log) => {
  
   const systemsJsonFile = fs.readFileSync(`${softlistOutputDir}systems.json`)
   const systems         = JSON.parse(systemsJsonFile)
   //TODO - you can append the DTD at the top of the file if it isn't being read correctly
   //program flow at list level
   R.pipe(
-      callSheet(logExclusions)
+      callSheet(log)
     , filterSoftlists(hashDir)
-    , chooseDefaultEmus(logChoices)
+    , chooseDefaultEmus(log)
     , makeSoftlists 
   )(systems)
   
@@ -32,7 +32,7 @@ const softlists = (hashDir, softlistOutputDir, logGames, logChoices, logRegions,
           const softlistParams = makeParams(hashDir, softlistOutputDir, emu)
           readSoftlistXML(softlistParams.xml, softlist => {
             const cleanedSoftlist = cleanSoftlist(softlist)
-            printSoftlistRomdata(logGames, logExclusions, logRegions, logPrinter, softlistParams, setRegionalEmu, cleanedSoftlist)
+            printSoftlistRomdata(log, softlistParams, setRegionalEmu, cleanedSoftlist)
           })
         }, emuSystems)
   }

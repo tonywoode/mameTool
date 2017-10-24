@@ -71,6 +71,18 @@ MAME icons dir:         ${settings.winIconDir}
 MAME exe:               ${settings.mameExe}`
 )
 
+const log = {
+  //datAndEfind
+  ini: false, 
+  dat: false, 
+  json: false,
+  //softlist
+  games: false, 
+  choices: false, 
+  regions: false, 
+  exclusions: false, 
+  printer: false
+}
 
 //mess paths
 //datAndEfind
@@ -80,9 +92,6 @@ const mameXMLInPath   = `inputs/mame187.xml`
 const mameIniOutPath  = `outputs/Mess_Mame.ini`
 const rarchIniOutPath = `outputs/Mess_Retroarch.ini`
 const datOutPath      = `outputs/systems.dat`
-const logIni          = false
-const logDat          = false
-const logJSON         = false
   
 //TODO: give mess systems a proper mock
   function mockSystems(jsonOutPath, callback) {
@@ -95,12 +104,6 @@ const logJSON         = false
 //softlist paths
 const hashDir           = `inputs/hash/`
 const softlistOutputDir = `outputs/`
-  
-const logGames        = false
-const logChoices      = false
-const logRegions      = false
-const logExclusions   = false
-const logPrinter      = false
 
 //embedded systemes
 const messXMLInPathEmbedded = `inputs/mess.xml`
@@ -111,6 +114,6 @@ program.mfm           && mfm(settings, readMameJson, jsonOutDir, jsonOutName, ge
 program.arcade        && arcade(settings, jsonOutDir, jsonOutName, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutDir, jsonOutName, outputDir, romdataConfig)
 //messtool options
-program.datAndEfind   && datAndEfind(jsonOutDir, messJsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, logIni, logDat, logJSON)
-program.softlists     && softlists(hashDir, softlistOutputDir, logGames, logChoices, logRegions, logExclusions, logPrinter)
+program.datAndEfind   && datAndEfind(jsonOutDir, messJsonOutName, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, log)
+program.softlists     && softlists(hashDir, softlistOutputDir, log)
 program.embedded      && embedded(messXMLInPathEmbedded)

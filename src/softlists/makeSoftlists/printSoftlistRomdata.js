@@ -4,15 +4,15 @@ const fs                = require('fs')
 const mkdirp            = require('mkdirp')
 const R                 = require('ramda')
 
-module.exports = (logGames, logExclusions, logRegions, logPrinter, softlistParams, setRegionalEmu, softlist ) => {
+module.exports = (log, softlistParams, setRegionalEmu, softlist ) => {
   //don't make a dat or folder if all of the games for a softlist aren't supported
   if (!softlist.length) { 
-    if (logExclusions) console.log(
+    if (log.exclusions) console.log(
       `INFO: Not printing softlist for ${softlistParams.name} because there are no working games`
     )
     return softlist
   }
-  if (logPrinter) console.log(`INFO: printing softlist for ${softlistParams.name}`)
+  if (log.printer) console.log(`INFO: printing softlist for ${softlistParams.name}`)
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
   const mameRomdataLine = ({name, MAMEName, parentName, path, emu, company, year, comment}) => ( 
@@ -47,7 +47,7 @@ module.exports = (logGames, logExclusions, logRegions, logPrinter, softlistParam
   //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = (obj, platform)  => R.map( obj => {
 
-    const emuWithRegionSet = setRegionalEmu(logGames, logRegions, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
+    const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
