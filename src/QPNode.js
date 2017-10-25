@@ -2,6 +2,7 @@
 
 const fs                = require('fs')
 const program           = require('commander')
+const path              = require('path')
 const _throw            = m => { throw new Error(m) }
 
 const paths             = require('./paths.js')
@@ -57,6 +58,7 @@ const jsonOutName       = `mame.json`
 const jsonOutPath       = `${jsonOutDir}/${jsonOutName}`
 const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini` //settings from QP's ini file, or nix dev settings
 const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
+
 console.log(
 `Dev mode:               ${devMode? `on`: `off`}
 Output dir:             ${outputDir}
@@ -65,17 +67,22 @@ MAME Json dir:          ${jsonOutDir}`
 
 //read these from the ini
 const settings          = paths(qpIni, devExtrasOverride)
-const romdataConfig     = {emu: settings.mameExe, winIconDir: settings.winIconDir, devMode} //these same settings get immutably passed to many things
+const romdataConfig     = { //these same settings get immutably passed to many things
+    emu       : settings.mameExe
+  , winIconDir: settings.winIconDir
+  , devMode
+} 
+
 console.log(
 `MAME extras dir:        ${settings.mameExtrasPath}
 MAME icons dir:         ${settings.winIconDir} 
 MAME exe:               ${settings.mameExe}
-MAME exe file:          ${settings.mameExeFileName}`
+MAME exe path:          ${settings.mameExePath}`
 )
 
 const log = {
   //datAndEfind
-  ini        : false, 
+  efind      : false, 
   dat        : false, 
   json       : false,
   //softlist
@@ -87,22 +94,25 @@ const log = {
 }
 
 //mess paths
+const mameEmu = { isItRetroArch : path.win32.basename(settings.mameExePath).match(/retroarch/i) } //best bet is to limit ourselves to what the emu file is called for this
 //datAndEfind
 const messJsonOutName = `systems.json` //temporary, so called jsonOutName in callee
 const messJsonOutPath = `${jsonOutDir}/${messJsonOutName}`
-const datInPath       = `inputs/systems.dat`
-const mameXMLInPath   = `inputs/mame187.xml`
 
-//determine what the Efinder is going to be called
-const iniOutName      = settings.mameExeFileName.match(/retroarch/i)? `Mess_Retroarch.ini` : `Mess_Mame.ini`
-const iniOutPath      = `${outputDir}/${iniOutName}`
-console.log(`EFind Ini output Path   ${iniOutPath}`)
+//determine that location of the systems.dat
+const datInPath       = devMode? `inputs/systems.dat` : `dats\\systems.dat`
+const datOutPath      = devMode? `${outputDir}/systems.dat` : `dats\\systems.dat`
+const efindOutName    = mameEmu.isItRetroArch? `Mess_Retroarch.ini` : `Mess_Mame.ini` 
+const efindOutPath    = `${outputDir}/${efindOutName}`
 
-//const mameIniOutPath  = `outputs/Mess_Mame.ini`
-//const rarchIniOutPath = `outputs/Mess_Retroarch.ini`
-const datOutPath      = `outputs/systems.dat`
+console.log(`EFind Ini output Path   ${efindOutPath}`)
+
 //softlist paths
-const hashDir         = `inputs/hash/`
+//determine that hash directory
+const mameEmuDir      = path.win32.dirname(settings.mameExePath)
+const liveHashDir     = mameEmu.isItRetroArch? `${mameEmuDir}\\system\\mame\\hash` : `${mameEmuDur}\\hash`
+const hashDir         = devMode? `inputs/hash/` : liveHashDir
+
 //embedded systemes
 const messXMLInPathEmbedded = `inputs/mess.xml`
   
@@ -121,6 +131,6 @@ program.mfm           && mfm(settings, readMameJson, jsonOutPath, generateRomdat
 program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
 //messtool options
-program.datAndEfind   && datAndEfind(messJsonOutPath, datInPath, mameXMLInPath, iniOutPath, datOutPath, log)
+program.datAndEfind   && datAndEfind(settings.mameXMLInPath, messJsonOutPath, efindOutPath, datInPath, datOutPath, mameEmu, log)
 program.softlists     && softlists(hashDir, outputDir, log)
 program.embedded      && embedded(messXMLInPathEmbedded)

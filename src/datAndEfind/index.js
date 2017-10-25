@@ -15,7 +15,7 @@ const print                      = require('./print.js')
 const printSysdatAndJson         = require('./printSysdatAndJson.js')
 
 //JSON, DAT AND EFIND MAKER
-const datAndEfind = (jsonOutPath, datInPath, mameXMLInPath, iniOutPath, datOutPath, log) => {
+const datAndEfind = (mameXMLInPath, jsonOutPath, efindOutPath, datInPath, datOutPath, mameEmu, log) => {
   const datInStream     = fs.createReadStream(datInPath)
   const stream          = fs.createReadStream(mameXMLInPath)
   const xml             = new XmlStream(stream)
@@ -30,7 +30,7 @@ const datAndEfind = (jsonOutPath, datInPath, mameXMLInPath, iniOutPath, datOutPa
     ,  mungeCompanyForType
     ,  makeFinalSystemTypes
     ,  removeBoringSystems
-    ,  print(iniOutPath, log)
+    ,  print(efindOutPath, mameEmu, log)
     ,  printSysdatAndJson(log, datInStream, datOutPath, jsonOutPath)
     )(systems)
   

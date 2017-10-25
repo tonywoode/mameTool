@@ -28,15 +28,6 @@ module.exports = (mameEmu, hashDir, outputDir, emulator) => {
     , outTypePath         = `${outRootDir}/${systemType}`
     , outNamePath         = `${outTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
     , outFullPath         = `${outNamePath}/romdata.dat`
-
-  //  , mameOutRootDir          = `${outputDir}/mame_softlists/`
-//    , mameOutTypePath         = `${mameOutRootDir}/${systemType}`
-//    , mameOutNamePath         = `${mameOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
-//    , mameOutFullPath         = `${mameOutNamePath}/romdata.dat`
-//    , retroarchOutRootDir     = `${outputDir}/retroarch_softlists/`
-//    , retroarchOutTypePath    = `${retroarchOutRootDir}/${systemType}`
-//    , retroarchOutNamePath    = `${retroarchOutTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
- //   , retroarchOutFullPath    = `${retroarchOutNamePath}/romdata.dat`
        
   return  ({systemType, name, thisEmulator, stream, xml, outRootDir, outTypePath, outNamePath , outFullPath})
 

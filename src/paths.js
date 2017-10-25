@@ -21,7 +21,7 @@ module.exports = (settingsIniPath, mameInisOverridePath ) => {
     , mameExtrasPath    : s.MameExtrasPath 
     , winIconDir        : `${s.MameExtrasPath}\\Icons`
     , mameExe           : s.MametoolMameExeName
-    , mameExeFileName   : s.MametoolMameExeFileName
+    , mameExePath       : s.MametoolMameExePath
     , iniDir            : mameInisOverridePath? mameInisOverridePath : `${s.MameExtrasPath}\\folders`
     , tickBios          : s.MameOptBios
     , tickCasino        : s.MameOptCasino
