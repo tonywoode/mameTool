@@ -69,20 +69,21 @@ const romdataConfig     = {emu: settings.mameExe, winIconDir: settings.winIconDi
 console.log(
 `MAME extras dir:        ${settings.mameExtrasPath}
 MAME icons dir:         ${settings.winIconDir} 
-MAME exe:               ${settings.mameExe}`
+MAME exe:               ${settings.mameExe}
+MAME exe file:          ${settings.mameExeFileName}`
 )
 
 const log = {
   //datAndEfind
-  ini: false, 
-  dat: false, 
-  json: false,
+  ini        : false, 
+  dat        : false, 
+  json       : false,
   //softlist
-  games: false, 
-  choices: false, 
-  regions: false, 
-  exclusions: false, 
-  printer: false
+  games      : false, 
+  choices    : false, 
+  regions    : false, 
+  exclusions : false, 
+  printer    : false
 }
 
 //mess paths
@@ -91,23 +92,28 @@ const messJsonOutName = `systems.json` //temporary, so called jsonOutName in cal
 const messJsonOutPath = `${jsonOutDir}/${messJsonOutName}`
 const datInPath       = `inputs/systems.dat`
 const mameXMLInPath   = `inputs/mame187.xml`
-const mameIniOutPath  = `outputs/Mess_Mame.ini`
-const rarchIniOutPath = `outputs/Mess_Retroarch.ini`
+
+//determine what the Efinder is going to be called
+const iniOutName      = settings.mameExeFileName.match(/retroarch/i)? `Mess_Retroarch.ini` : `Mess_Mame.ini`
+const iniOutPath      = `${outputDir}/${iniOutName}`
+console.log(`EFind Ini output Path   ${iniOutPath}`)
+
+//const mameIniOutPath  = `outputs/Mess_Mame.ini`
+//const rarchIniOutPath = `outputs/Mess_Retroarch.ini`
 const datOutPath      = `outputs/systems.dat`
-  
-//TODO: give mess systems a proper mock
-  function mockSystems(jsonOutPath, callback) {
-    const input   = fs.readFileSync(jsonOutPath)
-        , systems = JSON.parse(input)
-    
-    callback(systems, callback)
-  }
-
 //softlist paths
-const hashDir           = `inputs/hash/`
-
+const hashDir         = `inputs/hash/`
 //embedded systemes
 const messXMLInPathEmbedded = `inputs/mess.xml`
+  
+//TODO: give mess systems a proper mock
+const mockSystems = (jsonOutPath, callback) => {
+  const input = fs.readFileSync(jsonOutPath)
+  const systems = JSON.parse(input)
+    
+  callback(systems, callback)
+}
+
  
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutPath, qpIni)
@@ -115,6 +121,6 @@ program.mfm           && mfm(settings, readMameJson, jsonOutPath, generateRomdat
 program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
 //messtool options
-program.datAndEfind   && datAndEfind(messJsonOutPath, datInPath, mameXMLInPath, mameIniOutPath, rarchIniOutPath, datOutPath, log)
+program.datAndEfind   && datAndEfind(messJsonOutPath, datInPath, mameXMLInPath, iniOutPath, datOutPath, log)
 program.softlists     && softlists(hashDir, outputDir, log)
 program.embedded      && embedded(messXMLInPathEmbedded)

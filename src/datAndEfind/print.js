@@ -8,7 +8,9 @@ const R              = require('ramda')
  *   MESS' original system name to capture what makes each system different. However there are some considerations that also apply to system munging 
  *   that need re-application, along with some new concerns regarding the output format
  */
-module.exports = (mameIniOutPath, rarchIniOutPath, log) =>  systems => {
+module.exports = (iniOutPath, log) =>  systems => {
+  //TODO: should be passing an emu object with this prop
+  const retroarch = iniOutPath.match(/retroarch/i)
 
   const spaceIsSeparator = ` `
   const  oneWord          = 1
@@ -77,8 +79,7 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
       , callToMake : `${obj.call} %ROMMAME%` //for we are running from a generated soflist romdata.dat
       , info       : `http://mameworld.info` //we don't have anything but a url to tell you about with softlists
     }
-    mameDevices.push(mameEfindTemplate(params))
-    retroarchDevices.push(retroarchEfindTemplate(params))
+    retroarch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
   }, obj.softlist)
  
 
@@ -91,27 +92,21 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
       , systemType : obj.systemType
       , callToMake : `${obj.call} -${device.briefname} "%ROM%"` //this is not about softlists
       , info       : `Supports: ${device.extensions}`
-    }
-     
-    mameDevices.push(mameEfindTemplate(params))
-    retroarchDevices.push(retroarchEfindTemplate(params))
+    } 
+    retroarch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
   }, obj.device)
    
-  const mameDevices      = [] //this is an accumlator, we need to reduce....
-  const retroarchDevices = [] //this is an accumlator, we need to reduce....
+  const devices = [] //this is an accumlator, we need to reduce....
   
   const efinderToPrint = R.map(obj => (
       obj.softlist?  softlistEfinderToPrint(obj) : ``
     , devicesEfinderToPrint(obj) //don't check if devices exist, wouldn't be a mess game system without >0
   ), efinder)
  
-  const joinedMameDevices = mameDevices.join(`\n`)
-  const joinedRetroarchDevices = retroarchDevices.join(`\n`)
-  console.log(`Printing inis to ${mameIniOutPath} / ${rarchIniOutPath}`)
-  if (log.ini) console.log(joinedMameDevices)
-  if (log.ini) console.log(joinedRetroarchDevices)
-  fs.writeFileSync(mameIniOutPath,  joinedMameDevices,      `latin1`) //utf8 isn't possible at this time
-  fs.writeFileSync(rarchIniOutPath, joinedRetroarchDevices, `latin1`) //utf8 isn't possible at this time
+  const joinedDevices = devices.join(`\n`)
+  console.log(`Printing inis to ${iniOutPath}`)
+  if (log.ini) console.log(joinedDevices)
+  fs.writeFileSync(iniOutPath, joinedDevices, `latin1`) //utf8 isn't possible at this time
   
   return efinder
   
