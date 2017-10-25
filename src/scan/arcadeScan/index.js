@@ -13,7 +13,7 @@ const printJson        = require('./printJson')
 
 
 //scanning means filter a mame xml into json, add inis to the json, then make a file of it
-const scan = (settings, jsonOutPath, qpIni) => {
+const arcadeScan = (settings, jsonOutPath, qpIni) => {
   console.log(
 `MAME xml file:          ${settings.mameXMLInPath}  
 MAME ini dir:           ${settings.iniDir}`
@@ -53,5 +53,5 @@ module.exports = {
   , iniToJson
   , inis
   , printJson
-  , scan
+  , arcadeScan
 }

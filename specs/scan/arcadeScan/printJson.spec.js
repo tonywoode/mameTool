@@ -2,7 +2,7 @@
 
 const fs            = require('fs') //to get methods back when fs itself is rewired
 const rewire        = require('rewire')
-const printJson     = rewire('../../src/scan/printJson.js')
+const printJson     = rewire('../../../src/scan/arcadeScan/printJson.js')
 const mameJson      = [
   {
     call: "005",
