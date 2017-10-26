@@ -2,6 +2,7 @@
 
 const fs                   = require('fs')
 const R                    = require('ramda')
+const _throw               = m => { throw new Error(m) }
 
 const callSheet            = require('./callSheet.js')
 const filterSoftlists      = require('./filterSoftlists.js')
@@ -13,10 +14,11 @@ const setRegionalEmu       = require('./makeSoftlists/setRegionalEmu.js')
 const printSoftlistRomdata = require('./makeSoftlists/printSoftlistRomdata.js')
 
 //SOFTLISTS
-const softlists = (hashDir, outputDir, log) => {
- 
-  const systemsJsonFile = fs.readFileSync(`${outputDir}/systems.json`)
-  const systems         = JSON.parse(systemsJsonFile)
+const softlists = (mameEmu, jsonOutPath, hashDir, outputDir, log) => {
+
+  fs.existsSync(jsonOutPath) || _throw(`there's no scanned MAME file at ${jsonOutPath}`)
+  const systemsJsonFile = fs.readFileSync(jsonOutPath)
+  const systems         = JSON.parse(systemsJsonFile).messSystems
   //TODO - you can append the DTD at the top of the file if it isn't being read correctly
   
   //program flow at emu level
@@ -37,8 +39,7 @@ const softlists = (hashDir, outputDir, log) => {
       callSheet(log)
     , filterSoftlists(hashDir)
     , chooseDefaultEmus(log)
-    , makeSoftlists(`mame`) 
-    , makeSoftlists(`retroarch`) 
+    , makeSoftlists(mameEmu) 
   )(systems)
   
  

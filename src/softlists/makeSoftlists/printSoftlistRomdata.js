@@ -7,9 +7,7 @@ const R                 = require('ramda')
 module.exports = (mameEmu, log, softlistParams, setRegionalEmu, softlist ) => {
   //don't make a dat or folder if all of the games for a softlist aren't supported
   if (!softlist.length) { 
-    if (log.exclusions) console.log(
-      `INFO: Not printing softlist for ${softlistParams.name} because there are no working games`
-    )
+    if (log.exclusions) console.log(`INFO: Not printing softlist for ${softlistParams.name} : no working games`)
     return softlist
   }
   if (log.printer) console.log(`INFO: printing softlist for ${softlistParams.name}`)
@@ -45,7 +43,7 @@ module.exports = (mameEmu, log, softlistParams, setRegionalEmu, softlist ) => {
   }
  
   //sets the variables for a line of romdata entry for later injection into a romdata printer
-  const applyRomdata = (obj, platform)  => R.map( obj => {
+  const applyRomdata = (obj, mameEmu)  => R.map( obj => {
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
@@ -64,10 +62,7 @@ module.exports = (mameEmu, log, softlistParams, setRegionalEmu, softlist ) => {
       })
       
     }
-
-    if (platform === `mame`) return mameRomdataLine(romParams)
-    if (platform === `retroarch`) return retroarchRomdataLine(romParams)
-    return console.error(`unsupported platform: ${platform}`)
+    return mameEmu.isItRetroArch? retroarchRomdataLine(romParams) : mameRomdataLine(romParams)
   }, softlist)
 
   const romdata        = applyRomdata(softlist, mameEmu)

@@ -76,7 +76,7 @@ const generateRomdata = (romdataOutDir, romdataConfig, rootDir) => mameJson => {
     const emuIcon = /RetroArch/i.test(romdataConfig.emu)? `RetroArch` : `Mame`
     //for testing we must stub the exported fn https://stackoverflow.com/a/35754124/3536094
     const romdata = module.exports.printRomdataFolder(romdataOutDir, romdataConfig.winIconDir, emuIcon, rootDir)(mameRomdata)
-    console.log(`printing ${romdataOutDir}`) 
+    console.log(`printing romdata to ${romdataOutDir}`) 
     if (romdataConfig.devMode) console.log(romdata)
     return romdata
 }

@@ -23,8 +23,8 @@ module.exports = (mameEmu, hashDir, outputDir, emulator) => {
     , stream                  = fs.createReadStream(`${hashDir}${name}.xml`)
     , xml                     = new XmlStream(stream)
 
-
-    , outRootDir          = `${outputDir}/${mameEmu}_softlists/`
+    , emuType             = mameEmu.isItRetroArch? `retroarch` : `mame`
+    , outRootDir          = `${outputDir}/${emuType}_softlists/`
     , outTypePath         = `${outRootDir}/${systemType}`
     , outNamePath         = `${outTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
     , outFullPath         = `${outNamePath}/romdata.dat`
