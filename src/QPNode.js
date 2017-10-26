@@ -15,7 +15,7 @@ const {arcade}          = require('./arcade')
 const {mfm}             = require('./mfm')
 const {testArcadeRun}   = require('./testing')
 const {softlists}       = require('./softlists')
-const {embedded}        = require('./embeddedSystems')
+//const {embedded}        = require('./embeddedSystems')
 
 //cmd-line options as parsed by commander
 program
@@ -126,4 +126,4 @@ program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig,
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
 //messtool options
 program.softlists     && softlists(mameEmu, romdataConfig, jsonOutPath, hashDir, outputDir, log)
-program.embedded      && embedded(mameEmu, romdataConfig, jsonOutPath)
+//program.embedded      && embedded(mameEmu, romdataConfig, jsonOutPath)
