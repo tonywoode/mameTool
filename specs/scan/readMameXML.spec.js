@@ -1,5 +1,5 @@
 const intoStream = require('into-stream')
-const { makeSystemsAsync } = require('../../../src/scan/arcadeScan/readMameXml.js')
+const { makeSystemsAsync } = require('../../src/scan/readMameXml.js')
 
 const mockXml = 
 `<?xml version="1.0"?>
