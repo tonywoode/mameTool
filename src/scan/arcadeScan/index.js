@@ -17,7 +17,7 @@ const arcadeScan = (settings, jsonOutPath, qpIni) => {
   console.log(
 `MAME xml file:          ${settings.mameXMLInPath}  
 MAME ini dir:           ${settings.iniDir}`
-)
+  )
   const iniDir            = settings.iniDir
   settings.mameXMLInPath  || _throw(`there's no MAME XML`)
   const  mameXMLStream    = fs.createReadStream(settings.mameXMLInPath)

@@ -1,6 +1,6 @@
 'use strict'
 
-const fs             = require('fs-extra') //otherwise its non trivial to copy a file
+const fs             = require('fs-extra') //otherwise copying a file is non-trivial 
 const readline       = require('readline')
 const R              = require('ramda')
 
@@ -30,7 +30,7 @@ module.exports = (log, datInStream, datOutPath, jsonOutPath) => systems => {
     console.log(`Printing systems dat to ${datOutPath}`)
     if (log.dat) console.log(joinedUnionDat)
     //i don't dare to overwrite the users systems.dat the first time
-    fs.statSync(datOutPath) && fs.copySync(datOutPath, `${datOutPath}.old`)
+    fs.existsSync(datOutPath) && fs.copySync(datOutPath, `${datOutPath}.old`)
     fs.writeFileSync(datOutPath, joinedUnionDat, `latin1`)  //utf8 isn't possible at this time
   
     //print out the json we made, romdatamaker.js uses it
