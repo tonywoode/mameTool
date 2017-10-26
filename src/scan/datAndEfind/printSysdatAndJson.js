@@ -1,19 +1,10 @@
 'use strict'
 
 const fs             = require('fs-extra') //otherwise copying a file is non-trivial 
-const readline       = require('readline')
 const R              = require('ramda')
 
 /* Now the ini is out, print out a systems list and the json that the softlist maker will use */
-module.exports = (log, datInStream, datOutPath, jsonOutPath) => systems => {
-
-  /* get the existing list of QuickPlay's system types into an array
-   * (we are amending an existing list, not replacing it. MAME doesn't
-   * cover modern consoles for instance */
-  const currentTypeList = []
-  const rl = readline.createInterface({ input: datInStream})
-  rl.on( 'line', (line) => currentTypeList.push(line) )
-  rl.on( 'close', () => { //todo: promisify
+module.exports = (log, existingSystemsDat, datOutPath, jsonOutPath) => systems => {
 
     const lister =  R.pipe(
         R.map( ({ systemType }) => (`${systemType}`) )
@@ -23,7 +14,7 @@ module.exports = (log, datInStream, datOutPath, jsonOutPath) => systems => {
     const ordered = lister.sort( (a, b) => a.localeCompare(b) )
   
     //make the union dat of the old quickplay and the new systems dat
-    const unionDat        = R.union(currentTypeList, ordered)
+    const unionDat        = R.union(existingSystemsDat, ordered)
     const orderedUnionDat = unionDat.sort( (a, b) => a.localeCompare(b) )
     const joinedUnionDat  = orderedUnionDat.join(`\n`) 
    
@@ -39,6 +30,6 @@ module.exports = (log, datInStream, datOutPath, jsonOutPath) => systems => {
     if (log.json) console.log(pretty)
     fs.writeFileSync(jsonOutPath, pretty)
     console.log(`done`)
-    process.exit()
-  })
+
+    return pretty
 }

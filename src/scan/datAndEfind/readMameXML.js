@@ -1,11 +1,9 @@
 'use strict'
 
 const XmlStream     = require('xml-stream')
-
 //Parse the mame xml pulling out the fields we need but only from systems which actually work
-module.exports = (mameXMLStream, callback) => {
+const makeSystems = (mameXMLStream, nodeback) => {
   const systems = []
-  
   const xml     = new XmlStream(mameXMLStream)
   //xml stream 'collects' these meaning it deals with repeating xml keys rather than overwriting each time
   xml.collect('device')
@@ -39,7 +37,21 @@ module.exports = (mameXMLStream, callback) => {
 
   xml.on(`end`, () => {
     //fs.writeFileSync(`inputs/systems.json`, JSON.stringify(systems, null, `\t`)); process.exit()
-    callback(systems)
+    nodeback(null, systems)
   })
+  xml.on(`error`, (message) => 
+   nodeback(console.error(`XML parsing failed with ${message}`), null) )
 
 }
+
+
+const makeMessSystemsAsync = mameXMLInPath => new Promise( (resolve, reject) => 
+    makeSystems(mameXMLInPath, (err, sysObj) =>
+      !err? resolve(sysObj) : reject(err)
+    )
+  )
+
+
+module.exports = {makeSystems, makeMessSystemsAsync}
+
+

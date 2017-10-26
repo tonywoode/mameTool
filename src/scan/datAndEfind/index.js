@@ -4,7 +4,7 @@ const fs                         = require('fs')
 const R                          = require('ramda')
 const XmlStream                  = require('xml-stream')
 
-const readMameXML                = require('./readMameXML.js')
+const {makeSystems}              = require('./readMameXML.js')
 const cleanSoftlists             = require('./cleanSoftlists.js')
 const cleanDevices               = require('./cleanDevices.js')
 const mungeCompanyAndSystemNames = require('./mungeCompanyAndSystemNames.js')
@@ -18,10 +18,9 @@ const printSysdatAndJson         = require('./printSysdatAndJson.js')
 const datAndEfind = (mameXMLInPath, jsonOutPath, efindOutPath, datInPath, datOutPath, mameEmu, log) => {
   const datInStream     = fs.createReadStream(datInPath)
   const stream          = fs.createReadStream(mameXMLInPath)
-  const xml             = new XmlStream(stream)
 
   //program flow
-  readMameXML( xml, systems => {
+  makeSystems( stream, systems => {
   
     R.pipe(
        cleanSoftlists

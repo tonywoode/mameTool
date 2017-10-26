@@ -11,15 +11,15 @@ const mfm = (settings, readMameJson, jsonOutPath, generateRomdata, outputDir, ro
   console.log(`MAME file manager file: ${settings.mfmTextFileInPath}` )
   settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
   const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
-  readMameJson(jsonOutPath).then( sysObj => {
-    const {arcade} = sysObj 
-    mfmReaderAsync(mfmTextFileStream) 
-      .then( (mfmArray) => {
-        const mfmFilteredJson = mfmFilter(mfmArray)(arcade) 
-        generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
-
-        return sysObj
-      })
+  readMameJson(jsonOutPath)
+    .then( sysObj => {
+      const {arcade} = sysObj 
+      mfmReaderAsync(mfmTextFileStream) 
+    .then( (mfmArray) => {
+      const mfmFilteredJson = mfmFilter(mfmArray)(arcade) 
+      generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
+      return sysObj
+    })
   })
   .catch(err => _throw(err) )
 }
