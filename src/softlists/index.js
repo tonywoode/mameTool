@@ -7,11 +7,8 @@ const _throw               = m => { throw new Error(m) }
 const callSheet            = require('./callSheet.js')
 const filterSoftlists      = require('./filterSoftlists.js')
 const chooseDefaultEmus    = require('./chooseDefaultEmus.js')
-const makeParams           = require('./makeSoftlists/makeParams.js')
-const readSoftlistXML      = require('./makeSoftlists/readSoftlistXML.js')
-const cleanSoftlist        = require('./makeSoftlists/cleanSoftlist.js')
-const setRegionalEmu       = require('./makeSoftlists/setRegionalEmu.js')
-const printSoftlistRomdata = require('./makeSoftlists/printSoftlistRomdata.js')
+
+const {cleanSoftlist, makeParams, printSoftlistRomdata, readSoftlistXML, setRegionalEmu} = require('./makeSoftlists')
 
 //SOFTLISTS
 const softlists = (mameEmu, romdataConfig, jsonOutPath, hashDir, outputDir, log) => {
