@@ -126,4 +126,4 @@ program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig,
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
 //messtool options
 program.softlists     && softlists(mameEmu, romdataConfig, jsonOutPath, hashDir, outputDir, log)
-program.embedded      && embedded(messXMLInPathEmbedded)
+program.embedded      && embedded(mameEmu, romdataConfig, jsonOutPath)

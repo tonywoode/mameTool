@@ -4,7 +4,7 @@ const fs     = require('fs')
 const R      = require('ramda')
 const mkdirp = require('mkdirp')
 
-module.exports = platform => systems => {
+module.exports = (mameEmu, romdataConfig) => systems => {
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` 
   const mameRomdataLine = ({name, MAMEName, parentName, path, company, year, comment}) =>
@@ -23,7 +23,7 @@ module.exports = platform => systems => {
    * 12)  _Parameters : String, 13)  _Comment, 14)  _ParamMode : TROMParametersMode; //type of parameter mode
    * 15)  _Rating, 16)  _NumPlay, 17)  IPS start, 18)  IPS end, 19)  _DefaultGoodMerge : String; //The user selected default GoodMerge ROM */
 
-  const applyRomdata = platform => R.map( obj => {
+  const applyRomdata = mameEmu => R.map( obj => {
 
         const romParams = {
         name       : obj.company? `${obj.company} ${obj.system}`: `${obj.system}`
@@ -35,16 +35,14 @@ module.exports = platform => systems => {
       , comment    : obj.cloneof? `clone of ${obj.cloneof}` : `` 
     }
 
-    if (platform === `mame`)      return mameRomdataLine(romParams)
-    if (platform === `retroarch`) return retroarchRomdataLine(romParams)
-    return console.error(`unsupported platform: ${platform}`)
+    return mameEmu.isItRetroArch? retroarchRomdataLine(romParams) : mameRomdataLine(romParams)
 
   }, systems)
 
   //TODO: why doesn't retroarch work?
-  const romdata = applyRomdata(platform)
+  const romdata = applyRomdata(mameEmu)
   const romdataToPrint  = R.prepend(romdataHeader, romdata) 
-  const softRoot  = (platform === `retroarch`)? `outputs/retroarch_softlists/`: `outputs/mame_softlists/`
+  const softRoot = mameEmu.isItRetroArch? `outputs/retroarch_softlists/`: `outputs/mame_softlists/`
   const out             = `${softRoot}/MESS Embedded Systems/`
   mkdirp.sync(out)
 
@@ -63,7 +61,7 @@ LstFilter=2A2E7A69700D0A2A2E7261720D0A2A2E6163650D0A2A2E377A0D0A
 [RealIcon]
 ChkRealIcons=1
 ChkLargeIcons=0
-Directory=F:\\MAME\\EXTRAs\\icons
+Directory=${romdataConfig.winIconDir}
 
 [BkGround]
 ChkBk=0

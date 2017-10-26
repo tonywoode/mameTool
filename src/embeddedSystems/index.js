@@ -2,9 +2,7 @@
 
 const fs                                 = require('fs')
 const R                                  = require('ramda')
-const XmlStream                          = require('xml-stream')
 
-const readMameXMLembedded                = require('./readMameXML.js')
 const mungeCompanyAndSystemNamesEmbedded = require('./mungeCompanyAndSystemNames.js')
 const removeBoringSystemsEmbedded        = require('./removeBoringSystems.js')
 const printRomdata                       = require('./printRomdata.js')
@@ -17,21 +15,19 @@ const printRomdata                       = require('./printRomdata.js')
  * This class uses the mecahanics of the other classes in this module, but has a far
  * narrower scope, its an afterthought */
 
-const embedded = (messXMLInPathEmbedded) => {
-  const mamePlatform = "mame"
-  const retroarchPlatform = "retroarch"
-  const streamEmbedded = fs.createReadStream(messXMLInPathEmbedded)
-  const xmlEmbedded    = new XmlStream(streamEmbedded)
+const embedded = (mameEmu, romdataConfig, jsonOutPath) => {
+
+  fs.existsSync(jsonOutPath) || _throw(`there's no scanned MAME file at ${jsonOutPath}`)
+  const systemsJsonFile = fs.readFileSync(jsonOutPath)
+  const systems         = JSON.parse(systemsJsonFile).embedded
+
   
   //program flow
-  readMameXMLembedded( xmlEmbedded, systems => {
     R.pipe(
        mungeCompanyAndSystemNamesEmbedded
      , removeBoringSystemsEmbedded
-     , printRomdata(mamePlatform)
-     , printRomdata(retroarchPlatform)
+     , printRomdata(mameEmu, romdataConfig)
     )(systems)
-  })
 
 }
 
