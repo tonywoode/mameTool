@@ -125,5 +125,5 @@ program.mfm           && mfm(settings, readMameJson, jsonOutPath, generateRomdat
 program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
 //messtool options
-program.softlists     && softlists(mameEmu, jsonOutPath, hashDir, outputDir, log)
+program.softlists     && softlists(mameEmu, romdataConfig, jsonOutPath, hashDir, outputDir, log)
 program.embedded      && embedded(messXMLInPathEmbedded)

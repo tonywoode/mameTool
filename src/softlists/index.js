@@ -14,7 +14,7 @@ const setRegionalEmu       = require('./makeSoftlists/setRegionalEmu.js')
 const printSoftlistRomdata = require('./makeSoftlists/printSoftlistRomdata.js')
 
 //SOFTLISTS
-const softlists = (mameEmu, jsonOutPath, hashDir, outputDir, log) => {
+const softlists = (mameEmu, romdataConfig, jsonOutPath, hashDir, outputDir, log) => {
 
   fs.existsSync(jsonOutPath) || _throw(`there's no scanned MAME file at ${jsonOutPath}`)
   const systemsJsonFile = fs.readFileSync(jsonOutPath)
@@ -27,7 +27,7 @@ const softlists = (mameEmu, jsonOutPath, hashDir, outputDir, log) => {
           const softlistParams = makeParams(mameEmu, hashDir, outputDir, emu)
           readSoftlistXML(softlistParams.xml, softlist => {
             const cleanedSoftlist = cleanSoftlist(softlist)
-            printSoftlistRomdata(mameEmu, log, softlistParams, setRegionalEmu, cleanedSoftlist)
+            printSoftlistRomdata(mameEmu, romdataConfig, log, softlistParams, setRegionalEmu, cleanedSoftlist)
           })
         }, emuSystems)
 

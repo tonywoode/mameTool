@@ -4,7 +4,7 @@ const fs                = require('fs')
 const mkdirp            = require('mkdirp')
 const R                 = require('ramda')
 
-module.exports = (mameEmu, log, softlistParams, setRegionalEmu, softlist ) => {
+module.exports = (mameEmu, romdataConfig, log, softlistParams, setRegionalEmu, softlist ) => {
   //don't make a dat or folder if all of the games for a softlist aren't supported
   if (!softlist.length) { 
     if (log.exclusions) console.log(`INFO: Not printing softlist for ${softlistParams.name} : no working games`)
@@ -86,7 +86,7 @@ LstFilter=2A2E7A69700D0A2A2E7261720D0A2A2E6163650D0A2A2E377A0D0A
 [RealIcon]
 ChkRealIcons=1
 ChkLargeIcons=0
-Directory=F:\\MAME\\EXTRAs\\icons
+Directory=${romdataConfig.winIconDir}
 
 [BkGround]
 ChkBk=0
