@@ -10,7 +10,7 @@ const paths             = require('./paths.js')
 const {generateRomdata} = require('./romdata/printRomdata.js')
 const readMameJson      = require('./romdata/readMameJson.js')
 
-const {arcadeScan, datAndEfind} = require('./scan')
+const {scan, arcadeScan, datAndEfind} = require('./scan')
 const {arcade}          = require('./arcade')
 const {mfm}             = require('./mfm')
 const {testArcadeRun}   = require('./testing')
@@ -22,6 +22,7 @@ program
     .option('--output-dir [path]')
     //mameTool options
     .option(`--scan`)
+    .option(`--arcadeScan`)
     .option(`--arcade`)
     .option(`--mfm`)
     .option(`--dev`)
@@ -125,7 +126,8 @@ const mockSystems = (jsonOutPath, callback) => {
 
  
 //TODO: promisify these so you can run combinations
-program.scan          && arcadeScan(settings, jsonOutPath, qpIni)
+program.scan          && scan(settings, jsonOutPath, qpIni, efindOutPath, datInPath, datOutPath, mameEmu, log)
+program.arcadeScan    && arcadeScan(settings, jsonOutPath, qpIni)
 program.mfm           && mfm(settings, readMameJson, jsonOutPath, generateRomdata, outputDir, romdataConfig)
 program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
