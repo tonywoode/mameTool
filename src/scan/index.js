@@ -40,32 +40,25 @@ MAME ini dir:           ${settings.iniDir}`
 
   const datInStream     = fs.createReadStream(datInPath)
   const stream          = fs.createReadStream(settings.mameXMLInPath)
-  var existingSystemsDat = ''
 
-  existingDatReaderAsync(datInStream)
-    .then ( existingDat =>{
-      existingSystemsDat = existingDat
-    return makeSystemsAsync(mameXMLStream)  
-    })
-    .then( sysObj => {
+  //first make the promises
+  const existingSystemsDatPromise = existingDatReaderAsync(datInStream)
+  const sysObjPromise =  makeSystemsAsync(mameXMLStream)  
+  const messJsonPromise =  makeMessSystemsAsync(stream)
+
+  Promise.all([sysObjPromise, messJsonPromise, existingSystemsDatPromise])
+    .then( ([sysObj, messJson, existingSystemsDat]) => { 
+      //post process the arcade scrape
       const {arcade} = sysObj 
-     
       /* process all the inis into the json we specify their type (and their internal name if necessary)
        *   there are three types of ini file (see iniReader.js)
        *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
       const mameJson = R.pipe( arcade =>
-        inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade ) 
-        , cleanJson 
-      )(arcade)
-  
-      const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson }
- //     printJson(jsonOutPath)(newSysObj) //print out json with inis included, and also version info
-
-     return  makeMessSystemsAsync(stream)
-    })
-    .then( systems => {
-
-      const messJson =  R.pipe(
+        inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade), cleanJson
+      )(arcade) 
+    
+      //post process the mess json
+      const processedMessJson =  R.pipe(
            cleanSoftlists
         ,  cleanDevices
         ,  mungeCompanyAndSystemNames
@@ -74,21 +67,22 @@ MAME ini dir:           ${settings.iniDir}`
         ,  removeBoringSystems
         ,  print(efindOutPath, mameEmu, log)
         ,  printSysdatAndJson(log, existingSystemsDat, datOutPath, jsonOutPath + 'mess')
-        )(systems)
+        )(messJson)
 
-   //   printJson(jsonOutPath + 'new')(messJson) //print out json with inis included, and also version info
-
- //     const finalSysObj = { versionInfo: newSysObj.versionInfo, arcade: newSysObj.arcade, mess: messJson }
- //     printJson(jsonOutPath)(finalSysObj) //print out json with inis included, and also version info
-     //save the version information into quickplay's ini file, do it last then a throw will end up least contradictory
-  //    const config = ini.parse(fs.readFileSync(qpIni, `utf-8`))
-   //   config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
-//      fs.writeFileSync(qpIni, ini.stringify(config)) 
-
-
-      console.log(messJson)
+      const newSysObj = { versionInfo: sysObj.versionInfo, arcade: mameJson, mess : processedMessJson }
+      printJson(jsonOutPath)(newSysObj) //print out json with inis included, and also version info
+     
+      //save the version information into quickplay's ini file, do it last then a throw will end up least contradictory
+      const config = ini.parse(fs.readFileSync(qpIni, `utf-8`))
+      config.MAME.MameXMLVersion = sysObj.versionInfo.mameVersion
+      fs.writeFileSync(qpIni, ini.stringify(config)) 
+      console.log(`Success: Read XML ${sysObj.versionInfo.mameVersion}`)
+      return newSysObj
     })
     .catch(err => _throw(err) )
+
+
+
 }
 
 

@@ -31,5 +31,5 @@ module.exports = (log, existingSystemsDat, datOutPath, jsonOutPath) => systems =
     fs.writeFileSync(jsonOutPath, pretty)
     console.log(`done`)
 
-    return pretty
+    return systems
 }

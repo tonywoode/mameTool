@@ -38,7 +38,6 @@ const makeSystems = (mameXMLStream, nodeback) => {
   })
 
   xml.on(`end`, () => {
-    console.log(`Success: Read XML ${versionInfo.mameVersion}`)
     nodeback(null, {versionInfo, arcade}) 
   })
   xml.on(`error`, (message) => 
