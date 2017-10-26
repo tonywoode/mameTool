@@ -8,7 +8,7 @@ const makeSystems = (mameXMLStream, nodeback) => {
 
   const versionInfo = {}
   const arcade      = []
-  const systems     = []
+  const messSystems = []
   const embedded    = []
 
   console.log(`Reading a very large xml file, patience...`)
@@ -69,7 +69,7 @@ const makeSystems = (mameXMLStream, nodeback) => {
       messNode.cloneof  = machine.$.cloneof
       messNode.softlist = machine.softwarelist
       messNode.device   = machine.device
-      systems.push(messNode)
+      messSystems.push(messNode)
     }
 
 
@@ -100,7 +100,7 @@ const makeSystems = (mameXMLStream, nodeback) => {
   })
 
   xml.on(`end`, () => {
-    nodeback(null, {versionInfo, arcade, systems, embedded}) 
+    nodeback(null, {versionInfo, arcade, messSystems, embedded}) 
   })
   xml.on(`error`, (message) => 
     nodeback(console.error(`XML parsing failed with ${message}`), null) )

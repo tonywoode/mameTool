@@ -1,40 +1,23 @@
 'use strict'
 
-const fs                         = require('fs')
-const R                          = require('ramda')
-const XmlStream                  = require('xml-stream')
-
-const {makeSystems}              = require('./readMameXML.js')
 const cleanSoftlists             = require('./cleanSoftlists.js')
 const cleanDevices               = require('./cleanDevices.js')
 const mungeCompanyAndSystemNames = require('./mungeCompanyAndSystemNames.js')
 const mungeCompanyForType        = require('./mungeCompanyForType.js')   
 const makeFinalSystemTypes       = require('./makeFinalSystemTypes.js')
 const removeBoringSystems        = require('./removeBoringSystems.js')
-const print                      = require('./print.js')
-const printSysdatAndJson         = require('./printSysdatAndJson.js')
+const printEfind                 = require('./printEfind.js')
+const printSystemsDat            = require('./printSystemsDat.js')
+const {existingDatReaderAsync}   = require('./existingDatReader.js')
 
-//JSON, DAT AND EFIND MAKER
-const datAndEfind = (mameXMLInPath, jsonOutPath, efindOutPath, datInPath, datOutPath, mameEmu, log) => {
-  const datInStream     = fs.createReadStream(datInPath)
-  const stream          = fs.createReadStream(mameXMLInPath)
-
-  //program flow
-  makeSystems( stream, systems => {
-  
-    R.pipe(
-       cleanSoftlists
-    ,  cleanDevices
-    ,  mungeCompanyAndSystemNames
-    ,  mungeCompanyForType
-    ,  makeFinalSystemTypes
-    ,  removeBoringSystems
-    ,  print(efindOutPath, mameEmu, log)
-    ,  printSysdatAndJson(log, datInStream, datOutPath, jsonOutPath)
-    )(systems)
-  
-  })
-
+module.exports = {
+    cleanSoftlists
+  , cleanDevices
+  , mungeCompanyAndSystemNames
+  , mungeCompanyForType
+  , makeFinalSystemTypes
+  , removeBoringSystems
+  , printEfind
+  , printSystemsDat
+  , existingDatReaderAsync 
 }
-
-module.exports = {datAndEfind}

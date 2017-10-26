@@ -10,7 +10,7 @@ const paths             = require('./paths.js')
 const {generateRomdata} = require('./romdata/printRomdata.js')
 const readMameJson      = require('./romdata/readMameJson.js')
 
-const {scan, arcadeScan, datAndEfind} = require('./scan')
+const scan              = require('./scan')
 const {arcade}          = require('./arcade')
 const {mfm}             = require('./mfm')
 const {testArcadeRun}   = require('./testing')
@@ -22,13 +22,11 @@ program
     .option('--output-dir [path]')
     //mameTool options
     .option(`--scan`)
-    .option(`--arcadeScan`)
     .option(`--arcade`)
     .option(`--mfm`)
     .option(`--dev`)
     .option(`--testArcadeRun`)
     //messTool options
-    .option(`--datAndEfind`)
     .option(`--softlists`)
     .option(`--embedded`)
     .parse(process.argv)
@@ -82,22 +80,19 @@ MAME exe path:          ${settings.mameExePath}`
 
 const log = {
   //datAndEfind
-  efind      : false, 
-  dat        : false, 
-  json       : false,
+    efind      : false 
+  , dat        : false 
+  , json       : false
   //softlist
-  games      : false, 
-  choices    : false, 
-  regions    : false, 
-  exclusions : false, 
-  printer    : false
+  , games      : false 
+  , choices    : false 
+  , regions    : false 
+  , exclusions : false 
+  , printer    : false
 }
 
 //mess paths
 const mameEmu = { isItRetroArch : path.win32.basename(settings.mameExePath).match(/retroarch/i) } //best bet is to limit ourselves to what the emu file is called for this
-//datAndEfind
-const messJsonOutName = `systems.json` //temporary, so called jsonOutName in callee
-const messJsonOutPath = `${jsonOutDir}/${messJsonOutName}`
 
 //determine that location of the systems.dat
 const datInPath       = devMode? `inputs/systems.dat` : `dats\\systems.dat`
@@ -110,7 +105,7 @@ console.log(`EFind Ini output Path   ${efindOutPath}`)
 //softlist paths
 //determine that hash directory
 const mameEmuDir      = path.win32.dirname(settings.mameExePath)
-const liveHashDir     = mameEmu.isItRetroArch? `${mameEmuDir}\\system\\mame\\hash` : `${mameEmuDur}\\hash`
+const liveHashDir     = mameEmu.isItRetroArch? `${mameEmuDir}\\system\\mame\\hash` : `${mameEmuDir}\\hash`
 const hashDir         = devMode? `inputs/hash/` : liveHashDir
 
 //embedded systemes
@@ -124,14 +119,11 @@ const mockSystems = (jsonOutPath, callback) => {
   callback(systems, callback)
 }
 
- 
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutPath, qpIni, efindOutPath, datInPath, datOutPath, mameEmu, log)
-program.arcadeScan    && arcadeScan(settings, jsonOutPath, qpIni)
 program.mfm           && mfm(settings, readMameJson, jsonOutPath, generateRomdata, outputDir, romdataConfig)
 program.arcade        && arcade(settings, jsonOutPath, outputDir, romdataConfig, readMameJson, generateRomdata)
 program.testArcadeRun && testArcadeRun(readMameJson, jsonOutPath, outputDir, romdataConfig)
 //messtool options
-program.datAndEfind   && datAndEfind(settings.mameXMLInPath, messJsonOutPath, efindOutPath, datInPath, datOutPath, mameEmu, log)
 program.softlists     && softlists(hashDir, outputDir, log)
 program.embedded      && embedded(messXMLInPathEmbedded)
