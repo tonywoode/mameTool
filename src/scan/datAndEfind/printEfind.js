@@ -8,7 +8,7 @@ const R              = require('ramda')
  *   MESS' original system name to capture what makes each system different. However there are some considerations that also apply to system munging 
  *   that need re-application, along with some new concerns regarding the output format
  */
-module.exports = (efindOutPath, mameEmu, log) =>  systems => {
+module.exports = (efindOutPath, settings, log) =>  systems => {
   const spaceIsSeparator = ` `
   const oneWord          = 1
 
@@ -76,7 +76,7 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
       , callToMake : `${obj.call} %ROMMAME%` //for we are running from a generated soflist romdata.dat
       , info       : `http://mameworld.info` //we don't have anything but a url to tell you about with softlists
     }
-    mameEmu.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
+    settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
   }, obj.softlist)
  
 
@@ -90,7 +90,7 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
       , callToMake : `${obj.call} -${device.briefname} "%ROM%"` //this is not about softlists
       , info       : `Supports: ${device.extensions}`
     } 
-    mameEmu.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
+    settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
   }, obj.device)
    
   const devices = [] //this is an accumlator, we need to reduce....

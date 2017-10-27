@@ -71,13 +71,13 @@ const printRomdataFolder = (romdataOutDir, mameExtrasDir, iconName, rootDir) => 
 }
 
 // makes and prints a romdata using all the above
-const generateRomdata = (romdataOutDir, romdataConfig, rootDir) => mameJson => {
-    const mameRomdata  = makeRomdata(romdataConfig.emu)(mameJson)
-    const emuIcon = /RetroArch/i.test(romdataConfig.emu)? `RetroArch` : `Mame`
+const generateRomdata = (romdataOutDir, settings, rootDir) => mameJson => {
+    const mameRomdata  = makeRomdata(settings.mameExe)(mameJson)
+    const emuIcon = settings.isItRetroArch? `RetroArch` : `Mame`
     //for testing we must stub the exported fn https://stackoverflow.com/a/35754124/3536094
-    const romdata = module.exports.printRomdataFolder(romdataOutDir, romdataConfig.winIconDir, emuIcon, rootDir)(mameRomdata)
+    const romdata = module.exports.printRomdataFolder(romdataOutDir, settings.winIconDir, emuIcon, rootDir)(mameRomdata)
     console.log(`printing romdata to ${romdataOutDir}`) 
-    if (romdataConfig.devMode) console.log(romdata)
+    if (settings.devMode) console.log(romdata)
     return romdata
 }
 

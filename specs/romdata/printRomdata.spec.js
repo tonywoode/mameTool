@@ -9,7 +9,7 @@ const printRomdata  = rewire('../../src/romdata/printRomdata.js')
 const emu           = `another retroarch emulator` 
 const winIconDir    = `F:\MAME\EXTRAs\Icons`
 const devMode       = false
-const romdataConfig = {emu, winIconDir, devMode}
+const settings      = { isItRetroArch : true }
 
 describe(`printRomdata`, () => {
   describe(`#printIntermediaryIconFiles`, () => {
@@ -39,7 +39,7 @@ describe(`printRomdata`, () => {
       sandbox.stub(printRomdata, `printRomdataFolder`).returns( ()=>{} )
       //sandbox.stub(makeRomdata, `makeRomdata`).returns( ()=>{} ) //because sinon needs an object+method, we'd have makeRomdata.makeRomata in caller
       const revert = printRomdata.__set__(`makeRomdata`, ()=> ()=> {`Romdata text`} ) //so let's rewire instead (its a curried callsite)
-      printRomdata.generateRomdata(`./randomOutputDir`, romdataConfig)(`anything`) 
+      printRomdata.generateRomdata(`./randomOutputDir`, settings)(`anything`) 
       expect(printRomdata.printRomdataFolder.getCall(0).args[2]).to.equal(`RetroArch`)
       revert()
     })

@@ -3,7 +3,7 @@
 const fs        = require('fs')
 const XmlStream = require('xml-stream')
 
-module.exports = (mameEmu, hashDir, outputDir, emulator) => {
+module.exports = (settings, hashDir, outputDir, emulator) => {
   
   const //I like forward slashes in system type. System doesn't...
       systemType              = emulator.systemType?
@@ -23,7 +23,7 @@ module.exports = (mameEmu, hashDir, outputDir, emulator) => {
     , stream                  = fs.createReadStream(`${hashDir}${name}.xml`)
     , xml                     = new XmlStream(stream)
 
-    , emuType             = mameEmu.isItRetroArch? `retroarch` : `mame`
+    , emuType             = settings.isItRetroArch? `retroarch` : `mame`
     , outRootDir          = `${outputDir}/${emuType}_softlists/`
     , outTypePath         = `${outRootDir}/${systemType}`
     , outNamePath         = `${outTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/

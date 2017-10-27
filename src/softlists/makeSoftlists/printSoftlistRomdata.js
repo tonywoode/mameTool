@@ -4,7 +4,7 @@ const fs                = require('fs')
 const mkdirp            = require('mkdirp')
 const R                 = require('ramda')
 
-module.exports = (mameEmu, romdataConfig, log, softlistParams, setRegionalEmu, softlist ) => {
+module.exports = (settings, log, softlistParams, setRegionalEmu, softlist ) => {
   //don't make a dat or folder if all of the games for a softlist aren't supported
   if (!softlist.length) { 
     if (log.exclusions) console.log(`INFO: Not printing softlist for ${softlistParams.name} : no working games`)
@@ -43,7 +43,7 @@ module.exports = (mameEmu, romdataConfig, log, softlistParams, setRegionalEmu, s
   }
  
   //sets the variables for a line of romdata entry for later injection into a romdata printer
-  const applyRomdata = (obj, mameEmu)  => R.map( obj => {
+  const applyRomdata = (obj, settings)  => R.map( obj => {
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
@@ -62,10 +62,10 @@ module.exports = (mameEmu, romdataConfig, log, softlistParams, setRegionalEmu, s
       })
       
     }
-    return mameEmu.isItRetroArch? retroarchRomdataLine(romParams) : mameRomdataLine(romParams)
+    return settings.isItRetroArch? retroarchRomdataLine(romParams) : mameRomdataLine(romParams)
   }, softlist)
 
-  const romdata        = applyRomdata(softlist, mameEmu)
+  const romdata        = applyRomdata(softlist, settings)
   const romdataToPrint = R.prepend(romdataHeader, romdata) 
   mkdirp.sync(softlistParams.outNamePath)
   
@@ -86,7 +86,7 @@ LstFilter=2A2E7A69700D0A2A2E7261720D0A2A2E6163650D0A2A2E377A0D0A
 [RealIcon]
 ChkRealIcons=1
 ChkLargeIcons=0
-Directory=${romdataConfig.winIconDir}
+Directory=${settings.winIconDir}
 
 [BkGround]
 ChkBk=0
@@ -101,7 +101,7 @@ CmbIcon=${iconName}.ico
 
   fs.writeFileSync(`${softlistParams.outNamePath}/folders.ini`, iconTemplate(machineMameName))
   fs.writeFileSync(`${softlistParams.outTypePath}/folders.ini`, iconTemplate(machineMameName)) //last wins is fine
-  const icon = (mameEmu === `retroarch`? `RetroArch` : `Mess`)
+  const icon = (settings.isItRetroArch? `RetroArch` : `Mess`)
   fs.writeFileSync(`${softlistParams.outRootDir}/folders.ini`,  iconTemplate(icon)) //last wins is fine
   //now print the romdata itself
   fs.writeFileSync(softlistParams.outFullPath, romdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time

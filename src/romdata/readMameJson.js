@@ -1,7 +1,7 @@
 'use strict'
 
-const fs = require('fs')
-const _throw                           = m => { throw new Error(m) }
+const fs     = require('fs')
+const _throw = m => { throw new Error(m) }
 
 module.exports = (jsonOutPath) => new Promise( resolve =>
   fs.readFile(jsonOutPath, (err, data) =>

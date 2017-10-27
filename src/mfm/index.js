@@ -7,7 +7,7 @@ const mfmReaderAsync = require('./mfmReader.js').mfmReaderAsync
 const mfmFilter      = require('./mfmReader.js').mfmFilter
 
 //fulfil a call to make a mame file manager filtered romdata
-const mfm = (settings, readMameJson, jsonOutPath, generateRomdata, outputDir, romdataConfig) => {
+const mfm = (settings, readMameJson, jsonOutPath, generateRomdata, outputDir) => {
   console.log(`MAME file manager file: ${settings.mfmTextFileInPath}` )
   settings.mfmTextFileInPath || _throw(`there's no MFM File`) //TODO: recover?
   const  mfmTextFileStream = fs.createReadStream(settings.mfmTextFileInPath)
@@ -17,7 +17,7 @@ const mfm = (settings, readMameJson, jsonOutPath, generateRomdata, outputDir, ro
       mfmReaderAsync(mfmTextFileStream) 
     .then( (mfmArray) => {
       const mfmFilteredJson = mfmFilter(mfmArray)(arcade) 
-      generateRomdata(outputDir, romdataConfig)(mfmFilteredJson)
+      generateRomdata(outputDir, settings)(mfmFilteredJson)
       return sysObj
     })
   })
@@ -26,4 +26,4 @@ const mfm = (settings, readMameJson, jsonOutPath, generateRomdata, outputDir, ro
 
 
 
-module.exports = {mfm, mfmReaderAsync , mfmFilter}
+module.exports = {mfm, mfmReaderAsync, mfmFilter}

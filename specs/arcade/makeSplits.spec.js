@@ -15,8 +15,6 @@ const emu         = `mame`
 const winIconDir  = `F:\MAME\EXTRAs\Icons`
 const devMode     = false
 
-const romdataConfig = {emu, winIconDir, devMode}
-
 const mameJson        = [
   {
   	"call": "18wheelr",
@@ -44,7 +42,7 @@ describe(`makeSplits`, () => {
 
     it(`should produce an expected foldername, omitting ntfs unsafe chars`, () => {
       sandbox.stub(printRomdata, `generateRomdata`).returns( ()=>{} )
-      splits.processSplit(jsonKey, outputDir, romdataConfig)(mameJson)
+      splits.processSplit(jsonKey, outputDir)(mameJson)
       expect(printRomdata.generateRomdata.getCall(0).args[0]).to.equal(`./deleteme/series/18 Wheeler`)
       printRomdata.generateRomdata.restore()
     })
@@ -52,7 +50,7 @@ describe(`makeSplits`, () => {
     it(`should pass a json to be printed that's been filtered by the approrpriate value`, () => {
       const mameJsonSpy = sandbox.spy() //curry  https://stackoverflow.com/a/46603828/3536094
       sandbox.stub(printRomdata, `generateRomdata`).returns(mameJsonSpy)
-      splits.processSplit( jsonKey, outputDir, romdataConfig)(mameJson)
+      splits.processSplit( jsonKey, outputDir)(mameJson)
       expect(mameJsonSpy.getCall(0).args[0]).to.have.lengthOf(2)
       //get all series values
       const valuesOfSeriesKey = mameJsonSpy.getCall(0).args[0].map( game => game.series) 

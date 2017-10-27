@@ -16,7 +16,7 @@
     "base": "node src/QPNode.js",
     "start": "node src/QPNode.js --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags",
     "mess-start": "node src/QPNode --datAndEfind --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags; node src/QPNode --softlists --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags; node src/QPNode --embedded --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags",
-    "full": "trash $npm_package_directories_outputDir && mkdir $npm_package_directories_outputDir && npm run start --",
+    "full": "trash $npm_package_directories_outputDir && mkdir $npm_package_directories_outputDir && npm run start -- --scan",
     "basedebug": "node --inspect-brk src/QPNode.js",
     "debug": "npm run basedebug -- --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags",
     "fulldebug": "trash $npm_package_directories_outputDir && npm run debug --",
