@@ -26,7 +26,7 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
           const softlistParams = makeParams(settings, hashDir, outputDir, emu)
           readSoftlistXML(softlistParams.xml, softlist => {
             const cleanedSoftlist = cleanSoftlist(softlist)
-            printSoftlistRomdata(settings, log, softlistParams, setRegionalEmu, cleanedSoftlist)
+            printSoftlistRomdata(settings, softlistParams, setRegionalEmu, cleanedSoftlist, log)
           })
         }, emuSystems)
 
@@ -36,7 +36,7 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
  //program flow at list level
   R.pipe(
       callSheet(log)
-    , filterSoftlists(hashDir)
+    , filterSoftlists(hashDir, log)
     , chooseDefaultEmus(log)
     , makeSoftlists(settings) 
   )(systems)

@@ -4,7 +4,7 @@ const fs    = require('fs')
 const R     = require('ramda')
 const Leven = require('levenshtein')
 
-module.exports = hashDir => softlistEmus => {
+module.exports = (hashDir, log) => softlistEmus => {
 
   /* Sometimes a softlist exists for a device that isn't supported in the version of mess e.g.: in mess 0.163, 
    *  a2600 doesn't have a cass, but there exists a cass softlist, which will silently fail if called. 
@@ -50,7 +50,7 @@ module.exports = hashDir => softlistEmus => {
 
   //make exception or remove those softlists that say that the softlist device doesn't actually exist
   const alertProblemDevices = R.map( 
-    obj => obj.doesSoftlistExist? obj : console.log(
+    obj => obj.doesSoftlistExist? obj : log.problems && console.log(
         `DEVICE PROBLEM: ${obj.displayMachine} has a softlist called ${obj.name} but doesn't have a ${obj.deviceTypeFromName}`
       )
   , deviceExists)
@@ -67,7 +67,7 @@ module.exports = hashDir => softlistEmus => {
   //alert those that dont exist
   const alertNonExistentSoftlistFile = R.map( 
     obj => obj.doesSoftlistFileExist === true? 
-      obj : console.log(
+      obj : log.problems && console.log(
         `FILE PROBLEM: ${obj.displayMachine} has a softlist called ${obj.name} but there's no file called "${hashDir}${obj.name}.xml`
       )
     , softlistFileExists)

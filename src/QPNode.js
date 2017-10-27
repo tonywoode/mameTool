@@ -16,8 +16,7 @@ const {mfm}             = require('./mfm')
 const {testArcadeRun}   = require('./testing')
 const {softlists}       = require('./softlists')
 
-//cmd-line options as parsed by commander
-program
+program //cmd-line options as parsed by commander
     .option('--output-dir [path]')
     .option(`--scan`)
     .option(`--dev`)
@@ -29,7 +28,6 @@ program
     .option(`--softlists`)
     .parse(process.argv)
 
-//TODO: inconsistent
 if (!process.argv.slice(2).length) {
   console.log( 
 `MAMETOOL TEST USAGE: 
@@ -80,9 +78,10 @@ const log = {
   //softlist
   , games      : false 
   , choices    : false 
+  , problems   : false
   , regions    : false 
   , exclusions : false 
-  , printer    : false
+  , printer    : true //TODO: does user see progress?
 }
 
 //determine that location of the systems.dat

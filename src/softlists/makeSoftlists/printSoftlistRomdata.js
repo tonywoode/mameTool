@@ -4,7 +4,7 @@ const fs                = require('fs')
 const mkdirp            = require('mkdirp')
 const R                 = require('ramda')
 
-module.exports = (settings, log, softlistParams, setRegionalEmu, softlist ) => {
+module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   //don't make a dat or folder if all of the games for a softlist aren't supported
   if (!softlist.length) { 
     if (log.exclusions) console.log(`INFO: Not printing softlist for ${softlistParams.name} : no working games`)
