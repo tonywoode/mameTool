@@ -89,14 +89,14 @@ const datInPath       = devMode? `inputs/systems.dat` : `dats\\systems.dat`
 const datOutPath      = devMode? `${outputDir}/systems.dat` : `dats\\systems.dat`
 //are we making a mess or retroarch efinder file? to make both the users has to go through the menu again and select the appropriate emu
 const efindOutName    = settings.isItRetroArch? `Mess_Retroarch.ini` : `Mess_Mame.ini` 
-const efindOutPath    = `${outputDir}/${efindOutName}`
+const efindOutPath    = devMode? `${outputDir}/${efindOutName}` : `EFind\\${efindOutName}`
 
 console.log(`EFind Ini output Path   ${efindOutPath}`)
 
 //softlist paths
 const mameEmuDir      = path.win32.dirname(settings.mameExePath)
 //mess hash dir is determinable realtive to mame exe dir (mame is distributed that way/retroarch users must place it here to work)
-const liveHashDir     = settings.isItRetroArch? `${mameEmuDir}\\system\\mame\\hash` : `${mameEmuDir}\\hash`
+const liveHashDir     = settings.isItRetroArch? `${mameEmuDir}\\system\\mame\\hash\\` : `${mameEmuDir}\\hash\\`
 const hashDir         = devMode? `inputs/hash/` : liveHashDir
 
 //embedded systemes

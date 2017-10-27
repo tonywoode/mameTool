@@ -8,7 +8,7 @@ const mkdirp = require('mkdirp')
  *  one key difference is it has to call the mame/retroarch main executable, rather than the verious mess emulator 
  *  sub-calls that all the softlist romdatas do */
 
-module.exports = settings => systems => {
+module.exports = (settings, outputDir) => systems => {
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` 
   const mameRomdataLine = ({name, MAMEName, parentName, path, company, year, comment}) =>
@@ -46,7 +46,8 @@ module.exports = settings => systems => {
   //TODO: why doesn't retroarch work?
   const romdata         = applyRomdata(settings)
   const romdataToPrint  = R.prepend(romdataHeader, romdata) 
-  const softRoot        = settings.isItRetroArch? `outputs/retroarch_softlists/`: `outputs/mame_softlists/`
+  //TODO: both softlists printer and this printr should be passed the same path
+  const softRoot        = settings.isItRetroArch? `${outputDir}/retroarch_softlists/`: `${outputDir}/mame_softlists/`
   const out             = `${softRoot}/MESS Embedded Systems/`
   mkdirp.sync(out)
 

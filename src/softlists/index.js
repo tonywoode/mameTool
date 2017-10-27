@@ -19,7 +19,6 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
   //embdedded systems are like softlists, so we'll save them with them
   const embedded        = JSON.parse(systemsJsonFile).embedded
   //TODO - you can append the DTD at the top of the file if it isn't being read correctly
-  
   //program flow at emu level
   const  makeSoftlists = settings => emuSystems => {
     R.map(emu => {
@@ -42,7 +41,7 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
   )(systems)
   
   //then the embedded systems when you're done with that
-  printEmbeddedRomdata(settings)(embedded)
+  printEmbeddedRomdata(settings, outputDir)(embedded)
 
 }
 
