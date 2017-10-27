@@ -4,17 +4,21 @@ const fs     = require('fs')
 const R      = require('ramda')
 const mkdirp = require('mkdirp')
 
-module.exports = (settings) => systems => {
+/* This printer is actually closer to an arcade romdata printer, but we decided to print embedded with softlists
+ *  one key difference is it has to call the mame/retroarch main executable, rather than the verious mess emulator 
+ *  sub-calls that all the softlist romdatas do */
+
+module.exports = settings => systems => {
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` 
   const mameRomdataLine = ({name, MAMEName, parentName, path, company, year, comment}) =>
-    ( `${name}¬${MAMEName}¬${parentName}¬¬${path}¬Mame64 Win32¬${company}¬${year}¬¬¬¬¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` )
+    ( `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${settings.mameExe}¬${company}¬${year}¬¬¬¬¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` )
 
   /* this is the correct invocation for retroarch but it doesn't work, even with softlist automedia off and bios enable on
    * retroarch_debug shows it even finds the game, but then decides: 'Error: unknown option: sfach'. I've left it in in case
    * it might be related to a mismatch in MAME versions between my fileset and retroarch */
   const retroarchRomdataLine = ({name, MAMEName, parentName, path, company, year, comment}) => (
-      `${name}¬${MAMEName}¬${parentName}¬¬${path}¬Retroarch Frontend¬${company}¬${year}`
+      `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${settings.mameExe}¬${company}¬${year}`
     + `¬¬¬¬-L cores\\mame_libretro.dll " ${MAMEName.replace(/"/g, '\\"')}"¬${comment}`
     + `¬0¬1¬<IPS>¬</IPS>¬¬¬`
   )

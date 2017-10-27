@@ -19,15 +19,14 @@ const {softlists}       = require('./softlists')
 //cmd-line options as parsed by commander
 program
     .option('--output-dir [path]')
-    //mameTool options
     .option(`--scan`)
+    .option(`--dev`)
+    //mameTool options
     .option(`--arcade`)
     .option(`--mfm`)
-    .option(`--dev`)
     .option(`--testArcadeRun`)
     //messTool options
     .option(`--softlists`)
-    .option(`--embedded`)
     .parse(process.argv)
 
 //TODO: inconsistent

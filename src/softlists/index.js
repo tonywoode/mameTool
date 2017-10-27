@@ -8,15 +8,12 @@ const callSheet            = require('./callSheet.js')
 const filterSoftlists      = require('./filterSoftlists.js')
 const chooseDefaultEmus    = require('./chooseDefaultEmus.js')
 
-//print the embedded systems list, TODO: integrate
-const printRomdata         = require('./embedded/printRomdata.js')
+const {cleanSoftlist, makeParams, printSoftlistRomdata
+     , printEmbeddedRomdata, readSoftlistXML, setRegionalEmu} = require('./makeSoftlists')
 
-const {cleanSoftlist, makeParams, printSoftlistRomdata, readSoftlistXML, setRegionalEmu} = require('./makeSoftlists')
-
-//SOFTLISTS
 const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
 
-  fs.existsSync(jsonOutPath) || _throw(`there's no scanned MAME file at ${jsonOutPath}`)
+  fs.existsSync(jsonOutPath) || _throw(`there's no scanned MAME file at ${jsonOutPath} - run me first with '--scan'`)
   const systemsJsonFile = fs.readFileSync(jsonOutPath)
   const systems         = JSON.parse(systemsJsonFile).messSystems
   //embdedded systems are like softlists, so we'll save them with them
@@ -45,8 +42,7 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
   )(systems)
   
   //then the embedded systems when you're done with that
-  printRomdata(settings)(embedded)
-
+  printEmbeddedRomdata(settings)(embedded)
 
 }
 
