@@ -42,7 +42,7 @@ const whichCountryIsThisGameFor = R.cond([
 
 ])
 
-//the regex here is slightly different beceuase we don't care about brackets: we want to catch 'NTSC only'
+//the regex here is slightly different because we don't care about brackets: we want to catch 'NTSC only'
 // we need to return a function, hence the tag "country"
 const whichCountryIsThisEmuFor = R.cond([
     [ emu => /US|USA|America/.test(emu),  country => `US` ]

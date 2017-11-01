@@ -1,21 +1,15 @@
 'use strict'
 
 const R = require('ramda')
+
+
+const {softlistsWithNoGames} = require('../messFilters.json')
+
 //read the json for softlists and make a list of those xmls to find. Need to grab emu name also and pass it all the way down our pipeline
 module.exports = log => systems => {
   const isSoftlist = obj => !!obj.softlist //filter by softlist
 
-  /* looking at the softlist, there are some that don't have any games. Doesn't mean to say they might not one day,
-   * but its unlikely. Some games may exist though (that's why we remove them here but keep them as emulators)
-   * Don't process further. Don't make a softlist for them */
-  const softlistsWithNoGames = [   
-      `abc800`, `abc806`, `abc80_cass`, `abc80_flop`, `ampro`, `atom`, `bw12`, `bw2`, `cbm2_cart` 
-    , `cbm2_flop`, `cbm8096_flop`, `cbm8296_flop`, `comx35_flop`, `ht68k`, `kayproii`, `lisa`, `mac_hdd`
-    , `mac_flop`, `mc1502_flop`, `mikro80`, `nimbus`, `p500_flop`, `pc1640`, `pc8201`, `pencil2` 
-    , `px4_cart`, `ql_cart`, `ql_cass`, `rx78`, `trs80m2`, `trsm100`, `vip` 
-  ]
-
-  const isThisSoftlistBoring = (list, machine) => {
+   const isThisSoftlistBoring = (list, machine) => {
     if (softlistsWithNoGames.includes(list.name)) { 
       if (log.exclusions) console.log(`INFO: Removing  ${list.name} from ${machine} because there are no games in the list`) 
       return softlistsWithNoGames.includes(list.name)
