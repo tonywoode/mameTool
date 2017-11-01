@@ -1,6 +1,5 @@
 'use strict'
 
-const fs                = require('fs')
 const program           = require('commander')
 const path              = require('path')
 const _throw            = m => { throw new Error(m) }
@@ -52,7 +51,7 @@ const jsonOutPath       = `${jsonOutDir}/${jsonOutName}`
 const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini` //settings from QP's ini file, or nix dev settings
 const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
 
-devMode      && console.log(`\t*** Mametool is in Dev mode***\n`)
+devMode      && console.log(`\t*** Mametool is in Dev mode ***\n`)
 program.scan || console.log(`Output dir:             ${outputDir}`) 
 console.log(`MAME Json dir:          ${jsonOutDir}`)
 
@@ -96,9 +95,6 @@ const mameEmuDir      = path.win32.dirname(settings.mameExePath)
 //mess hash dir is determinable realtive to mame exe dir (mame is distributed that way/retroarch users must place it here to work)
 const liveHashDir     = settings.isItRetroArch? `${mameEmuDir}\\system\\mame\\hash\\` : `${mameEmuDir}\\hash\\`
 const hashDir         = devMode? `inputs/hash/` : liveHashDir
-
-//embedded systemes
-const messXMLInPathEmbedded = `inputs/mess.xml`
   
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutPath, qpIni, efindOutPath, datInPath, datOutPath, log)
