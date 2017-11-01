@@ -24,7 +24,7 @@ module.exports = (settings, hashDir, outputDir, emulator) => {
     , xml                     = new XmlStream(stream)
 
     , emuType             = settings.isItRetroArch? `retroarch` : `mame`
-    , outRootDir          = `${outputDir}/${emuType}_softlists/`
+    , outRootDir          = `${outputDir}/${emuType.charAt(0).toUpperCase() + emuType.slice(1)} Softlists/`
     , outTypePath         = `${outRootDir}/${systemType}`
     , outNamePath         = `${outTypePath}/${name}` //to print out all systems you'd do ${displayMachine}/${name}`/
     , outFullPath         = `${outNamePath}/romdata.dat`

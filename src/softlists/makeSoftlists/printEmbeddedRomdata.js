@@ -47,8 +47,8 @@ module.exports = (settings, outputDir) => systems => {
   const romdata         = applyRomdata(settings)
   const romdataToPrint  = R.prepend(romdataHeader, romdata) 
   //TODO: both softlists printer and this printr should be passed the same path
-  const softRoot        = settings.isItRetroArch? `${outputDir}/retroarch_softlists/`: `${outputDir}/mame_softlists/`
-  const out             = `${softRoot}/MESS Embedded Systems/`
+  const out             = settings.isItRetroArch? `${outputDir}/Retroarch Embedded Systems/`: `${outputDir}/Mame Embedded Systems/`
+  //const out             = `${softRoot}/MESS Embedded Systems/`
   mkdirp.sync(out)
 
   const iconTemplate = `[GoodMerge]
@@ -76,7 +76,7 @@ TxtBKPath=
 ChkIcon=1
 CmbIcon=mess.ico
 `
-
+  console.log(`INFO: Printing embedded systems list`)
   fs.writeFileSync(`${out}folders.ini`, iconTemplate)
   fs.writeFileSync(`${out}romdata.dat`, romdataToPrint.join(`\n`), `latin1`) //utf8 isn't possible at this time
   
