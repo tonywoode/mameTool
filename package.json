@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/QPNode.js",
   "directories": {
-    "outputDir": "./outputs",
+    "outputDir": "./outputs/current",
     "binOutputDir": "/Volumes/Untitled/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin",
     "binOutputDirParallels": "/Volumes/C/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin"
   },

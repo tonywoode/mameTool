@@ -1,6 +1,5 @@
 inputs
 outputs
-rightOutputs
 node_modules/
 early_xml_scraping_tries/
 *.rc

@@ -1,6 +1,7 @@
 'use strict'
 
 const program           = require('commander')
+const fs                = require('fs')
 const path              = require('path')
 const _throw            = m => { throw new Error(m) }
 
@@ -32,11 +33,11 @@ if (!process.argv.slice(2).length) {
 `MAMETOOL TEST USAGE: 
 'npm run full'                 deletes the whole outputs folder, full must be run with scan
 'npm start -- --scan'          make a mame json output file, which is used by the arcade and mfm flags
-'npm start -- --arcade'        make an arcade set to the ini flags in settings.ini, and output to ./outputs
-'npm start -- --mfm'           make an arcade set to a fatfile list output of mame file manager, and output to ./outputs
+'npm start -- --arcade'        make an arcade set to the ini flags in settings.ini, and output to outputsDir in package.json
+'npm start -- --mfm'           make an arcade set to a fatfile list output of mame file manager, and output to outputsDir in package.json
 'npm start -- --testArcadeRun' makes a set of both Mame and RetroArch romdata and splits from a canned list
 'npm start -- --softlists'     makes a softlist set
-'npm debug -- --arcade'        break on ln1 of making an arcade set to the ini flags in settings.ini, and output to ./outputs)
+'npm debug -- --arcade'        break on ln1 of making an arcade set to the ini flags in settings.ini, and output to outputsDir in package.json)
 `
 )
   process.exit()
@@ -44,6 +45,7 @@ if (!process.argv.slice(2).length) {
 
 //calculate these
 const outputDir         = program.outputDir
+fs.existsSync(outputDir) || _throw(`output directory ${outputDir} doesn't exist, so Mametool can't do anything`)
 const devMode           = program.dev
 const jsonOutDir        = devMode? outputDir : `dats` //json will sit in the frontends config dir, or for dev in the passed-in dir
 const jsonOutName       = `mame.json`
@@ -52,7 +54,7 @@ const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini` //sett
 const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
 
 devMode      && console.log(`\t*** Mametool is in Dev mode ***\n`)
-program.scan || console.log(`Output dir:             ${outputDir}`) 
+program.scan && !devMode || console.log(`Output dir:             ${outputDir}`) 
 console.log(`MAME Json dir:          ${jsonOutDir}`)
 
 //read these from the ini
@@ -82,19 +84,19 @@ const log = {
 }
 
 //determine that location of the systems.dat
-const datInPath       = devMode? `inputs/systems.dat` : `dats\\systems.dat`
+const devInputsDir    = `inputs/current`
+const datInPath       = devMode? `${devInputsDir}/systems.dat` : `dats\\systems.dat`
 const datOutPath      = devMode? `${outputDir}/systems.dat` : `dats\\systems.dat`
 //are we making a mess or retroarch efinder file? to make both the users has to go through the menu again and select the appropriate emu
 const efindOutName    = settings.isItRetroArch? `Mess_Retroarch.ini` : `Mess_Mame.ini` 
 const efindOutPath    = devMode? `${outputDir}/${efindOutName}` : `EFind\\${efindOutName}`
-
 console.log(`EFind Ini output Path   ${efindOutPath}`)
 
 //softlist paths
 const mameEmuDir      = path.win32.dirname(settings.mameExePath)
 //mess hash dir is determinable realtive to mame exe dir (mame is distributed that way/retroarch users must place it here to work)
 const liveHashDir     = settings.isItRetroArch? `${mameEmuDir}\\system\\mame\\hash\\` : `${mameEmuDir}\\hash\\`
-const hashDir         = devMode? `inputs/hash/` : liveHashDir
+const hashDir         = devMode? `${devInputsDir}/hash/` : liveHashDir
   
 //TODO: promisify these so you can run combinations
 program.scan          && scan(settings, jsonOutPath, qpIni, efindOutPath, datInPath, datOutPath, log)
