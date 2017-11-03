@@ -1,6 +1,7 @@
 'use strict'
 
-const R = require('ramda')
+const R                      = require('ramda')
+const {uninterestingDevices} = require('../../messFilters.json')
 
 module.exports = systems => {
   //not all devices have media, so we must check for null. Time to introduce maybe
@@ -26,13 +27,13 @@ module.exports = systems => {
     , obj)
   , systems)
 
+
+  //there are device types like "printer" and "midiout" that we don't want to make an emulator for 
+  const rejectDeviceTypes = device => R.contains(device.type, uninterestingDevices) 
+
   const removeUninterestingDevices = R.map(
-    obj => R.assoc(`device`, R.filter(
-      device => 
-           device.type !== "printer" 
-        && device.type !== "midiout" 
-        && device.type !== "midiin" 
-        && device.type !== "serial"
+    obj => R.assoc(`device`, R.reject(
+      rejectDeviceTypes //no need to f => fn(f)
       , obj.device)
     , obj)
   , replaceDevice)
