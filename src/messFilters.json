@@ -76,10 +76,11 @@
   ],
   "softlistWithNoGamesComment": "some softlists, when examined manually, don't have any games, just utils. Doesn't mean to say they might not one day, but its unlikely. Some games may exist though (that's why we remove them here but keep them as emulators). Don't make these softlists romdatas. Called by callsheet.js in the softlists folder",
   "softlistsWithNoGames": [   
-      "abc800", "abc806", "abc80_cass", "abc80_flop", "ampro", "atom", "bw12", "bw2", "cbm2_cart", "cbm2_flop"
-    , "cbm8096_flop", "cbm8296_flop", "comx35_flop", "dps1", "ht68k", "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop"
-    , "mikro80", "nimbus", "p500_flop", "pc1640", "pc8201", "pencil2", "px4_cart", "ql_cart", "ql_cass", "rx78"
-    , "sitcom", "trs80m2", "trsm100", "victor9k_flop", "vip", "wangpc"
+      "abc800", "abc806", "abc80_cass", "abc80_flop", "ampro", "atom", "attache", "bw12", "bw14", "bw2", "cbm2_cart", "cbm2_flop"
+    , "cbm8096_flop", "cbm8296_flop", "compis", "comx35_flop", "dgnbeta_flop", "dps1", "ht68k", "hp9845b_rom"
+    , "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop", "mikro80", "nimbus", "p500_flop", "pc1640", "pc8201"
+    , "pencil2", "pofo", "px4_cart", "ql_cart", "ql_cass", "rainbow", "rx78", "sitcom", "trs80m2", "trsm100"
+    , "victor9k_flop", "vip", "vixen", "wangpc"
   ]
 
 }
