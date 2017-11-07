@@ -1,25 +1,26 @@
 {
   "uninterestingDevicesComment": "each mess-ey system in the mame json has a number of devices, most of these are for loading games from, but some are not and we don't want an Efind emulator for those devices. We reject these from the off in src/scan/dataAndEfind/cleanDevices. To find newly-introduced devices, compare old and new jsons or efinds",
-  "uninterestingDevices": ["printer", "midiout", "midiin", "serial"],
-  "efindBoringSystemsComment": "Many systems are never going to have enjoyable games. Don't make them an efind (its obvious they won't have softlists). The only way to know is to google. It was easiest to specify the fully munged system types (I remove these as a last step in the efind process). So the source of comparison is a finished efind, compared against a previous efind for newly-added boring systems. It's probably wise to deal with these BEFORE changing any company names in scan/datAndEfind/mungeCompanyAndSystemNames.js (a previous step). This is called by removeBoringSystems.js in the scan/datAndEfind folder",
+  "uninterestingDevices": ["printout", "midiout", "midiin", "serial"],
+  "efindBoringSystemsComment": "Many systems are never going to have enjoyable games. Don't make them an efind (remember if they have a softlist it will be clear as that itself IS a device that will get printed in an efind). The only way to know is to google. It was easiest to specify the fully munged system types (I remove these as a last step in the efind process). So the source of comparison is a finished efind, compared against a previous efind for newly-added boring systems. It's probably wise to deal with these BEFORE changing any company names in scan/datAndEfind/mungeCompanyAndSystemNames.js (a previous step). This is called by removeBoringSystems.js in the scan/datAndEfind folder. If a system has a softlist, general rule is to allow it through here and exclude it at the softlist stage, unless its seriously boring so remove it in both places (e.g.: dps1, sitcom, victor9k, wangpc). TODO: a method to backport the softlist exclusions so we have fewer emulators",
   "efindBoringSystems": [
-      "Acorn System 1", "Acorn System 3", "Ampro Litte Z80 Board", "Andrew Donald Booth All Purpose Electronic X-ray Computer"
+      "Acorn System 1", "Acorn System 3", "Ampro Computers Little Board/186", "Ampro Litte Z80 Board", "Andrew Donald Booth All Purpose Electronic X-ray Computer"
     , "Apollo DN3500", "Applix Pty Ltd 1616", "BBC Bridge Companion", "BBN BitGraph rev A", "BGR Computers Excalibur 64"
     , "Bit Corporation Chuang Zao Zhe 50", "BNPO Bashkiria-2M", "BP EVM PK8000 Vesta", "Canon X-07", "Corvus Systems Concept"
-    , "Digital Research Computers Big Board", "Elwro 800 Junior", "Frank Heyder Amateurcomputer AC1 Berlin"
-    , "Intel Intellec MDS-II", "Joachim Czepa C-80", "Josef Kratochvil BOB-85", "LCD EPFL Stoppani Dauphin"
+    , "Didact AB Esselte 100", "Digital Research Computers Big Board", "Elwro 800 Junior", "Force Computers GmbH SYS68K/CPU-1"
+    , "Frank Heyder Amateurcomputer AC1 Berlin", "Heath Inc Heathkit ET-3400", "HP 64000", "Intel Intellec MDS-II"
+    , "Ithaca InterSystems DPS-1", "Joachim Czepa C-80", "Josef Kratochvil BOB-85", "LCD EPFL Stoppani Dauphin"
     , "Manchester University Small-Scale Experimental Machine, 'Baby'", "Michael Bauer Dream 6800" 
     , "Militaerverlag der DDR Ausbaufaehiger Mikrocomputer mit dem U 880", "MOS Technologies KIM-1"
-    , "Motorola MEK6800D2", "Mugler/Mathes PC/M" , "Multitech Micro Professor 1", "Multitech Microkit09"
+    , "Motorola MEK6800D2", "Motorola MC68705P5 Programmer", "Mugler/Mathes PC/M" , "Multitech Micro Professor 1", "Multitech Microkit09"
     , "National JR-100", "Netronics Explorer/85", "Nokia Data MikroMikko 1 M6", "Osborne 1"
     , "Peripheral Technology PT68K2", "Peripheral Technology PT68K4", "Pitronics Beta", "PolyMorphic Systems Poly-88"
-    , "Radio Bulletin Cosmicos", "Research Machines RM-380Z", "Rockwell AIM 65", "Sanyo MBC", "Signetics Instructor 50"
-    , "Signetics PIPBUG", "Slicer Computers Slicer", "Small Systems Engineering SoftBox", "SWTPC S/09 Sbug"
-    , "System 99 Users Group SGCPU", "Talking Electronics magazine TEC-1A with JMON", "Tandy Radio Shack 200"
-    , "Texas Instruments TI-74 BASICALC", "Texas Instruments TM 990/189 University Board microcomputer"
+    , "Radio Bulletin Cosmicos", "Research Machines RM-380Z", "Rockwell AIM 65", "Sanyo MBC", "San Bergmans & Izabella Malcolm SITCOM", "Signetics Instructor 50"
+    , "Signetics PIPBUG", "Slicer Computers Slicer", "Small Systems Engineering SoftBox", "SME Systems Aussie Byte", "SMT Groupil"
+    , "SWTPC S/09 Sbug", "System 99 Users Group SGCPU", "Talking Electronics magazine TEC-1A with JMON"
+    , "Tandy Radio Shack 200", "Texas Instruments TI-74 BASICALC", "Texas Instruments TM 990/189 University Board microcomputer"
     , "USSR 15IE-00-013", "UT-88 mini", "VEB Mikroelektronik Lerncomputer LC 80", "VEB Polytechnik Poly-Computer 880"
-    , "Video Technology Vtech IT Unlimited", "Visual 1050", "Xerox Alto-II", "Xor Data Science S-100-12", "Yamaha FB-01"
-    , "ZPA Novy Bor IQ-151"
+    , "Victor Business Products 9000", "Video Technology Vtech IT Unlimited", "Visual 1050", "Wang Laboratories Professional Computer", "Xerox Alto-II"
+    , "Xor Data Science S-100-12", "Yamaha FB-01", "ZPA Novy Bor IQ-151"
   ],
   "embeddedSystemsBoringSystemsComment": "same as previous key but for embedded, called from scan/embeddedSystems/removeBoringSystems. Its big because there have existed many computers that had embedded roms but no games. To refresh this filter, manually compare against a previous embedded systems romdata",
   "embeddedSystemsBoringSystems": [
@@ -66,9 +67,9 @@
   "softlistWithNoGamesComment": "some softlists, when examined manually, don't have any games, just utils. Doesn't mean to say they might not one day, but its unlikely. Some games may exist though (that's why we remove them here but keep them as emulators). Don't make these softlists romdatas. Called by callsheet.js in the softlists folder",
   "softlistsWithNoGames": [   
       "abc800", "abc806", "abc80_cass", "abc80_flop", "ampro", "atom", "bw12", "bw2", "cbm2_cart", "cbm2_flop"
-    , "cbm8096_flop", "cbm8296_flop", "comx35_flop", "ht68k", "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop"
+    , "cbm8096_flop", "cbm8296_flop", "comx35_flop", "dps1", "ht68k", "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop"
     , "mikro80", "nimbus", "p500_flop", "pc1640", "pc8201", "pencil2", "px4_cart", "ql_cart", "ql_cass", "rx78"
-    , "trs80m2", "trsm100", "vip" 
+    , "sitcom", "trs80m2", "trsm100", "victor9k_flop", "vip", "wangpc"
   ]
 
 }
