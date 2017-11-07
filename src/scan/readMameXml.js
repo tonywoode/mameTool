@@ -74,6 +74,7 @@ const makeSystems = (mameXMLStream, nodeback) => {
 
 
     //make the embedded object
+    // TODO: same as mess but negating device, could we save time by checking device after and assigning to respective node?
     if ( 
          !machine.device 
       && machine.$.isdevice         === `no` 

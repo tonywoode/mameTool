@@ -71,9 +71,10 @@ MAME exe path:          ${settings.mameExePath}`
 
 const log = {
   //datAndEfind
-    efind            : false 
-  , efindProblems    : true 
+    efindProblems    : devMode 
+  //the data/efind/scan artifacts
   , dat              : false 
+  , efind            : false 
   , json             : false
   //softlist
   , games            : false 

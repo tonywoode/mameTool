@@ -5,7 +5,7 @@ const ini    = require('ini')
 const R      = require('ramda')
 const _throw = m => { throw new Error(m) }
 
-const makeSystemsAsync = require('./readMameXml.js').makeSystemsAsync
+const {makeSystemsAsync} = require('./readMameXml.js')
 
 //arcade scan's modules
 const {cleanJson, iniToJson, inis} = require('./arcadeScan')
@@ -27,7 +27,7 @@ MAME ini dir:           ${settings.iniDir}`
   )
   const iniDir           = settings.iniDir
   settings.mameXMLInPath || _throw(`there's no MAME XML`)
-  const  mameXMLStream   = fs.createReadStream(settings.mameXMLInPath)
+  const mameXMLStream    = fs.createReadStream(settings.mameXMLInPath)
   const datInStream      = fs.createReadStream(datInPath)
 
   //first make the promises
@@ -46,6 +46,11 @@ MAME ini dir:           ${settings.iniDir}`
         inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade), cleanJson
       )(arcade) 
 
+      //do the same for the embedded ini (we need mess.ini for embedded's 'removeBoringSystems')
+      const mungedEmbedded = R.pipe( arcade =>
+        inis.reduce( (systems, ini) => iniToJson(iniDir, ini)(systems), arcade), cleanJson
+      )(embedded) 
+
       //post process the mess json, printing out an Efind and a refreshed systems.dat along the way
       const mungedMessSystems =  R.pipe(
            cleanSoftlists
@@ -58,14 +63,11 @@ MAME ini dir:           ${settings.iniDir}`
         ,  printSystemsDat(log, existingSystemsDat, datOutPath)
         )(messSystems)
 
-      //post process the embedded json
-      /* here we pair down the imp elsewhere to print us a set of embedded systems in mess
-       * TODO: a correct output probably needs an IsMess filter (there are 
-       * about 20 items that seem too arcadey when run against mame.xml rather than mess.xml */
-      const mungedEmbedded = R.pipe(mungeCompanyAndSystemNamesEmbedded, removeBoringSystemsEmbedded)(embedded)
+      //post process the embedded json - here we pair down the imp elsewhere to print us a set of embedded systems in mess
+      const interestingEmbedded = R.pipe(mungeCompanyAndSystemNamesEmbedded, removeBoringSystemsEmbedded)(mungedEmbedded)
 
       //this will be the json that gets printed and used
-      const newSysObj = {versionInfo, arcade: mungedArcade, messSystems: mungedMessSystems, embedded: mungedEmbedded}
+      const newSysObj = {versionInfo, arcade: mungedArcade, messSystems: mungedMessSystems, embedded: interestingEmbedded}
       fs.writeFileSync(jsonOutPath, JSON.stringify(newSysObj, null, `\t`))  
       log.json && console.log(fs.readFileSync(jsonOutPath, `utf-8`)) 
 
