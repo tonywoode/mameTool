@@ -45,7 +45,7 @@ if (!process.argv.slice(2).length) {
 
 //calculate these
 const outputDir         = program.outputDir
-fs.existsSync(outputDir) || _throw(`output directory ${outputDir} doesn't exist, so Mametool can't do anything`)
+!program.scan && (fs.existsSync(outputDir) || _throw(`output directory ${outputDir} doesn't exist, so Mametool can't output any romdatas`))
 const devMode           = program.dev
 const jsonOutDir        = devMode? outputDir : `dats` //json will sit in the frontends config dir, or for dev in the passed-in dir
 const jsonOutName       = `mame.json`
