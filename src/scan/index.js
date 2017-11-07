@@ -52,8 +52,8 @@ MAME ini dir:           ${settings.iniDir}`
         ,  cleanDevices
         ,  mungeCompanyAndSystemNames
         ,  mungeCompanyForType
-        ,  makeFinalSystemTypes
-        ,  removeBoringSystems
+        ,  makeFinalSystemTypes(log)
+        ,  removeBoringSystems(log)
         ,  printEfind(efindOutPath, settings, log)
         ,  printSystemsDat(log, existingSystemsDat, datOutPath)
         )(messSystems)

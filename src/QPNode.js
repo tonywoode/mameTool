@@ -71,16 +71,17 @@ MAME exe path:          ${settings.mameExePath}`
 
 const log = {
   //datAndEfind
-    efind      : false 
-  , dat        : false 
-  , json       : false
+    efind            : false 
+  , efindProblems    : true 
+  , dat              : false 
+  , json             : false
   //softlist
-  , games      : false 
-  , choices    : false 
-  , problems   : false
-  , regions    : false 
-  , exclusions : false 
-  , printer    : true //TODO: does user see progress?
+  , games            : false 
+  , choices          : false 
+  , softlistProblems : false
+  , regions          : false 
+  , exclusions       : false 
+  , printer          : true //TODO: does user see progress?
 }
 
 //determine that location of the systems.dat

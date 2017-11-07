@@ -2,7 +2,7 @@
 
 const R = require('ramda')
 
-module.exports = systems => {
+module.exports = log => systems => {
 
    //before we replace the clone systems with the system type they are cloned from, we need to get our type property together
   const systemsWithType = R.map(obj => 
@@ -18,7 +18,7 @@ module.exports = systems => {
     const originalSystem = R.find( R.propEq(`call`, call)    )(systemsWithType)
     
     return referredSystem === undefined ? ( 
-        console.log(`PROBLEM: ${call} says its a (working) cloneof ${cloneof} but ${cloneof} is emulated badly. Setting system type to ${originalSystem.systemType}`) 
+        log.efindProblems && console.log(`PROBLEM: ${call} says its a (working) cloneof ${cloneof} but ${cloneof} is emulated badly. Setting system type to ${originalSystem.systemType}`) 
       , originalSystem.systemType
     ): referredSystem.systemType
   }
