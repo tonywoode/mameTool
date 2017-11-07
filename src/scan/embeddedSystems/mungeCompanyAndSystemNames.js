@@ -28,7 +28,7 @@ module.exports = (systems) => {
     obj => R.assoc(`company`, obj.company.replace(oldCompany, newCompany), obj) 
   )
 
-  const systRep = (thisCompany, oldsystem, newsystem) => R.map( 
+  const systMatchRep = (thisCompany, oldsystem, newsystem) => R.map( 
     obj => R.assoc(`system`, (obj.company.match(thisCompany) && obj.system.match(oldsystem))? 
       newsystem : obj.system, obj
     )
@@ -38,10 +38,11 @@ module.exports = (systems) => {
   const mungedSystems = R.pipe(
 
       compRep(/(<unknown>|<generic>)/, ``)
-    , systRep(`Acorn`, /BBC/, `BBC`), systRep(`Acorn`, /Electron/, `Atom`)
+    , systMatchRep(`Acorn`, /BBC/, `BBC`), systMatchRep(`Acorn`, /Electron/, `Atom`)
     , compRep(`Hegener & Glaser Muenchen`, `Hegener & Glaser`)
     , compRep(`John L. Weinrich`, `Weinrich`)
     , compRep(`JAKKS Pacific Inc / HotGen Ltd`, `JAKKS / Hotgen`)
+    , compRep(`Jungle Soft / Ultimate Products (HK) Ltd`, `Jungle Soft / Ultimate`)
     , compRep(`Commodore Business Machines`, `Commodore`)
     , compRep(`Elector Electronics`, `Elektor`)
     , compRep(`APF Electronics Inc.`, `APF`)
