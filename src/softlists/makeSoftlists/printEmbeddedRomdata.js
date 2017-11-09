@@ -14,12 +14,10 @@ module.exports = (settings, outputDir) => systems => {
   const mameRomdataLine = ({name, MAMEName, parentName, path, company, year, comment}) =>
     ( `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${settings.mameExe}¬${company}¬${year}¬¬¬¬¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` )
 
-  /* this is the correct invocation for retroarch but it doesn't work, even with softlist automedia off and bios enable on
-   * retroarch_debug shows it even finds the game, but then decides: 'Error: unknown option: sfach'. I've left it in in case
-   * it might be related to a mismatch in MAME versions between my fileset and retroarch */
+  /* this is the correct invocation for retroarch -note we need to call mame first, then the game name*/
   const retroarchRomdataLine = ({name, MAMEName, parentName, path, company, year, comment}) => (
       `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${settings.mameExe}¬${company}¬${year}`
-    + `¬¬¬¬-L cores\\mame_libretro.dll " ${MAMEName.replace(/"/g, '\\"')}"¬${comment}`
+    + `¬¬¬¬-L cores\\mame_libretro.dll " mame ${MAMEName.replace(/"/g, '\\"')}"¬${comment}`
     + `¬0¬1¬<IPS>¬</IPS>¬¬¬`
   )
   /*  1)  Display name, 2) _MAMEName, 3) _ParentName, 4) _ZipName, //Used Internally to store which file inside a zip file is the ROM
