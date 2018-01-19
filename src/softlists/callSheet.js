@@ -60,7 +60,9 @@ module.exports = log => systems => {
        , device        : obj.device
        , call          : obj.call
        , cloneof       : obj.cloneof
-
+        //the mamename of games turn out only to be unique per DEVICE, so later we will need to compare gamenames against all the other softlists for this system
+        // so, before we lose the link, save out the other softlists each system has TODO: may need to lose the 'status: compatible' systems later
+       , otherSoftlists : R.filter( othersoftlist => othersoftlist.name !== softlist.name, obj.softlist)
       })
     , obj.softlist)
   , replaceDevice)
