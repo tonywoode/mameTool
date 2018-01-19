@@ -9,7 +9,7 @@ const filterSoftlists      = require('./filterSoftlists.js')
 const chooseDefaultEmus    = require('./chooseDefaultEmus.js')
 
 const {cleanSoftlist, makeParams, printSoftlistRomdata
-     , printEmbeddedRomdata, readSoftlistXML, setRegionalEmu} = require('./makeSoftlists')
+     , printEmbeddedRomdata, readSoftlistXML, setRegionalEmu, readOtherSoftlistNames} = require('./makeSoftlists')
 
 const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
 
@@ -25,6 +25,7 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
           const softlistParams = makeParams(settings, hashDir, outputDir, emu)
           readSoftlistXML(softlistParams.xml, softlist => {
             const cleanedSoftlist = cleanSoftlist(softlist)
+            const otherGameParams = readOtherSoftlistNames(settings, hashDir, emu)
             printSoftlistRomdata(settings, softlistParams, setRegionalEmu, cleanedSoftlist, log)
           })
         }, emuSystems)
@@ -32,8 +33,14 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
     return emuSystems
   }
 
+  const printit = json => {
+    fs.writeFileSync('./deleteme.json', JSON.stringify(json, null, `\t`))
+    process.exit()
+    return json
+  }
  //program flow at list level
   R.pipe(
+      //printit
       callSheet(log)
     , filterSoftlists(hashDir, log)
     , chooseDefaultEmus(log)
