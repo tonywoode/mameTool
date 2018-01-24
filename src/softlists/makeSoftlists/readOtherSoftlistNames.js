@@ -14,10 +14,10 @@ module.exports = (hashDir, softlist, callback) => {
  
   //maybe this is the best way you're gonna get to manually code a Promise.all with callbacks
   //https://stackoverflow.com/a/36879062/3536094
-  const finito = (thisSoftlistsOtherGameNames, num) => {if (num === otherSoftlistDevices.length-1){ callback(thisSoftlistsOtherGameNames)} }
+  const finito = (thisSoftlistsOtherGameNames, num) => {if (num === otherSoftlistDevices.length){ callback(thisSoftlistsOtherGameNames)} }
 
-      var num = 0
-  if (otherSoftlistDevices.length >0) { 
+  if (otherSoftlistDevices.length > 0) { 
+    var num = 0
     R.map( name => {
       const stream = fs.createReadStream(`${hashDir}${name}.xml`)
       const xml    = new XmlStream(stream)
@@ -30,5 +30,6 @@ module.exports = (hashDir, softlist, callback) => {
       })
     }, otherSoftlistDevices)
   }
+  else { callback(thisSoftlistsOtherGameNames) }
 }  
 
