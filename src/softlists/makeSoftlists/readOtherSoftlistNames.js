@@ -16,9 +16,9 @@ module.exports = (hashDir, softlist, callback) => {
   //https://stackoverflow.com/a/36879062/3536094
   const finito = (thisSoftlistsOtherGameNames, num) => {if (num === otherSoftlistDevices.length-1){ callback(thisSoftlistsOtherGameNames)} }
 
+      var num = 0
   if (otherSoftlistDevices.length >0) { 
     R.map( name => {
-      var num = 0
       const stream = fs.createReadStream(`${hashDir}${name}.xml`)
       const xml    = new XmlStream(stream)
       readSoftlistForGamenames(xml, name, softlist, names => {
