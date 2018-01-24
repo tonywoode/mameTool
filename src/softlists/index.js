@@ -25,9 +25,10 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
           const softlistParams = makeParams(settings, hashDir, outputDir, emu)
           readSoftlistXML(softlistParams.xml, softlist => {
             const cleanedSoftlist = cleanSoftlist(softlist)
-            readOtherSoftlistNames(hashDir, emu, callback => {
-              console.log(`some other games of ${emu.name}: ${JSON.stringify(callback)}`)
-              printSoftlistRomdata(settings, softlistParams, setRegionalEmu, cleanedSoftlist, log)
+            readOtherSoftlistNames(hashDir, emu, thisSoftlistsOtherGameNames => {
+              console.log(`\nMade other gamenames list for ${emu.name}${JSON.stringify(thisSoftlistsOtherGameNames, null, '\t')}`)
+              const softlistParamsPlusNames = R.assoc( `otherGameNames`, thisSoftlistsOtherGameNames, softlistParams)  
+              printSoftlistRomdata(settings, softlistParamsPlusNames, setRegionalEmu, cleanedSoftlist, log)
             })
           })
         }, emuSystems)
