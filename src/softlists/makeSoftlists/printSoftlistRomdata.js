@@ -47,6 +47,28 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
+    //MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
+    //  machine may have identical gamenames. However, it gets worse: we  can't just ALWAYS disambiguate by calling the
+    //  device ("famicom -flop1 smb2), because MESS also performs multi-disc loading with just a mamename (so calling 
+    //  "-flop1" will break it). So check whether there is an original (its a hunch!) gamename conflict and only apply a flag if there is 
+    
+    //to start with we don't want to do any work if there are no other softlists
+    if (softlistParams.thisEmulator.otherSoftlists.length) { 
+      if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} has some other softlists`)
+
+    const isOriginal = softlist => softlist.name === `original`
+    const originalOtherSoftlists = R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists)
+
+    if ( softlistParams.name === "a800_flop" ) { 
+      console.log(softlistParams.thisEmulator.otherSoftlists)
+    process.exit()
+    }
+    //const originalSoftlists = 
+
+    //const deviceFlagNeeded = 
+    }
+    else{ if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} has no other softlists, don't make any device flags`) }
+    
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
       , MAMEName    : obj.call
