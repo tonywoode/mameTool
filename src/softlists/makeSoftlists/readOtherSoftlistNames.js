@@ -10,11 +10,7 @@ module.exports = (hashDir, softlist, log, callback) => {
   //todo: actually we aren't taking the game names from ALL softlists - maybe that would be quicker?
   const thisSoftlistsOtherGameNames = {}
   R.map( emu => otherSoftlistDevices.push(emu.name), softlist.otherSoftlists)
-  if (log.otherGameNames) {
-    otherSoftlistDevices.length?  
-      console.log(`${softlist.name} has other softlists: ${JSON.stringify(otherSoftlistDevices)}`)
-    : console.log(`${softlist.name} has no other softlists`)
-  }
+
   //maybe this is the best way you're gonna get to manually code a Promise.all with callbacks
   //https://stackoverflow.com/a/36879062/3536094
   const finito = (thisSoftlistsOtherGameNames, num) => {
@@ -24,6 +20,7 @@ module.exports = (hashDir, softlist, log, callback) => {
   }
 
   if (otherSoftlistDevices.length) { 
+    if (log.otherSoftlists) console.log(`${softlist.name} on same system: ${JSON.stringify(otherSoftlistDevices)}`)
     var num = 0
     R.map( name => {
       const stream = fs.createReadStream(`${hashDir}${name}.xml`)

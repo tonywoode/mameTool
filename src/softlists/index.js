@@ -26,8 +26,11 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
           readSoftlistXML(softlistParams.xml, softlist => {
             const cleanedSoftlist = cleanSoftlist(softlist)
             readOtherSoftlistNames(hashDir, emu, log, thisSoftlistsOtherGameNames => {
-              if (log.otherGameNames) console.log(`Made otherGames list for ${emu.name}: ${JSON.stringify(thisSoftlistsOtherGameNames, null, '\t')}`)
-              const softlistParamsPlusNames = R.assoc( `otherGameNames`, thisSoftlistsOtherGameNames, softlistParams)  
+              var softlistParamsPlusNames = softlistParams //TODO: done to not make an empty object key if there arent otherSoftlists
+              if (!R.isEmpty(thisSoftlistsOtherGameNames)) {
+                if (log.otherSoftlists) console.log(`Made otherGames list for ${emu.name}: ${JSON.stringify(thisSoftlistsOtherGameNames, null, '')}`)
+                softlistParamsPlusNames = R.assoc( `otherGameNames`, thisSoftlistsOtherGameNames, softlistParams) 
+              }
               printSoftlistRomdata(settings, softlistParamsPlusNames, setRegionalEmu, cleanedSoftlist, log)
             })
           })
