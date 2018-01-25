@@ -54,10 +54,12 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     
     //to start with we don't want to do any work if there are no other softlists
     if (softlistParams.thisEmulator.otherSoftlists.length) { 
-      if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} has some other softlists`)
+      if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} other softlists: ${R.keys(softlistParams.otherGameNames)}...checking`)
 
-    const isOriginal = softlist => softlist.name === `original`
+    const isOriginal = softlist => softlist.status === `original`
     const originalOtherSoftlists = R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists)
+
+    console.log(`Original softlists of ${softlistParams.thisEmulator.name} are ${R.pluck('name', originalOtherSoftlists)}`) 
 
    // if ( softlistParams.name === "a800_flop" ) { 
     //  console.log(softlistParams.thisEmulator.otherSoftlists)

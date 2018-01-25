@@ -80,8 +80,8 @@ const log = {
   , games            : false 
   , choices          : false 
   , softlistProblems : false
-  , otherSoftlists   : true
-  , otherGameNames   : false
+  , otherSoftlists   : false
+  , otherGameNames   : true
   , regions          : false 
   , exclusions       : false 
   , printer          : true //TODO: does user see progress?
