@@ -5,18 +5,25 @@ const XmlStream = require('xml-stream')
 const R         = require('ramda')
 const readSoftlistForGamenames = require('./readGameNamesFromXML.js')
 
-module.exports = (hashDir, softlist, callback) => {
+module.exports = (hashDir, softlist, log, callback) => {
   const otherSoftlistDevices = []
   //todo: actually we aren't taking the game names from ALL softlists - maybe that would be quicker?
   const thisSoftlistsOtherGameNames = {}
   R.map( emu => otherSoftlistDevices.push(emu.name), softlist.otherSoftlists)
-  console.log(`${softlist.name} has other softlists: ${JSON.stringify(otherSoftlistDevices)}`)
- 
+  if (log.otherGameNames) {
+    otherSoftlistDevices.length?  
+      console.log(`${softlist.name} has other softlists: ${JSON.stringify(otherSoftlistDevices)}`)
+    : console.log(`${softlist.name} has no other softlists`)
+  }
   //maybe this is the best way you're gonna get to manually code a Promise.all with callbacks
   //https://stackoverflow.com/a/36879062/3536094
-  const finito = (thisSoftlistsOtherGameNames, num) => {if (num === otherSoftlistDevices.length){ callback(thisSoftlistsOtherGameNames)} }
+  const finito = (thisSoftlistsOtherGameNames, num) => {
+    if (num === otherSoftlistDevices.length){ 
+      callback(thisSoftlistsOtherGameNames)
+    } 
+  }
 
-  if (otherSoftlistDevices.length > 0) { 
+  if (otherSoftlistDevices.length) { 
     var num = 0
     R.map( name => {
       const stream = fs.createReadStream(`${hashDir}${name}.xml`)

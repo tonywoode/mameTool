@@ -59,15 +59,15 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     const isOriginal = softlist => softlist.name === `original`
     const originalOtherSoftlists = R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists)
 
-    if ( softlistParams.name === "a800_flop" ) { 
-      console.log(softlistParams.thisEmulator.otherSoftlists)
-    process.exit()
-    }
+   // if ( softlistParams.name === "a800_flop" ) { 
+    //  console.log(softlistParams.thisEmulator.otherSoftlists)
+   // process.exit()
+   // }
     //const originalSoftlists = 
 
     //const deviceFlagNeeded = 
     }
-    else{ if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} has no other softlists, don't make any device flags`) }
+    //else{ if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} has no other softlists, don't make any device flags`) }
     
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
