@@ -66,25 +66,26 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   const match = (otherGameName, ourGameName) => otherGameName === ourGameName
   //this will see if a gamename exists in a list of gamenames
   const checkMameNameInNameList = (ourGameName, gameNames, otherSoftlistBeingChecked) => {
-    if (log.otherGameNames) console.log(` **** checking ${ourGameName} against: ${otherSoftlistBeingChecked}`)
-    R.any(otherGameName => match(otherGameName, ourGameName))(gameNames)
+    //if (log.otherGameNames) console.log(` **** checking ${ourGameName} against: ${otherSoftlistBeingChecked}`)
+    const result = R.any(otherGameName => match(otherGameName, ourGameName))(gameNames)
+    if ( result ) {
+      console.log(   ` **** SOFTLIST NAME CONFLICT: ${ourGameName} in ${softlistParams.thisEmulator.name} conflicts with ${otherSoftlistBeingChecked}`)
+     // process.exit()
+    }
+    return result
   }
   //and this will check each original softlist in turn
   const checkOriginalSoflistNames = ourGameName => {
     R.map(otherSoftlistBeingChecked => 
       checkMameNameInNameList(ourGameName, softlistParams.otherGameNames[otherSoftlistBeingChecked], otherSoftlistBeingChecked), originalOtherSoftlists)
   }
-  //const getEachOtherSoftlistsGameNames = () => R.map(list => 
-  //  R.map( name => return name, softlistParams.otherGameNames.list
-  //, originalOtherSoftlists )
-  //const names = getEachOtherSoftlistsGameNames()
 
   //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = (obj, settings)  => R.map( obj => {
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
-    const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.name) : false
+    const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
 
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
