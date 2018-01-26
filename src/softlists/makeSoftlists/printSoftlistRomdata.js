@@ -41,36 +41,51 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       
     return comments
   }
- 
+
+  //MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
+  //  machine may have identical gamenames. However, it gets worse: we  can't just ALWAYS disambiguate by calling the
+  //  device ("famicom -flop1 smb2), because MESS also performs multi-disc loading with just a mamename (so calling 
+  //  "-flop1" will break it). So check whether there is an original (its a hunch!) gamename conflict and only apply a flag if there is 
+  var originalOtherSoftlists = []
+  //to start with we don't want to do any work if there are no other softlists
+  if (softlistParams.thisEmulator.otherSoftlists.length) { 
+    if (log.otherGameNames) {
+      console.log(`   ----> ${softlistParams.thisEmulator.name} other softlists: ${R.keys(softlistParams.otherGameNames)}`)
+    }
+  //next remove the 'compatible' ones (TODO: test the effect of this)
+  const isOriginal = softlist => softlist.status === `original`
+  originalOtherSoftlists = R.pluck('name', R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists))
+  originalOtherSoftlists.length?  
+    console.log(`        ----> ${softlistParams.thisEmulator.name}: Original softlists ${originalOtherSoftlists}`) 
+   : 
+    console.log(`      ----> ${softlistParams.thisEmulator.name}: No Original Softlists`)
+  }
+  
+  //next the function. so we need to say: for each of the softlists in originalOtherSoftlists, find that as a key in the softlist names, and see if it has our gamename
+  //this tests for equality
+  const match = (otherGameName, ourGameName) => otherGameName === ourGameName
+  //this will see if a gamename exists in a list of gamenames
+  const checkMameNameInNameList = (ourGameName, gameNames, otherSoftlistBeingChecked) => {
+    if (log.otherGameNames) console.log(` **** checking ${ourGameName} against: ${otherSoftlistBeingChecked}`)
+    R.any(otherGameName => match(otherGameName, ourGameName))(gameNames)
+  }
+  //and this will check each original softlist in turn
+  const checkOriginalSoflistNames = ourGameName => {
+    R.map(otherSoftlistBeingChecked => 
+      checkMameNameInNameList(ourGameName, softlistParams.otherGameNames[otherSoftlistBeingChecked], otherSoftlistBeingChecked), originalOtherSoftlists)
+  }
+  //const getEachOtherSoftlistsGameNames = () => R.map(list => 
+  //  R.map( name => return name, softlistParams.otherGameNames.list
+  //, originalOtherSoftlists )
+  //const names = getEachOtherSoftlistsGameNames()
+
   //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = (obj, settings)  => R.map( obj => {
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
-    //MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
-    //  machine may have identical gamenames. However, it gets worse: we  can't just ALWAYS disambiguate by calling the
-    //  device ("famicom -flop1 smb2), because MESS also performs multi-disc loading with just a mamename (so calling 
-    //  "-flop1" will break it). So check whether there is an original (its a hunch!) gamename conflict and only apply a flag if there is 
-    
-    //to start with we don't want to do any work if there are no other softlists
-    if (softlistParams.thisEmulator.otherSoftlists.length) { 
-      if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} other softlists: ${R.keys(softlistParams.otherGameNames)}...checking`)
+    const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.name) : false
 
-    const isOriginal = softlist => softlist.status === `original`
-    const originalOtherSoftlists = R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists)
-
-    console.log(`Original softlists of ${softlistParams.thisEmulator.name} are ${R.pluck('name', originalOtherSoftlists)}`) 
-
-   // if ( softlistParams.name === "a800_flop" ) { 
-    //  console.log(softlistParams.thisEmulator.otherSoftlists)
-   // process.exit()
-   // }
-    //const originalSoftlists = 
-
-    //const deviceFlagNeeded = 
-    }
-    //else{ if (log.otherGameNames) console.log(`${obj.name}: ${softlistParams.thisEmulator.name} has no other softlists, don't make any device flags`) }
-    
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
       , MAMEName    : obj.call
