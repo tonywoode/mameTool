@@ -110,7 +110,7 @@ module.exports = (hashDir, log) => softlistEmus => {
   //there are some issues that prevent games from working, make it difficult for games to work, or break reasonable expectations I later want to rely on in the code (a system's softlist should be the same system type as the system its running) So manually pick these now by bumping their ratings
   
   const  ratingLens = R.lensProp('rating')
-  const  setHigh = obj =>  R.set(ratingLens, 100)(obj)
+  const  setHigh = R.set(ratingLens, 100)
 
   const hardCodeDefaults = R.pipe(
     //Cannot figure out how to load from the corrupt-looking original apple2 dos. Apple2e just works for loading games
