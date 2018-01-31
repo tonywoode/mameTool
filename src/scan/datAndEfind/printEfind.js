@@ -64,6 +64,22 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
 
   )(systems)
  
+  //some softlists for nes and snes are exceptional in that they emulate a special 'cartridge' that a different
+  //  kind of cartridge plugs into.
+  const softlistCartExceptions = (softlistName, call) => {
+    const exceptions = {
+        nes_ade : "ade"
+      , nes_ntbrom : "ntb"
+      , nes_kstudio : "karaoke"
+      , nes_datach: "datach"
+      , snes_bspack: "bsx"
+      , snes_strom: "sufami"
+      , snes_vkun: "tbc - not found"
+    }
+
+    return softlistName in exceptions? `-cart ${exceptions[softlistName]} -cart2 ` : call 
+  }
+
   //create the vars which will populate each instance of the EfindTemplate, first for each machine's softlist (if they exist)
   //topLine here becomes the Emulator name for softlist generation. Save it back into the object while we have it
   const softlistEfinderToPrint = obj => R.map(softlist => {
@@ -73,7 +89,7 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
     const params = {
         topLine    : emulatorName
       , systemType : obj.systemType
-      , callToMake : `${obj.call} %ROMMAME%` //for we are running from a generated soflist romdata.dat
+      , callToMake : `${softlistCartExceptions(softlist.name, obj.call)} %ROMMAME%` //for we are running from a generated soflist romdata.dat
       , info       : `http://mameworld.info` //we don't have anything but a url to tell you about with softlists
     }
     settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
