@@ -7,6 +7,7 @@ module.exports = (xml, callback) => {
   xml.collect(`info`)
   xml.collect(`sharedfeat`)
   xml.collect(`feature`)
+  xml.collect(`part`)
   xml.on(`updateElement: software`, software => {
     if (
           software.$.supported !== `no` 
@@ -25,8 +26,8 @@ module.exports = (xml, callback) => {
       node.company       = software.publisher
       node.info          = software.info
       node.sharedfeature = software.sharedfeat
-      node.feature       = software.part.feature
-      node.loadsWith     = software.part.$.interface //reserved js word
+      node.part          = software.part
+      //node.loadsWith     = software.part.$.interface //reserved js word
       softlist.push(node)
     }
   })
