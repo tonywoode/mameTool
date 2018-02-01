@@ -71,20 +71,21 @@ MAME exe path:          ${settings.mameExePath}`
 
 const log = {
   //datAndEfind
-    efindProblems    : devMode 
+    efindProblems      : devMode 
   //the data/efind/scan artifacts
-  , dat              : false 
-  , efind            : false 
-  , json             : false
+  , dat                : false 
+  , efind              : false 
+  , json               : false
   //softlist
-  , games            : false 
-  , choices          : false
-  , softlistProblems : false
-  , otherSoftlists   : false
-  , otherGameNames   : false
-  , regions          : false 
-  , exclusions       : false 
-  , printer          : true //TODO: does user see progress?
+  , games              : false 
+  , choices            : false
+  , softlistProblems   : false
+  , otherSoftlists     : false
+  , otherGameNames     : false
+  , otherGameConflicts : true
+  , regions            : false 
+  , exclusions         : false 
+  , printer            : true //TODO: does user see progress?
 }
 
 //determine that location of the systems.dat

@@ -51,25 +51,25 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     if (log.otherGameNames) {
       console.log(`   ----> ${softlistParams.thisEmulator.name} other softlists: ${R.keys(softlistParams.otherGameNames)}`)
     }
-  //next remove the 'compatible' ones (TODO: test the effect of this)
-  const isOriginal = softlist => softlist.status === `original`
-  originalOtherSoftlists = R.pluck('name', R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists))
-  originalOtherSoftlists.length?  
-    console.log(`        ----> ${softlistParams.thisEmulator.name}: Original softlists ${originalOtherSoftlists}`) 
-   : 
-    console.log(`      ----> ${softlistParams.thisEmulator.name}: No Original Softlists`)
+    //next remove the 'compatible' ones (TODO: test the effect of this)
+    const isOriginal = softlist => softlist.status === `original`
+    originalOtherSoftlists = R.pluck('name', R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists))
+    if (log.otherGameNames) {
+      originalOtherSoftlists.length?  
+        console.log(`        ----> ${softlistParams.thisEmulator.name}: Original softlists ${originalOtherSoftlists}`) 
+       : 
+        console.log(`      ----> ${softlistParams.thisEmulator.name}: No Original Softlists`)
+    }
   }
-  
   //next the function. so we need to say: for each of the softlists in originalOtherSoftlists, find that as a key in the softlist names, and see if it has our gamename
+  
   //this tests for equality
   const match = (otherGameName, ourGameName) => otherGameName === ourGameName
   //this will see if a gamename exists in a list of gamenames
   const checkMameNameInNameList = (ourGameName, gameNames, otherSoftlistBeingChecked) => {
-    //if (log.otherGameNames) console.log(` **** checking ${ourGameName} against: ${otherSoftlistBeingChecked}`)
     const result = R.any(otherGameName => match(otherGameName, ourGameName))(gameNames)
-    if ( result ) {
+    if ( result && log.otherGameConflicts ) {
       console.log(   ` **** SOFTLIST NAME CONFLICT: ${ourGameName} in ${softlistParams.thisEmulator.name} conflicts with ${otherSoftlistBeingChecked}`)
-     // process.exit()
     }
     return result
   }
@@ -89,10 +89,16 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = (obj, settings)  => R.map( obj => {
 
+    //let's just hijack this for a moment to print out all the 'interface names' from the softlists 
+   
+    const device_interface = []
+    const device_name = []
+    //console.log(obj.part[0].interface)
+    //console.log(obj.part[0].name)
+
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
-
     
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
