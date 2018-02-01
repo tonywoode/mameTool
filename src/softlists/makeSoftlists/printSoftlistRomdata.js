@@ -75,8 +75,10 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   }
   //and this will check each original softlist in turn
   const checkOriginalSoflistNames = ourGameName => {
-    R.map(otherSoftlistBeingChecked => 
+    const result = R.map(otherSoftlistBeingChecked => 
       checkMameNameInNameList(ourGameName, softlistParams.otherGameNames[otherSoftlistBeingChecked], otherSoftlistBeingChecked), originalOtherSoftlists)
+    //result will now be an array (because each other softlist has been compared to one game name from this softlist). if any of the items is true, we return true
+    return result.includes(true)
   }
 
   //in order to print a feature comment, we need to loop through the part array
@@ -99,7 +101,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
-    
+   console.log(doWeNeedToSpecifyDevice) 
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
       , MAMEName    : obj.call
