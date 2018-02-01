@@ -27,7 +27,8 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
    * 12)  _Parameters : String, 13)  _Comment, 14)  _ParamMode : TROMParametersMode; //type of parameter mode
    * 15)  _Rating, 16)  _NumPlay, 17)  IPS start, 18)  IPS end, 19)  _DefaultGoodMerge : String; //The user selected default GoodMerge ROM */
 
-  //for a system, takes the simple and homomorphic arrays of feature, info and sharedFeat and turns them into an array of comments to be printed
+  //for a system, takes the simple and homomorphic arrays: part/feature, info and sharedFeat 
+  //  (ie: they all have keys named the smae) and turns them into an array of comments to be printed
   const createComment = commentCandidates => {
     const comments = []  
     R.map(commentCandidate => {
@@ -87,6 +88,10 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
 
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
 
+    //in order to print a feature comment, we need to loop through the part array
+    const makeFeature = partKey => createComment(R.map( part => part.feature, partKey))
+    const featureComment = makeFeature(obj[`part`]).toString()
+
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
       , MAMEName    : obj.call
@@ -95,11 +100,10 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       , emu         : emuWithRegionSet //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
       , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
       , year        : obj.year
-      , comment     : createComment({ //need to loop through all three of feaures, info and shared feat to make comments, see the DTD    
-          feature   : obj.feature
-        , info      : obj.info
+      , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
+          info      : obj.info
         , sharedFeat: obj.sharedFeat
-      })
+      }) } ${makeFeature(obj[`part`]).toString()}` 
       
     }
     return settings.isItRetroArch? retroarchRomdataLine(romParams) : mameRomdataLine(romParams)
