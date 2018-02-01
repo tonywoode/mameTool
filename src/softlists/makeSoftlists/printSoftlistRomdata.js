@@ -93,6 +93,10 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
 
     //console.log(obj.part[0].interface)
     //console.log(obj.part[0].name)
+    const theLastChar = str => str.slice(-1)
+    const isTheLastCharAOne = str => theLastChar(str) === `1`
+    const postfixOneIfNecessary = str => isTheLastCharAOne(str)? str : `${str}1`
+    const addHypen = str => `-${str}`
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
