@@ -9,7 +9,7 @@ const R = require('ramda')
 module.exports = softlist => {
   //I removed destructuring elsewhere but here the object isn't going to grow
   const cleanPairs = (key, name, value)  => R.map( ({ $ }) => ( ({ [name]:$.name, [value]:$.value }) ) , key )
-  const cleanPart = partKey  => R.map( ({ feature, dataarea, $ }) => ( ({ feature, dataarea, name:$.name, interface:$.interface }) ) , partKey )
+  const cleanPart = partKey  => R.map( ({ feature, $ }) => ( ({ feature, name:$.name, interface:$.interface }) ) , partKey )
   
   const replacePart = list => R.map( obj => R.assoc(`part`, cleanPart(obj.part), obj), list)
 
@@ -39,7 +39,7 @@ module.exports = softlist => {
     , replaceIfKey(`sharedFeat`, `name`, `value`)
   )(softlist)
 
-   console.log(JSON.stringify(replacedSharedFeat, null, '\t')); process.exit()
-  process.exit()
+  // console.log(JSON.stringify(replacedSharedFeat, null, '\t')); process.exit()
+  //process.exit()
   return replacedSharedFeat
 }
