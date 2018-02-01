@@ -85,7 +85,7 @@ const log = {
   , otherGameConflicts : true
   , regions            : false 
   , exclusions         : false 
-  , printer            : true //TODO: does user see progress?
+  , printer            : false //TODO: does user see progress?
 }
 
 //determine that location of the systems.dat

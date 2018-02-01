@@ -91,17 +91,14 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = (obj, settings)  => R.map( obj => {
 
-    //let's just hijack this for a moment to print out all the 'interface names' from the softlists 
-   
-    const device_interface = []
-    const device_name = []
     //console.log(obj.part[0].interface)
     //console.log(obj.part[0].name)
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
 
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
-   console.log(doWeNeedToSpecifyDevice) 
+    if (doWeNeedToSpecifyDevice && log.otherGameConflicts) console.log(`   ---> disambiguate by printing device     -${obj.part[0].name}`)
+
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
       , MAMEName    : obj.call
