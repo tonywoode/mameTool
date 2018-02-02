@@ -108,7 +108,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       , MAMEName    : obj.call
       , parentName  : obj.cloneof?  obj.cloneof : ``
       , path
-      , emu         : emuWithRegionSet //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
+      , emu         : emuWithRegionSet.emulatorName //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
       , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
       , year        : obj.year
       , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
