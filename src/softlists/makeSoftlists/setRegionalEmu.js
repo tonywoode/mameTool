@@ -105,11 +105,13 @@ const setRegionalEmu = (log, gameName, emu, regionalEmus) => {
   gameCountry? (
     emuRegionalNames? (
      log.games? console.log(`${gameName} is ${gameCountry} so use one of ${emuRegionalNames}`) : ''
-      , regionalEmulator = chooseRegionalEmu(log, gameCountry, emuRegionalNames, gameName)
+      , regionalEmulator = chooseRegionalEmu(log, gameCountry, emuRegionalNames, emu.emulatorName)
     ): log.games? console.log(`${gameName} only has one emu so use default ${emuName}`) : ''
   ) : log.games? console.log(`${gameName} doesnt need a regional emu, use default ${emuName}`) : ''
 
-  if (!R.isEmpty(regionalEmulator)) chosenEmulator = R.find(R.propEq(`emulatorName`, regionalEmulator))(regionalEmus)
+  if (!R.isEmpty(regionalEmulator)) {
+    chosenEmulator = R.find(R.propEq(`emulatorName`, regionalEmulator))(regionalEmus)
+  }
     console.log(`chosen regional emu for ${gameName} is ${chosenEmulator.emulatorName}`) 
   
 return chosenEmulator
