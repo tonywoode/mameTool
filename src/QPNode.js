@@ -81,10 +81,10 @@ const log = {
   , choices            : false
   , softlistProblems   : false
   , otherSoftlists     : false
-  , otherGameNames     : false
-  , otherGameConflicts : false
-  , regions            : true 
-  , regionsGames       : true 
+  , otherGameNames     : true
+  , otherGameConflicts : true
+  , regions            : false 
+  , regionsGames       : false 
   , exclusions         : false 
 }
 

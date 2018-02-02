@@ -93,15 +93,24 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
 
     //console.log(obj.part[0].interface)
     //console.log(obj.part[0].name)
+    //it would be tempting to think that the postfix of the first part's device name in a softlist entry
+    //  is the same as how the emulator would call it, but flop1 in the softlist part name means its the first
+    //  disk in the box, not that it loads in its repsective emulators by using device -'flop1'
     const theLastChar = str => str.slice(-1)
     const isTheLastCharAOne = str => theLastChar(str) === `1`
-    const postfixOneIfNecessary = str => isTheLastCharAOne(str)? str : `${str}1`
+    const isTheLastCharAZero = str => theLastChar(str) === `0`
+    const postfixLastDigitIfNecessary = str => { 
+      return  isTheLastCharAOne(str)? str 
+        : isTheLastCharAZero(str)? `${str.slice(0, -1)}1`
+          : `${str}1`
+    }
     const addHypen = str => `-${str}`
+    const partNameToDeviceCall = str => addHypen(postfixLastDigitIfNecessary(str))
 
     const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
 
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
-    if (doWeNeedToSpecifyDevice && log.otherGameConflicts) console.log(`   ---> disambiguate by printing device     -${obj.part[0].name}`)
+    if (doWeNeedToSpecifyDevice && log.otherGameConflicts) console.log(`   ---> disambiguate by printing device ${partNameToDeviceCall(obj.part[0].name)}`)
 
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
