@@ -98,7 +98,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     const postfixOneIfNecessary = str => isTheLastCharAOne(str)? str : `${str}1`
     const addHypen = str => `-${str}`
 
-    const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator.emulatorName, softlistParams.thisEmulator.regions)
+    const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
 
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
     if (doWeNeedToSpecifyDevice && log.otherGameConflicts) console.log(`   ---> disambiguate by printing device     -${obj.part[0].name}`)

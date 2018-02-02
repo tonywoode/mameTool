@@ -78,14 +78,14 @@ const log = {
   , json               : false
   //softlist
   , games              : false 
-  , choices            : false
+  , choices            : true
   , softlistProblems   : false
   , otherSoftlists     : false
   , otherGameNames     : false
   , otherGameConflicts : true
-  , regions            : false 
+  , regions            : true 
   , exclusions         : false 
-  , printer            : false //TODO: does user see progress?
+  , printer            : true //TODO: does user see progress?
 }
 
 //determine that location of the systems.dat

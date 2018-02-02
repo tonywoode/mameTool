@@ -53,14 +53,15 @@ module.exports = log => softlistEmus => {
           log.choices? console.log(`---->>>> matches ${rejected.emulatorName}`) : ''
             //add them to a key "regions", but filter by softlist name otherwise Atari 800 (NTSC) -SOFTLIST a800 matches Atari 800 (PAL) -SOFTLIST a800_flop
           , defaultEmu.name === rejected.name ? (  
-                regionals.push(rejected.emulatorName) 
-              , log.choices? console.log(regionals) : ''
+                regionals.push(rejected) 
+              , log.choices? console.log(`Regionals now contains ${R.pluck(`emulatorName`, regionals)}`) : ''
           ): null
         )
         : null, rejectedEmus)
         if (regionals[0]) {
             //add the original emu name to the list here, it does help the picker logic later, even though NTSC is generally the default
-            regionals.push(defaultEmu.emulatorName)
+            // TODO: note this causes a circular reference since the default emu contains in it the regional emus which now contains itself...
+            regionals.push(defaultEmu)
             //put the list in the default emulators object
           , defaultEmu.regions = regionals 
         }

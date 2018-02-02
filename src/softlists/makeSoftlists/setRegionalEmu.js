@@ -87,18 +87,31 @@ const whichStandardIsThisRegionFor = R.cond([
 ])
 
 
-const setRegionalEmu = (log, gameName, emuName, emuRegionalNames) => {
-
+const setRegionalEmu = (log, gameName, emu, regionalEmus) => {
+  // TODO: for games that need device specifying, i had to alter the other emulators list here to be objects not just
+  //  emulator name (because the emu call needs to pass down too. Altering the below became complex not least
+  //  because of the circular reference in default emu. As a quick-fix, still provide just the emu names to the code below
+  //  and look it up again after processing
+  const emuName = emu.emulatorName
+  var emuRegionalNames = ``
+  if (regionalEmus !== undefined) {
+    //console.log(regionalEmus)
+    emuRegionalNames = R.pluck(`emulatorName`, regionalEmus)
+  }
   //choose emu on a game-by-game basis
   const gameCountry = whichCountryIsThisGameFor(gameName) 
-  let chosenEmulator = emuName //if it all goes wrong return default
+  let regionalEmulator = {}
+  let chosenEmulator = emu //if it all goes wrong return default
   gameCountry? (
     emuRegionalNames? (
      log.games? console.log(`${gameName} is ${gameCountry} so use one of ${emuRegionalNames}`) : ''
-      , chosenEmulator = chooseRegionalEmu(log, gameCountry, emuRegionalNames, gameName)
+      , regionalEmulator = chooseRegionalEmu(log, gameCountry, emuRegionalNames, gameName)
     ): log.games? console.log(`${gameName} only has one emu so use default ${emuName}`) : ''
   ) : log.games? console.log(`${gameName} doesnt need a regional emu, use default ${emuName}`) : ''
 
+  if (!R.isEmpty(regionalEmulator)) chosenEmulator = R.find(R.propEq(`emulatorName`, regionalEmulator))(regionalEmus)
+    console.log(`chosen regional emu for ${gameName} is ${chosenEmulator.emulatorName}`) 
+  
 return chosenEmulator
 
 }
