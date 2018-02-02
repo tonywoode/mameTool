@@ -77,15 +77,15 @@ const log = {
   , efind              : false 
   , json               : false
   //softlist
-  , games              : false 
-  , choices            : true
+  , printer            : true //prints softlist names as syncrhonously printed, leave on
+  , choices            : false
   , softlistProblems   : false
   , otherSoftlists     : false
   , otherGameNames     : false
-  , otherGameConflicts : true
+  , otherGameConflicts : false
   , regions            : true 
+  , regionsGames       : true 
   , exclusions         : false 
-  , printer            : true //TODO: does user see progress?
 }
 
 //determine that location of the systems.dat

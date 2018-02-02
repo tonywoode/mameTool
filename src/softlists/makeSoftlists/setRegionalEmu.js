@@ -104,15 +104,16 @@ const setRegionalEmu = (log, gameName, emu, regionalEmus) => {
   let chosenEmulator = emu //if it all goes wrong return default
   gameCountry? (
     emuRegionalNames? (
-     log.games? console.log(`${gameName} is ${gameCountry} so use one of ${emuRegionalNames}`) : ''
+     log.regionsGames && console.log(`  -> ${gameName} is ${gameCountry} so use one of ${emuRegionalNames}`)
+      , log.regions && console.log(`   * seeking region for ${gameName}`)
       , regionalEmulator = chooseRegionalEmu(log, gameCountry, emuRegionalNames, emu.emulatorName)
-    ): log.games? console.log(`${gameName} only has one emu so use default ${emuName}`) : ''
-  ) : log.games? console.log(`${gameName} doesnt need a regional emu, use default ${emuName}`) : ''
+    ) : log.regionsGames && console.log(`  ->  ${gameName} only has one emu so use default ${emuName}`)
+  ) : log.regionsGames && console.log(`  -> ${gameName} doesnt need a regional emu, use default ${emuName}`)
 
   if (!R.isEmpty(regionalEmulator)) {
     chosenEmulator = R.find(R.propEq(`emulatorName`, regionalEmulator))(regionalEmus)
   }
-    console.log(`chosen regional emu for ${gameName} is ${chosenEmulator.emulatorName}`) 
+    log.regionsGames && console.log(`    -> chosen regional emu for ${gameName} is ${chosenEmulator.emulatorName}`) 
   
 return chosenEmulator
 
@@ -124,7 +125,7 @@ const chooseRegionalEmu = (log, gameCountry, emuRegionalNames, useTheDefaultEmul
   const emusTaggedByCountry = tagEmuCountry(emuRegionalNames)
   const emuCountries =  R.keys(emusTaggedByCountry) 
   //so now we have the basics of a decision node: LHS=region code RHS=region code choices
-  if (log.regions) console.log(`  -> Matching ${gameCountry}, possible emus are ${JSON.stringify(emuCountries)}` )
+  if (log.regions) console.log(`       -> Matching ${gameCountry}, possible emus are ${JSON.stringify(emuCountries)}` )
  
 
   //first: do we find a match?
@@ -140,7 +141,7 @@ const chooseRegionalEmu = (log, gameCountry, emuRegionalNames, useTheDefaultEmul
   const emusTaggedByRegion = tagEmuRegion(log, emusTaggedByCountry)
   const emuRegions = R.keys(emusTaggedByRegion)
   const gameRegion = whichRegionIsThisCountryFor(gameCountry)
-  if (log.regions) console.log(`and the game's region for that country comes out as ${gameRegion}`)
+  if (log.regions) console.log(`          ++++ game's region for that country comes out as: ${gameRegion}`)
   //match gameRegion against emuRegions
   const foundInRegion = R.indexOf(gameRegion, emuRegions) !== -1? gameRegion : null
   if (foundInRegion) {
@@ -163,7 +164,7 @@ const chooseRegionalEmu = (log, gameCountry, emuRegionalNames, useTheDefaultEmul
   }
   
   //lastly give up and choose default
-  if (log.regions) console.log(`I found nothing`)
+  log.regions && console.log(`I found nothing`)
   return useTheDefaultEmulator
 }
 
@@ -187,7 +188,7 @@ const tagEmuRegion = (log, emusTaggedByCountry) => {
     const tagRegion = whichRegionIsThisCountryFor(emuCountry) 
     if (tagRegion) node[tagRegion] = emusTaggedByCountry[emuCountry] //this time we have to look back at the country key in the passed in array and pick out its emulator
   }, keys)
-  if (log.regions) console.log(`     ++++ Made a region keyed emu list ${JSON.stringify(node)}`)
+  if (log.regions) console.log(`          ++++ Made region keyed emu list ${JSON.stringify(node)}`)
   
   return node
  
@@ -201,7 +202,7 @@ const tagEmuStandard = (log, emusTaggedByRegion) => {
     const tagStandard = whichStandardIsThisRegionFor(emuRegion) 
     if (tagStandard) node[tagStandard] = emusTaggedByRegion[emuRegion] //this time we have to look back at the region key in the passed in array and pick out its emulator
   }, keys)
-  if (log.regions) console.log(`      ++++ Made a standard keyed emu list ${JSON.stringify(node)}`)
+  if (log.regions) console.log(`          ++++ Made a standard keyed emu list ${JSON.stringify(node)}`)
   
   return node
  
