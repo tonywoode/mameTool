@@ -15,8 +15,9 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
   const romdataLine = ({name, MAMEName, parentName, path, emu, company, year, parameters, comment}, isItRetroArch) => { 
     const callToEmu = isItRetroArch?  `Retroarch ${emu} (MAME)` : `MAME ${emu}` 
+    const possiblyRetroArchParameters = (parameters && isItRetroArch)?  `-L cores\\mame_libretro.dll " ${parameters}"` : parameters
     return  `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${callToEmu}`
-    + `¬${company}¬${year}¬¬¬¬${parameters}¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` 
+    + `¬${company}¬${year}¬¬¬¬${possiblyRetroArchParameters}¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` 
   }
 
 
@@ -44,7 +45,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   //MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
   //  machine may have identical gamenames. However, it gets worse: we  can't just ALWAYS disambiguate by calling the
   //  device ("famicom -flop1 smb2), because MESS also performs multi-disc loading with just a mamename (so calling 
-  //  "-flop1" will break it). So check whether there is an original (its a hunch!) gamename conflict and only apply a flag if there is 
+  //  "-flop1" will break it). So check whether there is an original (not a compatible softlist) gamename conflict and only apply a flag if there is 
   var originalOtherSoftlists = []
   //to start with we don't want to do any work if there are no other softlists
   if (softlistParams.thisEmulator.otherSoftlists.length) { 
@@ -132,7 +133,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       var emuCall = emuWithRegionSet.call
       emuCall = softlistCartExceptions(softlist.name, emuWithRegionSet.call)
       callToMake = `${emuCall} ${partNameToDeviceCall(obj.part[0].name)} %ROMMAME%`
-      return callToMake
+      //return callToMake
     }
 
     const romParams = {
