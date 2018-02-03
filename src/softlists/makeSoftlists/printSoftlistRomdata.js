@@ -13,10 +13,10 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   if (log.printer) console.log(`INFO: printing softlist for ${softlistParams.name}`)
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
-  const romdataLine = ({name, MAMEName, parentName, path, emu, company, year, comment}, isItRetroArch) => { 
+  const romdataLine = ({name, MAMEName, parentName, path, emu, company, year, parameters, comment}, isItRetroArch) => { 
     const callToEmu = isItRetroArch?  `Retroarch ${emu} (MAME)` : `MAME ${emu}` 
     return  `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${callToEmu}`
-    + `¬${company}¬${year}¬¬¬¬¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` 
+    + `¬${company}¬${year}¬¬¬¬${parameters}¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` 
   }
 
 
@@ -112,6 +112,29 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
     if (doWeNeedToSpecifyDevice && log.otherGameConflicts) console.log(`   ---> disambiguate by printing device ${partNameToDeviceCall(obj.part[0].name)}`)
 
+  // TODO: same code as in src/scan/datAndEfind/printEfind
+  const softlistCartExceptions = (softlistName, call) => {
+    const exceptions = {
+        nes_ade : "ade"
+      , nes_ntbrom : "ntb"
+      , nes_kstudio : "karaoke"
+      , nes_datach: "datach"
+      , snes_bspack: "bsx"
+      , snes_strom: "sufami"
+      , snes_vkun: "tbc - not found"
+    }
+
+    return softlistName in exceptions? `-cart ${exceptions[softlistName]} -cart2 ` : call 
+  }
+
+    var callToMake = ``
+    if (doWeNeedToSpecifyDevice) {
+      var emuCall = emuWithRegionSet.call
+      emuCall = softlistCartExceptions(softlist.name, emuWithRegionSet.call)
+      callToMake = `${emuCall} ${partNameToDeviceCall(obj.part[0].name)} %ROMMAME%`
+      return callToMake
+    }
+
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
       , MAMEName    : obj.call
@@ -120,6 +143,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       , emu         : emuWithRegionSet.emulatorName //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
       , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
       , year        : obj.year
+      , parameters  : callToMake
       , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
           info      : obj.info
         , sharedFeat: obj.sharedFeat
