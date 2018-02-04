@@ -34,7 +34,7 @@ if (!process.argv.slice(2).length) {
 'npm run full'                 deletes the whole outputs folder, full must be run with scan
 'npm start -- --scan'          make a mame json output file, which is used by the arcade and mfm flags
 'npm start -- --arcade'        make an arcade set to the ini flags in settings.ini, and output to outputsDir in package.json
-'npm start -- --mfm'           make an arcade set to a fatfile list output of mame file manager, and output to outputsDir in package.json
+'npm start -- --mfm'           make an arcade set to a flatfile list output of mame file manager, and output to outputsDir in package.json
 'npm start -- --testArcadeRun' makes a set of both Mame and RetroArch romdata and splits from a canned list
 'npm start -- --softlists'     makes a softlist set
 'npm debug -- --arcade'        break on ln1 of making an arcade set to the ini flags in settings.ini, and output to outputsDir in package.json)
