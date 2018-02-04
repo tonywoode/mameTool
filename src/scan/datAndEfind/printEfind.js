@@ -77,7 +77,7 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
       , snes_vkun: "tbc - not found"
     }
 
-    return softlistName in exceptions? `-cart ${exceptions[softlistName]} -cart2 ` : call 
+    return softlistName in exceptions? `${call} -cart ${exceptions[softlistName]} -cart2 ` : call 
   }
 
   //create the vars which will populate each instance of the EfindTemplate, first for each machine's softlist (if they exist)

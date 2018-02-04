@@ -125,14 +125,14 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       , snes_vkun: "tbc - not found"
     }
 
-    return softlistName in exceptions? `-cart ${exceptions[softlistName]} -cart2 ` : call 
+    return softlistName in exceptions? `${call} -cart ${exceptions[softlistName]} -cart2 ` : call 
   }
 
     var callToMake = ``
     if (doWeNeedToSpecifyDevice) {
-      var emuCall = emuWithRegionSet.call
-      emuCall = softlistCartExceptions(softlist.name, emuWithRegionSet.call)
-      callToMake = `${emuCall} ${partNameToDeviceCall(obj.part[0].name)} %ROMMAME%`
+      const emuCall = emuWithRegionSet.call
+      const exceptionsEmuCall = softlistCartExceptions(softlistParams.name, emuWithRegionSet.call)
+      exceptionsEmuCall === emuCall? callToMake = `${emuCall} ${partNameToDeviceCall(obj.part[0].name)} %ROMMAME%` : callToMake = `${exceptionsEmuCall}%ROMMAME%` 
       //return callToMake
     }
 
