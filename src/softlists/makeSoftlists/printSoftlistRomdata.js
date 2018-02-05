@@ -114,8 +114,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     if (doWeNeedToSpecifyDevice && log.otherGameConflicts) console.log(`   ---> disambiguate by printing device ${partNameToDeviceCall(obj.part[0].name)}`)
 
   // TODO: same code as in src/scan/datAndEfind/printEfind
-  const softlistCartExceptions = (softlistName, call) => {
-    const exceptions = {
+   const exceptions = {
         nes_ade : "ade"
       , nes_ntbrom : "ntb"
       , nes_kstudio : "karaoke"
@@ -125,15 +124,14 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       , snes_vkun: "tbc - not found"
     }
 
-    return softlistName in exceptions? `${call} -cart ${exceptions[softlistName]} -cart2 ` : call 
-  }
 
-    var callToMake = ``
-    if (doWeNeedToSpecifyDevice) {
-      const emuCall = emuWithRegionSet.call
-      const exceptionsEmuCall = softlistCartExceptions(softlistParams.name, emuWithRegionSet.call)
-      exceptionsEmuCall === emuCall? callToMake = `${emuCall} ${partNameToDeviceCall(obj.part[0].name)} %ROMMAME%` : callToMake = `${exceptionsEmuCall}%ROMMAME%` 
-      //return callToMake
+    // If a gamename clashes with another game on a softlist for this system, we'll replace the entire call made 
+    //   to the efinder soflist emulator, with what we'll prepare here, so we can specify device. This is complicated
+    //   by soflists like `nes_ade` which need a customised call we'll ahve to repeat
+    const makeParameters = (systemCall) => {
+      return softlistParams.name in exceptions? 
+          `${systemCall} -cart ${exceptions[softlistParams.name]} -cart2 %ROMMAME%` 
+        : `${systemCall} ${partNameToDeviceCall(obj.part[0].name)} %ROMMAME%`  
     }
 
     const romParams = {
@@ -144,7 +142,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       , emu         : emuWithRegionSet.emulatorName //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
       , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
       , year        : obj.year
-      , parameters  : callToMake
+      , parameters  : doWeNeedToSpecifyDevice? makeParameters(emuWithRegionSet.call) : ``
       , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
           info      : obj.info
         , sharedFeat: obj.sharedFeat
