@@ -5,12 +5,14 @@ const mkdirp            = require('mkdirp')
 const R                 = require('ramda')
 
 module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
+
   //don't make a dat or folder if all of the games for a softlist aren't supported
   if (!softlist.length) { 
-    if (log.exclusions) console.log(`INFO: Not printing softlist for ${softlistParams.name} : no working games`)
+    log.exclusions && console.log(`INFO: Not printing softlist for ${softlistParams.name} : no working games`)
     return softlist
   }
-  if (log.printer) console.log(`INFO: printing softlist for ${softlistParams.name}`)
+
+  log.printer && console.log(`INFO: printing softlist for ${softlistParams.name}`)
   const romdataHeader = `ROM DataFile Version : 1.1`
   const path = `./qp.exe` //we don't need a path for softlist romdatas, they don't use it, we just need to point to a valid file
   const romdataLine = ({name, MAMEName, parentName, path, emu, company, year, parameters, comment}, isItRetroArch) => { 
@@ -19,7 +21,6 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     return  `${name}¬${MAMEName}¬${parentName}¬¬${path}¬${callToEmu}`
     + `¬${company}¬${year}¬¬¬¬${possiblyRetroArchParameters}¬${comment}¬0¬1¬<IPS>¬</IPS>¬¬¬` 
   }
-
 
   /*  1)  Display name, 2) _MAMEName, 3) _ParentName, 4) _ZipName, //Used Internally to store which file inside a zip file is the ROM
    *  5) _rom path //the path to the rom, 6) _emulator,7) _Company, 8) _Year, 9) _GameType, 10) )  _Rating 11)  _Language
@@ -42,17 +43,25 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     return comments
   }
 
-  //MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
-  //  machine may have identical gamenames. However, it gets worse: we  can't just ALWAYS disambiguate by calling the
-  //  device ("famicom -flop1 smb2), because MESS also performs multi-disc loading with just a mamename (so calling 
-  //  "-flop1" will break it). So check whether there is an original (not a compatible softlist) gamename conflict and only apply a flag if there is 
+  // -------> Beginning of Other Game Name code
+
+  /* MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
+   *   machine may have identical gamenames. And it gets worse: we can't just ALWAYS disambiguate by calling the
+   *   device ("famicom -flop1 smb2), because MESS also performs other tricks like multi-disc loading when supplied
+   *   just a mamename (so calling "-flop1" will break it). Even worse: we can't be sure which device mame will treat
+   *   any particular system's 'default' as - so if we don't specify a device flag, we don't know if this system will load
+   *   cass or flop or cart. So atm it looks like the only option is to try not to specify a device, but if we must, we must
+   *   specify the device on both sides of a conflict: "famicom -flop1 smb2" and "famicom -cass1 smb2". On a positive note,
+   *   systems have 'compatible' and 'original' softlists, and it works fairly well to ignore 'compatible' ones: I don't
+   *   think mame will ever decide to load an msx1 game on an msx2 in preference to an msx2 game */
+
   var originalOtherSoftlists = []
   //to start with we don't want to do any work if there are no other softlists
   if (softlistParams.thisEmulator.otherSoftlists.length) { 
     if (log.otherGameNames) {
       console.log(`   ----> ${softlistParams.thisEmulator.name} other softlists: ${R.keys(softlistParams.otherGameNames)}`)
     }
-    //next remove the 'compatible' ones (TODO: test the effect of this)
+    //next remove the 'compatible' softlists for this system
     const isOriginal = softlist => softlist.status === `original`
     originalOtherSoftlists = R.pluck('name', R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists))
     if (log.otherGameNames) {
@@ -62,6 +71,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
         console.log(`      ----> ${softlistParams.thisEmulator.name}: No Original Softlists`)
     }
   }
+
   //next the function. so we need to say: for each of the softlists in originalOtherSoftlists, find that as a key in the softlist names, and see if it has our gamename
   
   //this tests for equality
@@ -82,6 +92,46 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
     return result.includes(true)
   }
 
+  //it would be tempting to think that the postfix of the first part's device name in a softlist entry
+  //  is the same as how the emulator would call it, but flop1 in the softlist part name means its the first
+  //  disk in the box, not that it loads in its repsective emulators by using device -'flop1'
+  const theLastChar = str => str.slice(-1)
+  const isTheLastCharAOne = str => theLastChar(str) === `1`
+  const isTheLastCharAZero = str => theLastChar(str) === `0`
+  const postfixLastDigitIfNecessary = str => { 
+    return  isTheLastCharAOne(str)? str 
+      : isTheLastCharAZero(str)? `${str.slice(0, -1)}1`
+        : `${str}1`
+  }
+  const addHypen = str => `-${str}`
+  const partNameToDeviceCall = str => addHypen(postfixLastDigitIfNecessary(str))
+
+
+  // TODO: same code as in src/scan/datAndEfind/printEfind
+  const exceptions = {
+      nes_ade : "ade"
+    , nes_ntbrom : "ntb"
+    , nes_kstudio : "karaoke"
+    , nes_datach: "datach"
+    , snes_bspack: "bsx"
+    , snes_strom: "sufami"
+    , snes_vkun: "tbc - not found"
+  }
+
+  // If a gamename clashes with another game on a softlist for this system, we'll replace the entire call made 
+  //   to the efinder soflist emulator, with what we'll prepare here, so we can specify device. This is complicated
+  //   by soflists like `nes_ade` which need a customised call we'll ahve to repeat
+  const makeParameters = (systemCall, softlistName, firstPartsDevice) => {
+    const result =  softlistName in exceptions? 
+        `${systemCall} -cart ${exceptions[softlistName]} -cart2 %ROMMAME%` 
+      : `${systemCall} ${partNameToDeviceCall(firstPartsDevice)} %ROMMAME%`  
+    log.otherGameConflicts && console.log(`   ---> disambiguate by printing overwrite params: ${result}`)
+    return result
+  }
+
+  // ------> END OF OTHER GAME NAME CODE
+
+
   //in order to print a feature comment, we need to loop through the part array
   const makeFeature = partKey => {
     const featureComment = createComment(R.map( part => part.feature, partKey)).toString()
@@ -92,47 +142,9 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
   //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = (obj, settings)  => R.map( obj => {
 
-    //console.log(obj.part[0].interface)
-    //console.log(obj.part[0].name)
-    //it would be tempting to think that the postfix of the first part's device name in a softlist entry
-    //  is the same as how the emulator would call it, but flop1 in the softlist part name means its the first
-    //  disk in the box, not that it loads in its repsective emulators by using device -'flop1'
-    const theLastChar = str => str.slice(-1)
-    const isTheLastCharAOne = str => theLastChar(str) === `1`
-    const isTheLastCharAZero = str => theLastChar(str) === `0`
-    const postfixLastDigitIfNecessary = str => { 
-      return  isTheLastCharAOne(str)? str 
-        : isTheLastCharAZero(str)? `${str.slice(0, -1)}1`
-          : `${str}1`
-    }
-    const addHypen = str => `-${str}`
-    const partNameToDeviceCall = str => addHypen(postfixLastDigitIfNecessary(str))
-
-    const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
+   const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
 
     const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
-    if (doWeNeedToSpecifyDevice && log.otherGameConflicts) console.log(`   ---> disambiguate by printing device ${partNameToDeviceCall(obj.part[0].name)}`)
-
-  // TODO: same code as in src/scan/datAndEfind/printEfind
-   const exceptions = {
-        nes_ade : "ade"
-      , nes_ntbrom : "ntb"
-      , nes_kstudio : "karaoke"
-      , nes_datach: "datach"
-      , snes_bspack: "bsx"
-      , snes_strom: "sufami"
-      , snes_vkun: "tbc - not found"
-    }
-
-
-    // If a gamename clashes with another game on a softlist for this system, we'll replace the entire call made 
-    //   to the efinder soflist emulator, with what we'll prepare here, so we can specify device. This is complicated
-    //   by soflists like `nes_ade` which need a customised call we'll ahve to repeat
-    const makeParameters = (systemCall) => {
-      return softlistParams.name in exceptions? 
-          `${systemCall} -cart ${exceptions[softlistParams.name]} -cart2 %ROMMAME%` 
-        : `${systemCall} ${partNameToDeviceCall(obj.part[0].name)} %ROMMAME%`  
-    }
 
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
@@ -142,7 +154,7 @@ module.exports = (settings, softlistParams, setRegionalEmu, softlist, log) => {
       , emu         : emuWithRegionSet.emulatorName //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
       , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
       , year        : obj.year
-      , parameters  : doWeNeedToSpecifyDevice? makeParameters(emuWithRegionSet.call) : ``
+      , parameters  : doWeNeedToSpecifyDevice? makeParameters(emuWithRegionSet.call, softlistParams.name, obj.part[0].name) : ``
       , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
           info      : obj.info
         , sharedFeat: obj.sharedFeat
