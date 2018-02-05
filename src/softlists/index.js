@@ -9,7 +9,7 @@ const filterSoftlists      = require('./filterSoftlists.js')
 const chooseDefaultEmus    = require('./chooseDefaultEmus.js')
 
 const {cleanSoftlist, makeParams, printSoftlistRomdata
-     , printEmbeddedRomdata, readSoftlistXML, setRegionalEmu, readOtherSoftlistNames} = require('./makeSoftlists')
+     , printEmbeddedRomdata, readSoftlistXML, readOtherSoftlistNames} = require('./makeSoftlists')
 
 const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
 
@@ -31,7 +31,7 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
                 if (log.otherSoftlists) console.log(`Made otherGames list for ${emu.name}: ${JSON.stringify(thisSoftlistsOtherGameNames, null, '')}`)
                 softlistParamsPlusNames = R.assoc( `otherGameNames`, thisSoftlistsOtherGameNames, softlistParams) 
               }
-              printSoftlistRomdata(settings, softlistParamsPlusNames, setRegionalEmu, cleanedSoftlist, log)
+              printSoftlistRomdata(settings, softlistParamsPlusNames, cleanedSoftlist, log)
             })
           })
         }, emuSystems)

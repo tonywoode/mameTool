@@ -5,7 +5,6 @@ const makeParams           = require('./makeParams.js')
 const printSoftlistRomdata = require('./printSoftlistRomdata.js')
 const printEmbeddedRomdata = require('./printEmbeddedRomdata.js')
 const readSoftlistXML      = require('./readSoftlistXML.js')
-const setRegionalEmu       = require('./setRegionalEmu.js')
 const readOtherSoftlistNames = require('./readOtherSoftlistNames.js')
 
 module.exports = {
@@ -14,6 +13,5 @@ module.exports = {
   , printSoftlistRomdata
   , printEmbeddedRomdata
   , readSoftlistXML     
-  , setRegionalEmu      
   , readOtherSoftlistNames
 }

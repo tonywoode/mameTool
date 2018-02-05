@@ -89,15 +89,14 @@ const whichStandardIsThisRegionFor = R.cond([
 
 const setRegionalEmu = (log, gameName, emu, regionalEmus) => {
   // TODO: for games that need device specifying, i had to alter the other emulators list here to be objects not just
-  //  emulator name (because the emu call needs to pass down too. Altering the below became complex not least
-  //  because of the circular reference in default emu. As a quick-fix, still provide just the emu names to the code below
+  //  emulator name (because the emu call needs to pass down too (we need to reconstitute the whole emu call that's already
+  //  been printed in the EFind, in order to override it. Altering the below became complex not least
+  //  because of the circular reference in default emu (we added all regional varients of an emu under one if its key, that
+  //  included itself). As a quick-fix, still provide just the emu names to the code below
   //  and look it up again after processing
   const emuName = emu.emulatorName
   var emuRegionalNames = ``
-  if (regionalEmus !== undefined) {
-    //console.log(regionalEmus)
-    emuRegionalNames = R.pluck(`emulatorName`, regionalEmus)
-  }
+  if (regionalEmus !== undefined) emuRegionalNames = R.pluck(`emulatorName`, regionalEmus) 
   //choose emu on a game-by-game basis
   const gameCountry = whichCountryIsThisGameFor(gameName) 
   let regionalEmulator = {}
