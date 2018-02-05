@@ -6,6 +6,7 @@ const R                    = require('ramda')
 
 const setRegionalEmu       = require('./setRegionalEmu.js')
 const {makeOtherSoftlists, checkOriginalSoftlistNames} = require('./otherGameNames/checkOtherSoftlistNames.js')
+const {makeParameters} = require('./otherGameNames/replaceOtherSoftlistNameCalls.js')
 
 module.exports = (settings, softlistParams, softlist, log) => {
 
@@ -47,59 +48,7 @@ module.exports = (settings, softlistParams, softlist, log) => {
   }
 
   // -------> Beginning of Other Game Name code
-
-  /* MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
-   *   machine may have identical gamenames. And it gets worse: we can't just ALWAYS disambiguate by calling the
-   *   device ("famicom -flop1 smb2), because MESS also performs other tricks like multi-disc loading when supplied
-   *   just a mamename (so calling "-flop1" will break it). Even worse: we can't be sure which device mame will treat
-   *   any particular system's 'default' as - so if we don't specify a device flag, we don't know if this system will load
-   *   cass or flop or cart. So atm it looks like the only option is to try not to specify a device, but if we must, we must
-   *   specify the device on both sides of a conflict: "famicom -flop1 smb2" and "famicom -cass1 smb2". On a positive note,
-   *   systems have 'compatible' and 'original' softlists, and it works fairly well to ignore 'compatible' ones: I don't
-   *   think mame will ever decide to load an msx1 game on an msx2 in preference to an msx2 game */
-
-  
-
   const originalOtherSoftlists = makeOtherSoftlists(softlistParams, log)
-
-
-
-  //it would be tempting to think that the postfix of the first part's device name in a softlist entry
-  //  is the same as how the emulator would call it, but flop1 in the softlist part name means its the first
-  //  disk in the box, not that it loads in its repsective emulators by using device -'flop1'
-  const theLastChar = str => str.slice(-1)
-  const isTheLastCharAOne = str => theLastChar(str) === `1`
-  const isTheLastCharAZero = str => theLastChar(str) === `0`
-  const postfixLastDigitIfNecessary = str => { 
-    return  isTheLastCharAOne(str)? str 
-      : isTheLastCharAZero(str)? `${str.slice(0, -1)}1`
-        : `${str}1`
-  }
-  const addHypen = str => `-${str}`
-  const partNameToDeviceCall = str => addHypen(postfixLastDigitIfNecessary(str))
-
-
-  // TODO: same code as in src/scan/datAndEfind/printEfind
-  const exceptions = {
-      nes_ade : "ade"
-    , nes_ntbrom : "ntb"
-    , nes_kstudio : "karaoke"
-    , nes_datach: "datach"
-    , snes_bspack: "bsx"
-    , snes_strom: "sufami"
-    , snes_vkun: "tbc - not found"
-  }
-
-  // If a gamename clashes with another game on a softlist for this system, we'll replace the entire call made 
-  //   to the efinder soflist emulator, with what we'll prepare here, so we can specify device. This is complicated
-  //   by soflists like `nes_ade` which need a customised call we'll ahve to repeat
-  const makeParameters = (systemCall, softlistName, firstPartsDevice) => {
-    const result =  softlistName in exceptions? 
-        `${systemCall} -cart ${exceptions[softlistName]} -cart2 %ROMMAME%` 
-      : `${systemCall} ${partNameToDeviceCall(firstPartsDevice)} %ROMMAME%`  
-    log.otherGameConflicts && console.log(`   ---> disambiguate by printing overwrite params: ${result}`)
-    return result
-  }
 
   // ------> END OF OTHER GAME NAME CODE
 
@@ -126,7 +75,7 @@ module.exports = (settings, softlistParams, softlist, log) => {
       , emu         : emuWithRegionSet.emulatorName //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
       , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
       , year        : obj.year
-      , parameters  : doWeNeedToSpecifyDevice? makeParameters(emuWithRegionSet.call, softlistParams.name, obj.part[0].name) : ``
+      , parameters  : doWeNeedToSpecifyDevice? makeParameters(emuWithRegionSet.call, softlistParams.name, obj.part[0].name, log) : ``
       , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
           info      : obj.info
         , sharedFeat: obj.sharedFeat

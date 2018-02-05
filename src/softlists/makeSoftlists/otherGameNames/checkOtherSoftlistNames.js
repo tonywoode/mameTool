@@ -2,6 +2,16 @@
 
 const R                 = require('ramda')
 
+ /* MESS didn't enforce that its mamenames for games were unique in the right scope: different devices of the same 
+   *   machine may have identical gamenames. And it gets worse: we can't just ALWAYS disambiguate by calling the
+   *   device ("famicom -flop1 smb2), because MESS also performs other tricks like multi-disc loading when supplied
+   *   just a mamename (so calling "-flop1" will break it). Even worse: we can't be sure which device MESS will treat
+   *   any particular system's 'default' as - so if we don't specify a device flag, we don't know if this system will load
+   *   cass or flop or cart. So atm it looks like the only option is to try not to specify a device, but if we must, we must
+   *   specify the device on both sides of a conflict: "famicom -flop1 smb2" and "famicom -cass1 smb2". On a positive note,
+   *   systems have 'compatible' and 'original' softlists, and it works fairly well to ignore 'compatible' ones: I don't
+   *   think MESS will ever decide to load an msx1 game on an msx2 in preference to an msx2 game */
+
 const makeOtherSoftlists = (softlistParams, log) => {
   var originalOtherSoftlists = []
   //to start with we don't want to do any work if there are no other softlists
