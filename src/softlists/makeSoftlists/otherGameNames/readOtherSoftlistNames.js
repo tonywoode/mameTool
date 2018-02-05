@@ -3,7 +3,7 @@
 const fs        = require('fs')
 const XmlStream = require('xml-stream')
 const R         = require('ramda')
-const readSoftlistForGamenames = require('./readGameNamesFromXML.js')
+const readSoftlistForGamenames = require('../readGameNamesFromXML.js')
 
 module.exports = (hashDir, softlist, log, callback) => {
   const otherSoftlistDevices = []

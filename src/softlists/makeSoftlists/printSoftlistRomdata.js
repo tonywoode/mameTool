@@ -1,10 +1,11 @@
 'use strict'
 
-const fs                = require('fs')
-const mkdirp            = require('mkdirp')
-const R                 = require('ramda')
+const fs                   = require('fs')
+const mkdirp               = require('mkdirp')
+const R                    = require('ramda')
 
-const setRegionalEmu    = require('./setRegionalEmu.js')
+const setRegionalEmu       = require('./setRegionalEmu.js')
+const {makeOtherSoftlists, checkOriginalSoftlistNames} = require('./otherGameNames/checkOtherSoftlistNames.js')
 
 module.exports = (settings, softlistParams, softlist, log) => {
 
@@ -57,42 +58,11 @@ module.exports = (settings, softlistParams, softlist, log) => {
    *   systems have 'compatible' and 'original' softlists, and it works fairly well to ignore 'compatible' ones: I don't
    *   think mame will ever decide to load an msx1 game on an msx2 in preference to an msx2 game */
 
-  var originalOtherSoftlists = []
-  //to start with we don't want to do any work if there are no other softlists
-  if (softlistParams.thisEmulator.otherSoftlists.length) { 
-    if (log.otherGameNames) {
-      console.log(`   ----> ${softlistParams.thisEmulator.name} other softlists: ${R.keys(softlistParams.otherGameNames)}`)
-    }
-    //next remove the 'compatible' softlists for this system
-    const isOriginal = softlist => softlist.status === `original`
-    originalOtherSoftlists = R.pluck('name', R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists))
-    if (log.otherGameNames) {
-      originalOtherSoftlists.length?  
-        console.log(`        ----> ${softlistParams.thisEmulator.name}: Original softlists ${originalOtherSoftlists}`) 
-       : 
-        console.log(`      ----> ${softlistParams.thisEmulator.name}: No Original Softlists`)
-    }
-  }
-
-  //next the function. so we need to say: for each of the softlists in originalOtherSoftlists, find that as a key in the softlist names, and see if it has our gamename
   
-  //this tests for equality
-  const match = (otherGameName, ourGameName) => otherGameName === ourGameName
-  //this will see if a gamename exists in a list of gamenames
-  const checkMameNameInNameList = (ourGameName, gameNames, otherSoftlistBeingChecked) => {
-    const result = R.any(otherGameName => match(otherGameName, ourGameName))(gameNames)
-    if ( result && log.otherGameConflicts ) {
-      console.log(   ` **** SOFTLIST NAME CONFLICT: ${ourGameName} in ${softlistParams.thisEmulator.name} conflicts with ${otherSoftlistBeingChecked}`)
-    }
-    return result
-  }
-  //and this will check each original softlist in turn
-  const checkOriginalSoflistNames = ourGameName => {
-    const result = R.map(otherSoftlistBeingChecked => 
-      checkMameNameInNameList(ourGameName, softlistParams.otherGameNames[otherSoftlistBeingChecked], otherSoftlistBeingChecked), originalOtherSoftlists)
-    //result will now be an array (because each other softlist has been compared to one game name from this softlist). if any of the items is true, we return true
-    return result.includes(true)
-  }
+
+  const originalOtherSoftlists = makeOtherSoftlists(softlistParams, log)
+
+
 
   //it would be tempting to think that the postfix of the first part's device name in a softlist entry
   //  is the same as how the emulator would call it, but flop1 in the softlist part name means its the first
@@ -146,7 +116,7 @@ module.exports = (settings, softlistParams, softlist, log) => {
 
    const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
 
-    const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoflistNames(obj.call) : false
+    const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoftlistNames(obj.call, originalOtherSoftlists, softlistParams, log) : false
 
     const romParams = {
         name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
