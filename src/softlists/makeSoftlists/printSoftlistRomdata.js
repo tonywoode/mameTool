@@ -5,8 +5,8 @@ const mkdirp               = require('mkdirp')
 const R                    = require('ramda')
 
 const setRegionalEmu       = require('./setRegionalEmu.js')
-const {makeOtherSoftlists, checkOriginalSoftlistNames} = require('./otherGameNames/checkOtherSoftlistNames.js')
-const {makeParameters} = require('./otherGameNames/replaceOtherSoftlistNameCalls.js')
+const {makeOtherSoftlists, doWeNeedToSpecifyDevice} = require('./otherGameNames')
+const {makeParameters}     = require('./otherGameNames')
 
 module.exports = (settings, softlistParams, softlist, log) => {
 
@@ -31,8 +31,8 @@ module.exports = (settings, softlistParams, softlist, log) => {
    * 12)  _Parameters : String, 13)  _Comment, 14)_NumPlay 15) _ParamMode : TROMParametersMode,  16)  IPS start, 17)  IPS end, 
    * 18) _MultiPlayer 19)_DefaultGoodMerge : String; //The user selected default GoodMerge ROM */
 
-  //for a system, takes the simple and homomorphic arrays: part/feature, info and sharedFeat 
-  //  (ie: they all have keys named the smae) and turns them into an array of comments to be printed
+  /* For a system, takes the simple and homomorphic arrays: part/feature, info and sharedFeat 
+   *  (ie: they all have keys named the smae) and turns them into an array of comments to be printed */
   const createComment = commentCandidates => {
     const comments = []  
     R.map(commentCandidate => {
@@ -47,12 +47,6 @@ module.exports = (settings, softlistParams, softlist, log) => {
     return comments
   }
 
-  // -------> Beginning of Other Game Name code
-  const originalOtherSoftlists = makeOtherSoftlists(softlistParams, log)
-
-  // ------> END OF OTHER GAME NAME CODE
-
-
   //in order to print a feature comment, we need to loop through the part array
   const makeFeature = partKey => {
     const featureComment = createComment(R.map( part => part.feature, partKey)).toString()
@@ -60,29 +54,35 @@ module.exports = (settings, softlistParams, softlist, log) => {
     return featureComment.length? ` ${featureComment}` : ``
   }
 
+  /* Before we can decide whether we have a gamename conflict with another softlist for this system, we need to make
+   *  a list of the other applicable softlists to check against. Done outside of the object loop in 
+   *  applyRomdata as we only want it to run once per softlist */
+  const originalOtherSoftlists = makeOtherSoftlists(softlistParams, log)
+
   //sets the variables for a line of romdata entry for later injection into a romdata printer
   const applyRomdata = (obj, settings)  => R.map( obj => {
 
-   const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
+  const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
 
-    const doWeNeedToSpecifyDevice = originalOtherSoftlists.length? checkOriginalSoftlistNames(obj.call, originalOtherSoftlists, softlistParams, log) : false
+  const parameters = doWeNeedToSpecifyDevice(originalOtherSoftlists, obj.call, softlistParams, log)? 
+      makeParameters(emuWithRegionSet.call, softlistParams.name, obj.part[0].name, log) : ``
 
-    const romParams = {
-        name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
-      , MAMEName    : obj.call
-      , parentName  : obj.cloneof?  obj.cloneof : ``
-      , path
-      , emu         : emuWithRegionSet.emulatorName //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
-      , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
-      , year        : obj.year
-      , parameters  : doWeNeedToSpecifyDevice? makeParameters(emuWithRegionSet.call, softlistParams.name, obj.part[0].name, log) : ``
-      , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
-          info      : obj.info
-        , sharedFeat: obj.sharedFeat
-      }) }${makeFeature(obj[`part`])}` 
+  const romParams = {
+      name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese
+    , MAMEName    : obj.call
+    , parentName  : obj.cloneof?  obj.cloneof : ``
+    , path
+    , emu         : emuWithRegionSet.emulatorName //we can't just use the default emu as many system's games are region locked. Hence all the regional code!
+    , company     : obj.company.replace(/[^\x00-\x7F]/g, "")
+    , year        : obj.year
+    , parameters 
+    , comment     : `${createComment({ //need to loop through info and shared feat to make comments, see the DTD, but also combine part/features to print    
+        info      : obj.info
+      , sharedFeat: obj.sharedFeat
+    })}${makeFeature(obj[`part`])}` 
       
-    }
-    return romdataLine(romParams, settings.isItRetroArch)
+   }
+   return romdataLine(romParams, settings.isItRetroArch)
   }, softlist)
 
   const romdata        = applyRomdata(softlist, settings)
