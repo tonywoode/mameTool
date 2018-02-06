@@ -79,11 +79,11 @@ const log = {
   , json               : false
   //softlist
   , printer            : true //prints softlist names as syncrhonously printed, leave on
-  , softlistProblems   : false
+  , softlistProblems   : true
   , otherSoftlists     : false
   , otherGameNames     : false
   , otherGameConflicts : false
-  , findRegions        : true
+  , findRegions        : false
   , regions            : false 
   , regionsGames       : false 
   , exclusions         : false 

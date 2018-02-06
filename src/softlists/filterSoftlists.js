@@ -11,7 +11,7 @@ module.exports = (hashDir, log) => softlistEmus => {
    *   So, try and get the device from the softlist name and check. Considerations:
    *     1) There's no point in looking in a softlist xml for devices it's about, unless you want to try and parse the free text 'name' field
    *     2) Some softlist names don't have a postfix, but we're assuming we don't 'need' the device name 
-   *       (we can, we think, always call 'nes smb' and we never need to 'nes -cart smb'. TODO: This needs confirming)
+   *       (ie: assuming that no postfix means they will load in the default device)
    *     3) some postfixes are not about the device - we've got _a1000, _workbench, _hardware
    *       (with a bit of luck most of these are unsupported or not games anyway, we'll need to make a list) */ 
 
@@ -25,6 +25,14 @@ module.exports = (hashDir, log) => softlistEmus => {
     , R.map( obj => (obj.deviceTypeFromName === `disk`? obj.deviceTypeFromName = `flop`: obj.deviceTypeFromName, obj))
       //ditto epson_cpm, some of which really are games
     , R.map( obj => (obj.deviceTypeFromName === `cpm`? obj.deviceTypeFromName  = `flop`: obj.deviceTypeFromName, obj))
+      //ditto for HP Integral Personal Computer, a couple are games 
+    , R.map( obj => (obj.deviceTypeFromName === `ipc`? obj.deviceTypeFromName = `flop`: obj.deviceTypeFromName, obj))
+      //ditto for the Thomson MO/TO qd floppies. They're floppies (though the first few in mo5_qd are mixed cart and floppy but no games 
+    , R.map( obj => (obj.deviceTypeFromName === `qd`? obj.deviceTypeFromName = `flop`: obj.deviceTypeFromName, obj))
+      //ditto for the Dragon flex floppies 
+    , R.map( obj => (obj.deviceTypeFromName === `flex`? obj.deviceTypeFromName = `flop`: obj.deviceTypeFromName, obj))
+      //ditto for the Dragon 0s9 diskettes 
+    , R.map( obj => (obj.deviceTypeFromName === `os9`? obj.deviceTypeFromName = `flop`: obj.deviceTypeFromName, obj))
       //ditto for Timex Sinclair TS-2068
     , R.map( obj => (obj.deviceTypeFromName === `dock`? obj.deviceTypeFromName = `cart`: obj.deviceTypeFromName, obj))
       //i note some lists called hdd and some softlists called 'hard1`, `hard2`, guess for later (there are no matches atm)

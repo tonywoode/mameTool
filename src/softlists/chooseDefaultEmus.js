@@ -42,7 +42,7 @@ module.exports = log => softlistEmus => {
     const regionals = []
     const matchme = defaultEmu.emulatorName.match(/\(.*\)|only/) //actually this list is pretty good as it is ( it should contain all regions instead of that kleene)
       if (matchme) {
-        if (log.findRegions) console.log(`* ${defaultEmu.emulatorName} <--- looks like it might have regional variants`)
+        if (log.findRegions) console.log(`* ${defaultEmu.emulatorName} <--- this default emu looks like it might have regional variants`)
         //if it does, then look back in the rejected emus for those named the same except for the ()
         const nesRegex       = defaultEmu.emulatorName.replace(/ \/ Famicom /, ``)
         const snesRegex      = nesRegex.replace(/ \/ Super Famicom /, ``)
