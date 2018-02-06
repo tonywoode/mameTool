@@ -80,7 +80,7 @@ const log = {
   , printer            : true //prints softlist names as syncrhonously printed, leave on
   , choices            : false
   , softlistProblems   : false
-  , otherSoftlists     : false
+  , otherSoftlists     : true
   , otherGameNames     : true
   , otherGameConflicts : true
   , regions            : false 

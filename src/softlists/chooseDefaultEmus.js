@@ -19,8 +19,7 @@ module.exports = log => softlistEmus => {
       , softlistRatings[emu.name]      = emu.rating
       , logDecisions[emu.emulatorName] = `accepted for ${emu.name} as its rating is: ${rating} and the accumulator is ${accum}`
     ) 
-    : (
-        logDecisions[emu.emulatorName] = `rejected for ${emu.name} as its rating is: ${rating} and the accumulator is ${accum}` 
+    : ( logDecisions[emu.emulatorName] = `rejected for ${emu.name} as its rating is: ${rating} and the accumulator is ${accum}` 
       , rejectedEmus.push(emu)
     )
     //if the emu has a rating for the softlist it runs, compare it against the total, if it doesn't set it as the default
@@ -50,11 +49,11 @@ module.exports = log => softlistEmus => {
         const regex = new RegExp(regex1.replace(/\(.*\)/, `(.*)`))//only relace first occurance
         if (log.choices) console.log(regex)
         R.map(rejected => rejected.emulatorName.match(regex)? (
-          log.choices? console.log(`---->>>> matches ${rejected.emulatorName}`) : ''
+          log.choices && console.log(`---->>>> matches ${rejected.emulatorName}`)
             //add them to a key "regions", but filter by softlist name otherwise Atari 800 (NTSC) -SOFTLIST a800 matches Atari 800 (PAL) -SOFTLIST a800_flop
           , defaultEmu.name === rejected.name ? (  
                 regionals.push(rejected) 
-              , log.choices? console.log(`Regionals now contains ${R.pluck(`emulatorName`, regionals)}`) : ''
+              , log.choices && console.log(`Regionals now contains ${R.pluck(`emulatorName`, regionals)}`)
           ): null
         )
         : null, rejectedEmus)

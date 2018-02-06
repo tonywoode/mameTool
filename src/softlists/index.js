@@ -18,7 +18,9 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
   const systems         = JSON.parse(systemsJsonFile).messSystems
   //embdedded systems are like softlists, so we'll save them with them
   const embedded        = JSON.parse(systemsJsonFile).embedded
-  //TODO - you can append the DTD at the top of the file if it isn't being read correctly
+
+  // idea: I couldn't find an xml reader that could read an external DTD as additional input, but you could append the DTD at the top of the softlist file if it isn't being read correctly
+  
   //program flow at emu level
   const  makeSoftlists = settings => emuSystems => {
     R.map(emu => {
@@ -26,11 +28,12 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
           readSoftlistXML(softlistParams.xml, softlist => {
             const cleanedSoftlist = cleanSoftlist(softlist)
             readOtherSoftlistNames(hashDir, emu, log, thisSoftlistsOtherGameNames => {
-              var softlistParamsPlusNames = softlistParams //TODO: done to not make an empty object key if there arent otherSoftlists
-              if (!R.isEmpty(thisSoftlistsOtherGameNames)) {
-                if (log.otherSoftlists) console.log(`Made otherGames list for ${emu.name}: ${JSON.stringify(thisSoftlistsOtherGameNames, null, '')}`)
-                softlistParamsPlusNames = R.assoc( `otherGameNames`, thisSoftlistsOtherGameNames, softlistParams) 
-              }
+              let softlistParamsPlusNames = softlistParams //TODO: done to not make an empty object key if there arent otherSoftlists
+              R.isEmpty(thisSoftlistsOtherGameNames) || (
+                  log.otherSoftlists && 
+                    console.log(`Made otherGames list for ${emu.name}: ${JSON.stringify(thisSoftlistsOtherGameNames, null, '')}`)
+                , softlistParamsPlusNames = R.assoc( `otherGameNames`, thisSoftlistsOtherGameNames, softlistParams) 
+              )
               printSoftlistRomdata(settings, softlistParamsPlusNames, cleanedSoftlist, log)
             })
           })
@@ -39,12 +42,7 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
     return emuSystems
   }
 
-  const printit = json => {
-    fs.writeFileSync('./deleteme.json', JSON.stringify(json, null, `\t`))
-    process.exit()
-    return json
-  }
- //program flow at list level
+  //program flow at list level
   R.pipe(
       //printit
       callSheet(log)

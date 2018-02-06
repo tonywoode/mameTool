@@ -20,12 +20,12 @@ const R = require('ramda')
 
 const makeOtherSoftlists = (softlistParams, log) => {
   let originalOtherSoftlists = []
-  //to start with we don't want to do any work if there are no other softlists
+  //don't do work if there are no other softlists
   if (softlistParams.thisEmulator.otherSoftlists.length) { 
     if (log.otherGameNames) {
       console.log(`   ----> ${softlistParams.thisEmulator.name} other softlists: ${R.keys(softlistParams.otherGameNames)}`)
     }
-    //next remove the 'compatible' softlists for this system
+    //remove the 'compatible' softlists for this system
     const isOriginal = softlist => softlist.status === `original`
     originalOtherSoftlists = R.pluck('name', R.filter(isOriginal, softlistParams.thisEmulator.otherSoftlists))
     if (log.otherGameNames) {
