@@ -10,6 +10,8 @@
  *   is the same as how the emulator would call it, but flop1 in the softlist part name means its the first
  *   disk in the box, not that it loads in its repsective emulators by using device -'flop1' */
 
+
+// ensure $device-name01 is enforced
 const theLastChar = str => str.slice(-1)
 const isTheLastCharAOne = str => theLastChar(str) === `1`
 const isTheLastCharAZero = str => theLastChar(str) === `0`
@@ -36,13 +38,12 @@ const exceptions = {
 //   to the efinder soflist emulator, with what we'll prepare here, so we can specify device. This is complicated
 //   by soflists like `nes_ade` which need a customised call we'll ahve to repeat
 const makeParameters = (systemCall, softlistName, firstPartsDevice, log) => {
-  const result =  softlistName in exceptions? 
+  const result = softlistName in exceptions? 
       `${systemCall} -cart ${exceptions[softlistName]} -cart2 %ROMMAME%` 
     : `${systemCall} ${partNameToDeviceCall(firstPartsDevice)} %ROMMAME%`  
   log.otherGameConflicts && console.log(`   ---> disambiguate by printing overwrite params: ${result}`)
   return result
 }
-
 
 
 module.exports = {makeParameters}

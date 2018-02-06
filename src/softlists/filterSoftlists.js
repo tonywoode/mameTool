@@ -14,6 +14,7 @@ module.exports = (hashDir, log) => softlistEmus => {
    *       (we can, we think, always call 'nes smb' and we never need to 'nes -cart smb'. TODO: This needs confirming)
    *     3) some postfixes are not about the device - we've got _a1000, _workbench, _hardware
    *       (with a bit of luck most of these are unsupported or not games anyway, we'll need to make a list) */ 
+
   const addDeviceType = R.pipe(
       //grab the device or declare there is none specified
       R.map( obj => (R.assoc(`deviceTypeFromName`, obj.name.split(`_`)[1]? obj.name.split(`_`)[1] : `no_postfix`, obj)))
@@ -37,9 +38,7 @@ module.exports = (hashDir, log) => softlistEmus => {
 
   
   //return a list of devices without the number in their briefname, so we can tell if the machine for a 'cart' softlist actually has a working 'cart' device
-  const supportedDevices = deviceList => R.map(
-    device => R.head(device.split(/[0-9].*/))
-  , deviceList)
+  const supportedDevices = deviceList => R.map(device => R.head(device.split(/[0-9].*/)) , deviceList)
 
   //make a k-v in the object to tell us if the softlist we've made can actually run. If the softlist has no postfix, we assume it will run
   // (an example is a2600.xml as the softlist name, which if you read the text description says its for 'cart')
@@ -102,22 +101,21 @@ module.exports = (hashDir, log) => softlistEmus => {
   )
 
   //now any emu that is a clone gets reduced in rating by 40 (problem here is we lose accuracy if there are clone trees, i'm not sure if there are)
-  const deRateClones = R.map( obj => obj.cloneof? ( 
-    obj.rating -= 90
-    , obj
-  ): obj, addedRatings)
+  const deRateClones = R.map(obj => obj.cloneof? (obj.rating -= 90 , obj): obj, addedRatings)
   
-  //there are some issues that prevent games from working, make it difficult for games to work, or break reasonable expectations I later want to rely on in the code (a system's softlist should be the same system type as the system its running) So manually pick these now by bumping their ratings
-  
+  /* There are some issues that prevent games from working, make it difficult for games to work, or break reasonable expectations I later want to rely on in the code 
+   *  (a system's softlist should be the same system type as the system its running) 
+   *  So manually pick these now by bumping their ratings */
+
   const  ratingLens = R.lensProp('rating')
   const  setHigh = R.set(ratingLens, 100)
 
   const hardCodeDefaults = R.pipe(
-    //Cannot figure out how to load from the corrupt-looking original apple2 dos. Apple2e just works for loading games
+      //Cannot figure out how to load from the corrupt-looking original apple2 dos. Apple2e just works for loading games
       R.map(obj => obj.name === `apple2`     && obj.call === `apple2e`  ? setHigh(obj) : obj)
-    //by default Leven will pull up an MSX2 as the best MSX1_flop emu, which bizarrely is actually correct. The msx1 flppy drive ws a rare external periphereal, and most all MSX1_flop emus aren't 2 sided-disks, yet the softlist set are all double-density!, so they crash MAME. But we rely later on systems being Original or compatible in the duplicate-mamename checking code, so we need an MSX1 to play MSX1 games. Gradiente Expert DD Plus(Brazil) (MSX!) works fine, I think because the Brazilian stiuff is always years later, by that time the disk drive was DD.
+      //by default Leven will pull up an MSX2 as the best MSX1_flop emu, which bizarrely is actually correct. The msx1 flppy drive ws a rare external periphereal, and most all MSX1_flop emus aren't 2 sided-disks, yet the softlist set are all double-density!, so they crash MAME. But we rely later on systems being Original or compatible in the duplicate-mamename checking code, so we need an MSX1 to play MSX1 games. Gradiente Expert DD Plus(Brazil) (MSX!) works fine, I think because the Brazilian stiuff is always years later, by that time the disk drive was DD.
     , R.map(obj => obj.name === `msx1_flop`  && obj.call === `expertdp` ? setHigh(obj) : obj)
-    //else we end up at 'that' panasonic japanese loading menu, which is impossible to comprehend...SONY HB-F1XV (Japan) (MSX2+) seems to load many things fine
+      //else we end up at 'that' panasonic japanese loading menu, which is impossible to comprehend...SONY HB-F1XV (Japan) (MSX2+) seems to load many things fine
     , R.map(obj => obj.name === `msx2p_flop` && obj.call === `hbf1xv`   ? setHigh(obj) : obj)
   )(deRateClones)
 

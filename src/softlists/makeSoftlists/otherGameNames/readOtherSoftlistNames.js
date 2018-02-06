@@ -11,13 +11,6 @@ module.exports = (hashDir, softlist, log, callback) => {
   const thisSoftlistsOtherGameNames = {}
   R.map( emu => otherSoftlistDevices.push(emu.name), softlist.otherSoftlists)
 
-  //maybe this is the best way you're gonna get to manually code a Promise.all with callbacks
-  //https://stackoverflow.com/a/36879062/3536094
-  const finito = (thisSoftlistsOtherGameNames, num) => {
-    if (num === otherSoftlistDevices.length){ 
-      callback(thisSoftlistsOtherGameNames)
-    } 
-  }
 
   if (otherSoftlistDevices.length) { 
     if (log.otherSoftlists) console.log(`${softlist.name} on same system: ${JSON.stringify(otherSoftlistDevices)}`)
@@ -29,7 +22,9 @@ module.exports = (hashDir, softlist, log, callback) => {
         //console.log(`some other games of ${emulator.name}: ${JSON.stringify(names)}`)
         thisSoftlistsOtherGameNames[name] = names 
         num++
-        finito(thisSoftlistsOtherGameNames, num)
+        //maybe this is the best way you're gonna get to manually code a Promise.all with callbacks
+        //https://stackoverflow.com/a/36879062/3536094
+        num === otherSoftlistDevices.length && callback(thisSoftlistsOtherGameNames)
       })
     }, otherSoftlistDevices)
   }

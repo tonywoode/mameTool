@@ -10,7 +10,7 @@ module.exports = softlist => {
   //I removed destructuring elsewhere but here the object isn't going to grow
   const cleanPairs = (key, name, value)  => R.map( ({ $ }) => ( ({ [name]:$.name, [value]:$.value }) ) , key )
   //TODO: overly specific and there's a better way than to map/destructure
-  const cleanPart = partKey  => R.map( ({ feature, $ }) => ( ({ feature, name:$.name, interface:$.interface }) ) , partKey )
+  const cleanPart = partKey => R.map( ({ feature, $ }) => ( ({ feature, name:$.name, interface:$.interface }) ) , partKey )
   
   const replacePart = list => R.map( obj => R.assoc(`part`, cleanPart(obj.part), obj), list)
 
