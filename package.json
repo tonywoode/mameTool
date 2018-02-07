@@ -5,8 +5,7 @@
   "main": "src/QPNode.js",
   "directories": {
     "outputDir": "./outputs/current",
-    "binOutputDir": "/Volumes/Untitled/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin",
-    "binOutputDirParallels": "/Volumes/C/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin"
+    "binOutputDir": "/Volumes/Untitled/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin"
   },
   "config": {
     "devFlags": "--dev",
@@ -22,7 +21,7 @@
     "fulldebug": "trash $npm_package_directories_outputDir && npm run debug --",
     "test": "mocha -- --require ./specs/init.js $(eval $npm_package_config_getSpecs)",
     "package": "pkg src/QPNode.js -t win --out-path $npm_package_directories_binOutputDir",
-    "packageParallels": "pkg src/QPNode.js -t win --out-path $npm_package_directories_binOutputDirParallels"
+    "packageParallels": "pkg src/QPNode.js -t win --out-path /Volumes/[C]\\ My\\ Boot\\ Camp/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin"
   },
   "author": "",
   "license": "ISC",
