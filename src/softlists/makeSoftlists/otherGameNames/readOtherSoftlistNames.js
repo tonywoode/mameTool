@@ -3,7 +3,7 @@
 const fs        = require('fs')
 const XmlStream = require('xml-stream')
 const R         = require('ramda')
-const readSoftlistForGamenames = require('../readGameNamesFromXML.js')
+const readGameNamesFromXML = require('../readGameNamesFromXML.js')
 
 module.exports = (hashDir, softlist, log, callback) => {
   const otherSoftlistDevices = []
@@ -18,7 +18,8 @@ module.exports = (hashDir, softlist, log, callback) => {
     R.map( name => {
       const stream = fs.createReadStream(`${hashDir}${name}.xml`)
       const xml    = new XmlStream(stream)
-      readSoftlistForGamenames(xml, name, softlist, names => {
+      readGameNamesFromXML(xml, name, softlist, (err, names) => {
+        err && console.error(err)
         //console.log(`some other games of ${emulator.name}: ${JSON.stringify(names)}`)
         thisSoftlistsOtherGameNames[name] = names 
         num++

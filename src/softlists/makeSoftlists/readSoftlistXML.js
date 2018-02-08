@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (xml, callback) => {
+module.exports = (xml, nodeback) => {
 
   const softlist = []
 
@@ -24,9 +24,13 @@ module.exports = (xml, callback) => {
       softlist.push(node)
     }
   })
+
+  xml.on(`error`, (message) => 
+    nodeback(`Softlist XML parsing failed with ${message}`, null) )
+
   xml.on(`end`, () => {
     // console.log(JSON.stringify(softlist, null, '\t')); process.exit()
-    callback(softlist)
+    nodeback(null, softlist)
   })
 
 }

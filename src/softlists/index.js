@@ -25,7 +25,8 @@ const softlists = (settings, jsonOutPath, hashDir, outputDir, log) => {
   const  makeSoftlists = settings => emuSystems => {
     R.map(emu => {
           const softlistParams = makeParams(settings, hashDir, outputDir, emu)
-          readSoftlistXML(softlistParams.xml, softlist => {
+          readSoftlistXML(softlistParams.xml, (err, softlist) => {
+            err && (console.error(err))
             const cleanedSoftlist = cleanSoftlist(softlist)
             readOtherSoftlistNames(hashDir, emu, log, thisSoftlistsOtherGameNames => {
               let softlistParamsPlusNames = softlistParams //TODO: done to not make an empty object key if there arent otherSoftlists
