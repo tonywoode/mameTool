@@ -3,6 +3,8 @@
 const fs        = require('fs')
 const XmlStream = require('xml-stream')
 const R         = require('ramda')
+const _throw    = m => { throw new Error(m) }
+
 const readGameNamesFromXML = require('../readGameNamesFromXML.js')
 
 module.exports = (hashDir, softlist, log, callback) => {
@@ -16,6 +18,8 @@ module.exports = (hashDir, softlist, log, callback) => {
     if (log.otherSoftlists) console.log(`${softlist.name} on same system: ${JSON.stringify(otherSoftlistDevices)}`)
     var num = 0
     R.map( name => {
+      fs.existsSync(`${hashDir}${name}.xml`) || 
+        _throw(`was asked to read names from invalid softlist ${hashDir}${name}.xml - is your hash directory ok and up-to-date with your mame xml?`)
       const stream = fs.createReadStream(`${hashDir}${name}.xml`)
       const xml    = new XmlStream(stream)
       readGameNamesFromXML(xml, name, softlist, (err, names) => {
