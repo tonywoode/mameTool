@@ -78,8 +78,11 @@ const log = {
   , efind              : false 
   , json               : false
   //softlist
+    //these probably should be printed to the user
   , printer            : true //prints softlist names as syncrhonously printed, leave on
-  , softlistProblems   : false
+  , fileProblems       : true //there is persistently one file missing however in mame's hash: 'squale'
+    //these probably shouldn't
+  , deviceProblems     : false
   , otherSoftlists     : false
   , otherGameNames     : false
   , otherGameConflicts : false
