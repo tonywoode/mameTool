@@ -17,7 +17,8 @@
     , "Radio Bulletin Cosmicos", "Research Machines RM-380Z", "Rockwell AIM 65", "Sanyo MBC", "San Bergmans & Izabella Malcolm SITCOM", "Signetics Instructor 50"
     , "Signetics PIPBUG", "Slicer Computers Slicer", "Small Systems Engineering SoftBox", "SME Systems Aussie Byte", "SMT Groupil"
     , "SWTPC S/09 Sbug", "System 99 Users Group SGCPU", "Talking Electronics magazine TEC-1A with JMON"
-    , "Tandy Radio Shack 200", "Texas Instruments Compact Computer 40", "Texas Instruments TI-74 BASICALC"
+    , "Tandy Radio Shack 200", "Texas Instruments Compact Computer 40", "Texas Instruments Speak & Read"
+    , "Texas Instruments Speak & Spell", "Texas Instruments Touch & Tell", "Texas Instruments TI-74 BASICALC"
     , "Texas Instruments TM 990/189 University Board microcomputer", "USSR 15IE-00-013", "UT-88 mini"
     , "VEB Mikroelektronik Lerncomputer LC 80", "VEB Polytechnik Poly-Computer 880", "Victor Business Products 9000"
     , "Video Technology Vtech IT Unlimited", "Visual 1050", "Wang Laboratories Professional Computer", "Xerox Alto-II"
@@ -81,7 +82,7 @@
     , "cbm8096_flop", "cbm8296_flop", "cc40_cart", "compis", "comx35_flop", "dgnbeta_flop", "dps1", "ht68k"
     , "hp9845b_rom", "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop", "mikro80", "nimbus", "z80ne_cass"
     , "z80ne_flop", "p500_flop", "pc1640", "pc8201", "pencil2", "pofo", "px4_cart", "ql_cart", "ql_cass", "rainbow"
-    , "rx78", "sitcom", "trs80m2", "trsm100", "victor9k_flop", "vip", "vixen", "wangpc"
+    , "rx78", "sitcom", "snread", "snspell", "tntell", "trs80m2", "trsm100", "victor9k_flop", "vip", "vixen", "wangpc"
   ]
 
 }
