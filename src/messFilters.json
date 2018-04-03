@@ -17,9 +17,10 @@
     , "Radio Bulletin Cosmicos", "Research Machines RM-380Z", "Rockwell AIM 65", "Sanyo MBC", "San Bergmans & Izabella Malcolm SITCOM", "Signetics Instructor 50"
     , "Signetics PIPBUG", "Slicer Computers Slicer", "Small Systems Engineering SoftBox", "SME Systems Aussie Byte", "SMT Groupil"
     , "SWTPC S/09 Sbug", "System 99 Users Group SGCPU", "Talking Electronics magazine TEC-1A with JMON"
-    , "Tandy Radio Shack 200", "Texas Instruments TI-74 BASICALC", "Texas Instruments TM 990/189 University Board microcomputer"
-    , "USSR 15IE-00-013", "UT-88 mini", "VEB Mikroelektronik Lerncomputer LC 80", "VEB Polytechnik Poly-Computer 880"
-    , "Victor Business Products 9000", "Video Technology Vtech IT Unlimited", "Visual 1050", "Wang Laboratories Professional Computer", "Xerox Alto-II"
+    , "Tandy Radio Shack 200", "Texas Instruments Compact Computer 40", "Texas Instruments TI-74 BASICALC"
+    , "Texas Instruments TM 990/189 University Board microcomputer", "USSR 15IE-00-013", "UT-88 mini"
+    , "VEB Mikroelektronik Lerncomputer LC 80", "VEB Polytechnik Poly-Computer 880", "Victor Business Products 9000"
+    , "Video Technology Vtech IT Unlimited", "Visual 1050", "Wang Laboratories Professional Computer", "Xerox Alto-II"
     , "Xor Data Science S-100-12", "Yamaha FB-01", "ZPA Novy Bor IQ-151"
   ],
   "embeddedSystemsBoringSystemsComment": "same as previous key but for embedded, called from scan/embeddedSystems/removeBoringSystems. Its big because there have existed many computers that had embedded roms but no games. To refresh this filter, manually compare against a previous embedded systems romdata. Compare against src/scan/embeddedSystems/mungeCompanyAndSystemNames. TODO: its unclear if chess is in or out. TODO: this feels like its a very expensive mame filter...",
@@ -77,9 +78,9 @@
   "softlistWithNoGamesComment": "some softlists, when examined manually, don't have any games, just utils. Doesn't mean to say they might not one day, but its unlikely. Some games may exist though (that's why we remove them here but keep them as emulators). Don't make these softlists romdatas. Called by callsheet.js in the softlists folder",
   "softlistsWithNoGames": [   
       "abc800", "abc806", "abc80_cass", "abc80_flop", "ampro", "atom", "attache", "bw12", "bw14", "bw2", "cbm2_cart", "cbm2_flop"
-    , "cbm8096_flop", "cbm8296_flop", "compis", "comx35_flop", "dgnbeta_flop", "dps1", "ht68k", "hp9845b_rom"
-    , "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop", "mikro80", "nimbus", "z80ne_cass", "z80ne_flop"
-    , "p500_flop", "pc1640", "pc8201", "pencil2", "pofo", "px4_cart", "ql_cart", "ql_cass", "rainbow"
+    , "cbm8096_flop", "cbm8296_flop", "cc40_cart", "compis", "comx35_flop", "dgnbeta_flop", "dps1", "ht68k"
+    , "hp9845b_rom", "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop", "mikro80", "nimbus", "z80ne_cass"
+    , "z80ne_flop", "p500_flop", "pc1640", "pc8201", "pencil2", "pofo", "px4_cart", "ql_cart", "ql_cass", "rainbow"
     , "rx78", "sitcom", "trs80m2", "trsm100", "victor9k_flop", "vip", "vixen", "wangpc"
   ]
 
