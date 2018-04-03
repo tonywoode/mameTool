@@ -49,7 +49,7 @@ module.exports = systems => {
 
       compRep(/(<unknown>|<generic>)/, ``)
       //system specific (btw replace accepts regex or string by default (i'm trying to show what's intended), but match matches only regex
-    , sysMatchRep(`Acorn`, /BBC/, `BBC`), sysMatchRep(`Acorn`, /Electron/, `Atom`)
+    , sysMatchRep(`Acorn`, /BBC/, `BBC`), sysMatchRep(`Acorn`, /Electron/, `BBC`)
     , compRep(/Amstrad.*/, `Amstrad`), sysMatchRep(`Amstrad`, /(CPC|GX4000)/, `CPC`), sysMatchRep(`Amstrad`, /^PC([0-9]*).*/, `PC`)
     , compRep(`APF Electronics Inc.`, `APF`), sysMatchRep(`APF`, `M-1000`, `Imagination Machine`)
     , compRep(/Apple Computer/, `Apple`), sysMatchRep(`Apple`, /(Macintosh LC|Macintosh II.*)/, `Macintosh II (68020/68030)`)
