@@ -12,7 +12,7 @@
     , "Manchester University Small-Scale Experimental Machine, 'Baby'", "Michael Bauer Dream 6800" 
     , "Militaerverlag der DDR Ausbaufaehiger Mikrocomputer mit dem U 880", "MOS Technologies KIM-1"
     , "Motorola MEK6800D2", "Motorola MC68705P5 Programmer", "Mugler/Mathes PC/M" , "Multitech Micro Professor 1", "Multitech Microkit09"
-    , "National JR-100", "Netronics Explorer/85", "Nokia Data MikroMikko 1 M6", "Osborne 1"
+    , "National JR-100", "Netronics Explorer/85", "Nokia Data MikroMikko 1 M6", "Nuova Z80NE", "Osborne 1"
     , "Peripheral Technology PT68K2", "Peripheral Technology PT68K4", "Pitronics Beta", "PolyMorphic Systems Poly-88"
     , "Radio Bulletin Cosmicos", "Research Machines RM-380Z", "Rockwell AIM 65", "Sanyo MBC", "San Bergmans & Izabella Malcolm SITCOM", "Signetics Instructor 50"
     , "Signetics PIPBUG", "Slicer Computers Slicer", "Small Systems Engineering SoftBox", "SME Systems Aussie Byte", "SMT Groupil"
@@ -78,9 +78,9 @@
   "softlistsWithNoGames": [   
       "abc800", "abc806", "abc80_cass", "abc80_flop", "ampro", "atom", "attache", "bw12", "bw14", "bw2", "cbm2_cart", "cbm2_flop"
     , "cbm8096_flop", "cbm8296_flop", "compis", "comx35_flop", "dgnbeta_flop", "dps1", "ht68k", "hp9845b_rom"
-    , "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop", "mikro80", "nimbus", "p500_flop", "pc1640", "pc8201"
-    , "pencil2", "pofo", "px4_cart", "ql_cart", "ql_cass", "rainbow", "rx78", "sitcom", "trs80m2", "trsm100"
-    , "victor9k_flop", "vip", "vixen", "wangpc"
+    , "kayproii", "lisa", "mac_hdd", "mac_flop", "mc1502_flop", "mikro80", "nimbus", "z80ne_cass", "z80ne_flop"
+    , "p500_flop", "pc1640", "pc8201", "pencil2", "pofo", "px4_cart", "ql_cart", "ql_cass", "rainbow"
+    , "rx78", "sitcom", "trs80m2", "trsm100", "victor9k_flop", "vip", "vixen", "wangpc"
   ]
 
 }
