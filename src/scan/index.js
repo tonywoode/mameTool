@@ -39,7 +39,7 @@ MAME ini dir:           ${settings.iniDir}`
       const {versionInfo, arcade, messSystems, embedded} = sysObj 
 
       //post process the arcade scrape
-      /* process all the inis into the json - we specify their type (and their internal name if necessary)
+      /* process all the inis into the json. We specify their type (and their internal name if necessary)
        *   there are three types of ini file (see iniReader.js)
        *   n.b.: to add an ini to romdata, also populate it in makeRomdata */
       const mungedArcade = R.pipe( arcade =>
