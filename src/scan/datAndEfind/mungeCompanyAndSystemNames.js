@@ -151,7 +151,7 @@ module.exports = systems => {
     , sysMatchRep(`Texas Instruments`, /Speak & Spell/, `Speak & Spell`)
     , sysMatchRep(`Texas Instruments`, /TI-99.*/, `TI-99`)
     , sysMatchRep(`Texas Instruments`, `TI Avigo 10 PDA`, `TI Avigo`)
-    , sysMatchRep(`Thomson`, `MO5 NR`, `MO5`), sysMatchRep(`Thomson`, /(TO7.*|TO9.*)/, `TO7/TO9`)
+    , sysMatchRep(`Thomson`, /MO5.*|MO6.*/, `MO5/MO6`), sysMatchRep(`Thomson`, /(TO7.*|TO9.*|TO8.*)/, `TO-series`)
     , sysMatchRep(`VEB Robotron Electronics Riesa`, `Z1013`, `KC Series`), compRep(`VEB Robotron Electronics Riesa`, `Robotron`)  //company after 
     , compRep(`V. I. Lenin`, `Lenin`), sysMatchRep(`Lenin`, `PK-01 Lviv`, `Lviv`)
     , sysMatchRep(`Video Technology`, /Laser.*/, `Laser Mk1`)
