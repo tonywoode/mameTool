@@ -13,7 +13,7 @@ const {cleanJson, iniToJson, inis} = require('./arcadeScan')
 //originally mess' modules
 const { cleanSoftlists, cleanDevices, mungeCompanyAndSystemNames
       , mungeCompanyForType, makeFinalSystemTypes, removeBoringSystems
-      , printEfind, printSystemsDat, existingDatReaderAsync} = require('./datAndEfind')
+      , insertLoadingCalls, printEfind, printSystemsDat, existingDatReaderAsync} = require('./datAndEfind')
 
 //embedded's modules
 const {mungeCompanyAndSystemNamesEmbedded, removeBoringSystemsEmbedded} = require('./embeddedSystems')
@@ -59,6 +59,7 @@ MAME ini dir:           ${settings.iniDir}`
         ,  mungeCompanyForType
         ,  makeFinalSystemTypes(log)
         ,  removeBoringSystems(log)
+        ,  insertLoadingCalls(log)
         ,  printEfind(efindOutPath, settings, log)
         ,  printSystemsDat(log, existingSystemsDat, datOutPath)
         )(messSystems)

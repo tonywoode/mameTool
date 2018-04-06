@@ -6,6 +6,7 @@ const mungeCompanyAndSystemNames = require('./mungeCompanyAndSystemNames.js')
 const mungeCompanyForType        = require('./mungeCompanyForType.js')   
 const makeFinalSystemTypes       = require('./makeFinalSystemTypes.js')
 const removeBoringSystems        = require('./removeBoringSystems.js')
+const insertLoadingCalls         = require('./insertLoadingCalls.js')
 const printEfind                 = require('./printEfind.js')
 const printSystemsDat            = require('./printSystemsDat.js')
 const {existingDatReaderAsync}   = require('./existingDatReader.js')
@@ -17,6 +18,7 @@ module.exports = {
   , mungeCompanyForType
   , makeFinalSystemTypes
   , removeBoringSystems
+  , insertLoadingCalls
   , printEfind
   , printSystemsDat
   , existingDatReaderAsync 

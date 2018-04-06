@@ -67,7 +67,7 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
   //some softlists for nes and snes are exceptional in that they emulate a special 'cartridge' that a different
   //  kind of cartridge plugs into.
   const softlistCartExceptions = (softlistName, call) => {
-    const exceptions = {
+    const nes_snes_exceptions = {
         nes_ade : "ade"
       , nes_ntbrom : "ntb"
       , nes_kstudio : "karaoke"
@@ -77,7 +77,7 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
       , snes_vkun: "tbc - not found"
     }
 
-    return softlistName in exceptions? `${call} -cart ${exceptions[softlistName]} -cart2` : call 
+    return softlistName in nes_snes_exceptions? `${call} -cart ${nes_snes_exceptions[softlistName]} -cart2` : call 
   }
 
   //create the vars which will populate each instance of the EfindTemplate, first for each machine's softlist (if they exist)
@@ -89,7 +89,8 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
     const params = {
         topLine    : emulatorName
       , systemType : obj.systemType
-      , callToMake : `${softlistCartExceptions(softlist.name, obj.call)} %ROMMAME%` //for we are running from a generated soflist romdata.dat
+      //, callToMake : insertLoaderCode(emulatorName, "blah", "its a cassette") //for we are running from a generated softlist romdata.dat
+      , callToMake : `${softlistCartExceptions(softlist.name, obj.call)} %ROMMAME%` //for we are running from a generated softlist romdata.dat
       , info       : `http://mameworld.info` //we don't have anything but a url to tell you about with softlists
     }
     settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
