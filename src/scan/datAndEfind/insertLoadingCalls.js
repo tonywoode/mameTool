@@ -1,7 +1,15 @@
 'use strict'
 
 const R                    = require('ramda')
-//const {efindBoringSystems} = require('../../messFilters.json')
+//const {needsARomToLoad} = require('../../messFilters.json')
+
+  
+  
+  
+/* the k-v's are not obvious here:  we need something + a media device, but is that something the particular machine call, 
+ * or is it the system type? Take thomson to-series as an example, you need a basic loader rom for the to7, 
+ * but not for the to8, yet both can load to7 floppies and cassettes on both. They are both part of the same system type
+ * (Thomson TO-series) because of this, yet that means we can't use the system type for any matching here. We need to be granular
 
 /* In the case of apfimag, we need to patch both the softlist cassette emulator and the cassette emulator. 
  * So we find the call and first ask if the softlist exists and add patch keys if so, 
@@ -9,14 +17,14 @@ const R                    = require('ramda')
   * one problem is that nes and snes looksilly when you do this, there are a ton of systems you unncesessarily need
   * to add to the calls. You could always say: if the onkect doesn't have a 'calls', then add it to all systems that are original
   * */
-  const needsARomToLoad = [
+const needsARomToLoad = [
   {   'calls'    : ['apfimag']
     , 'softlist' : 'apfimag_cass'
     , 'device'   : 'cass'
     , 'romcall'  : 'cart basic'
   }, 
   {   'softlist' : 'nes_ade'
-    , 'romcall'  : 'cart ntb'
+    , 'romcall'  : 'cart ade'
   },
   {   'softlist' : 'nes_ntbrom'
     , 'romcall'  : 'cart ntb'
@@ -31,9 +39,11 @@ const R                    = require('ramda')
     , 'romcall'  : 'cart bsx'
   },
   {   'softlist' : 'snes_strom'
-    , 'romcall'  : 'cart ntb'
+    , 'romcall'  : 'cart sufami'
   }
-  ]
+]
+
+
 
 //we are going to need to know the index of the softlist, because each is an object and we need to attach the loader call key onto one of them
 const doSoftlistsContainSoftlist = (softlistToFind, obj) => { 
@@ -44,9 +54,9 @@ const doSoftlistsContainSoftlist = (softlistToFind, obj) => {
   }
 
 
-//as well as finding a match, we also need to make sure we have an ORIGINAL softlist not a COMPATIBLE one, 
-//consider what would happen for Thomson TO8 with Thomson TO7's softlist, the TO8 doesn't need the basic cart, and if it DID need a basic cart, it wouldn't need the same
-//one as the TO7
+/* as well as finding a match, we also need to make sure we have an ORIGINAL softlist not a COMPATIBLE one, 
+ * consider what would happen for Thomson TO8 with Thomson TO7's softlist, the TO8 doesn't need the basic cart, 
+ * and if it DID need a basic cart, it wouldn't need the same one as the TO7 */
 const doesSystemHaveThisSoftlist = (obj, softlistToFind) => {
   console.log(`looking for ${softlistToFind} in ${obj.call}`)
   if (obj.softlist) {return doSoftlistsContainSoftlist(softlistToFind, obj)}
@@ -54,45 +64,42 @@ const doesSystemHaveThisSoftlist = (obj, softlistToFind) => {
 
 
 module.exports = log => systems => {
-  for (const item of needsARomToLoad) {
 
-  const insertedSoftlistLoadingCalls = R.map(obj => {
-    const foundIndex = doesSystemHaveThisSoftlist(obj, item.softlist)
-    return foundIndex? ( 
-        console.log(`    ---> ${obj.call} has an original softlist called ${item.softlist}`)
-      , R.assocPath([`softlist`, foundIndex, `loaderCall`], item.romcall, obj)
-    )
-    : obj
-  }, systems)
-  //const systemsWithGames = R.map(obj => console.log(obj.systemType), systems)
-  console.log(JSON.stringify(insertedSoftlistLoadingCalls, null, '\t'))
+  //pointfree takes systems list, searces for systems who have the (original) softlist we have loader rom info for, 
+  //if found, inserts the call against the softlist so we can check for its existence later
+  const fillLoaderCalls = romLoaderItem => {
+    return R.map( obj => {
+      const foundIndex = doesSystemHaveThisSoftlist(obj, romLoaderItem.softlist)
+      return foundIndex? ( 
+          console.log(`    ---> ${obj.call} has an original softlist called ${romLoaderItem.softlist}`)
+        , R.assocPath([`softlist`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
+      )
+      : obj
+    })
   }
-  //return systemsWithGames
+
+  //populate the systems list with the calls to rom loading media that some softlists always need
+  const insertedSoftlistLoadingCalls = needsARomToLoad.reduce( 
+    (systemsAccum, romLoaderItem) => fillLoaderCalls(romLoaderItem)(systemsAccum)
+  , systems)
+    
+  console.log(JSON.stringify(insertedSoftlistLoadingCalls, null, '\t'))
+
 }
 
 
 //the below code i originally put in to src/scan/datAndEfind/printEfind
 
 
-
-/* There are many systems that cannot load a game on some device (floppy/cassette) without bootstrapping code, usually a basic cart or floppy, being inserted at the same time
- * thnaks to softlist names, we can automatically provide this rom to the machine at the same time as loading from that media device, ie: we can call '-cart1 basic -flop1 %ROM%' where 'basic' is a softlist name. 
- * We want to do this for both the softlist devices AND the normal emulators (for they will not load the game without this rom anyway), so note it ties you to needing the softlist files for these system's devices.
-  * We also need to remember to also patch any 'same gamename' conflict fixes with this same list (where a game exists on two seperate devices but mame wasn't good at representing
-  * this in softlists 
-  *
-  * its a bit unclear what to use for the match here, certainly we need something + a media device, but is that something the particular machine call, or is it the system type?
-  * for apf imagination machine, i'm afraid to say you probably have to be granular, take thomson to-series as an example, you need a different basic rom for the to7 and to8*/
-const needsARomToLoad = {
-    'APF Imagination Machine' : { 
-        'emulator' : 'APF Imagination Machine'
-      , 'call'     : 'apfimag'
-      , 'softlist' : 'apfimag_cass'
-      , 'device'   : 'cass'
-      , 'romCall'  : 'cart basic'
-    } 
-}
-
+/* There are many systems that cannot load a game on some device (floppy/cassette) without bootstrapping code, 
+ * usually a basic cart or floppy, being inserted at the same time. Thnaks to softlist names, we can automatically 
+ * provide this rom to the machine at the same time as loading from that media device, ie: we can call '-cart1 basic -flop1 %ROM%' 
+ * where 'basic' is the softlist name of loader media. We want to do this for both the softlist devices AND the normal emulators 
+ * (for they will not load the game without this rom anyway), so note it ties you to needing the softlist files for these system's devices.
+ * We also need to remember to also patch any 'same gamename' conflict fixes with this same list 
+ * (that's where a game exists on two seperate devices but mame wasn't good at representing this in softlists 
+ *
+ 
 /* we want a single set of data to work on an overloaded function that can replace both softlist emulators but also individual device emulators.
  * if we pass a softlist name, use that as the lookup, if we pass emulatorName, use that and device as the lookup - OH NO NO NO TONE: problem with using the softlist name is  what happens when the to8 runs the to7 cassette list!!! 
  oh god look you need to be able to go through to8 and say what to do if a to8 is loading a to7 cassette softlist, right, which is 
