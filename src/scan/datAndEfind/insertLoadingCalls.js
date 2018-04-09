@@ -64,6 +64,11 @@ const needsARomToLoad = [
   {   'softlist' : 'snes_strom'
     , 'romcall'  : 'cart sufami'
   },
+  {   'calls'    : ['orion128', 'orionide', 'orionidm', 'orionms', 'orionpro', 'orionz80', 'orionzms']
+    , 'softlist' : 'orion_cass'
+    , 'device'   : 'cass'
+    , 'romcall'  : 'cart ROMDISK'
+  }, 
   {   'test' : 'reducer should cope with me'
   }
 ]
@@ -101,7 +106,7 @@ const fillSoftlistLoaderCalls = (romLoaderItem, log) => {
   return R.map( obj => {
   if (!(romLoaderItem['softlist'])) {return obj} //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
     const foundIndex = doesSystemHaveThisSoftlist(obj, romLoaderItem.softlist, log)
-    return foundIndex? ( 
+    return (foundIndex > -1)? ( 
         log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${romLoaderItem.softlist}`)
       , R.assocPath([`softlist`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
     )
@@ -131,7 +136,7 @@ const fillDeviceLoadingCalls = (romLoaderItem, log) => {
   return R.map( obj => {
     if (!(romLoaderItem['device'])) {return obj} //note only checking device not calls, should really check both
     const foundIndex = doesSystemHaveThisCall(obj, romLoaderItem.calls, romLoaderItem.device, log)
-    return foundIndex? ( 
+    return (foundIndex > -1)? ( 
         log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${romLoaderItem.device}`)
       , R.assocPath([`device`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
     )
