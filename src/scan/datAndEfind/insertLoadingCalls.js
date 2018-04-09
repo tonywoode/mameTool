@@ -69,6 +69,11 @@ const needsARomToLoad = [
     , 'device'   : 'cass'
     , 'romcall'  : 'cart ROMDISK'
   }, 
+  {   'calls'    : ['sc3000', 'sg1000' ] //the sc-3000, sg-1000 and sf-7000 are hopefully all the same underlying system, so why do i add sg1000 here if its a cloneof sc3000? in order to get the sg1000m2, a clone of the sg1000, but a subtely is the sg1000 doesn't have a cass, so it won't iteself get the loader call
+    , 'softlist' : 'sc3000_cass'
+    , 'device'   : 'cass'
+    , 'romcall'  : 'cart basic3e'
+  },
   {   'test' : 'reducer should cope with me'
   }
 ]
