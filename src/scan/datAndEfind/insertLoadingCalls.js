@@ -64,7 +64,7 @@ const needsARomToLoad = [
   {   'softlist' : 'snes_strom'
     , 'romcall'  : 'cart sufami'
   },
-  {   'calls'    : ['orion128', 'orionide', 'orionidm', 'orionms', 'orionpro', 'orionz80', 'orionzms']
+  {   'calls'    : ['orion128'] //clone search also finds, 'orionide', 'orionidm', 'orionms', 'orionpro', 'orionz80', 'orionzms']
     , 'softlist' : 'orion_cass'
     , 'device'   : 'cass'
     , 'romcall'  : 'cart ROMDISK'
@@ -102,9 +102,9 @@ const doesSystemHaveThisSoftlist = (obj, softlistToFind, log) => {
 /* pointfree takes systems list, searches for systems who have the (original) softlist we have loader rom info for, 
  * if found, inserts the call against the softlist so we can check for its existence later */
 const fillSoftlistLoaderCalls = (romLoaderItem, log) => {
-  log.loaderCalls && romLoaderItem['softlist'] && console.log(`seeking matches for softlist ${romLoaderItem.softlist}`)
+  log.loaderCalls && romLoaderItem['softlist'] && console.log(`LOADER CALLS: seeking matches for softlist ${romLoaderItem.softlist}`)
   return R.map( obj => {
-  if (!(romLoaderItem['softlist'])) {return obj} //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
+  if (!(romLoaderItem['softlist'])) return obj //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
     const foundIndex = doesSystemHaveThisSoftlist(obj, romLoaderItem.softlist, log)
     return (foundIndex > -1)? ( 
         log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${romLoaderItem.softlist}`)
@@ -126,15 +126,15 @@ const getIndexOfTheDevice = (obj, deviceToFind, log) => {
 }
 
 const doesSystemHaveThisCall = (obj, callsToFind, deviceToFind, log) => {
-  log.loaderCallsVerbose && console.log(`looking for ${callsToFind} with ${deviceToFind} as part of ${obj.call}`)
-  if (callsToFind.includes(obj.call)) {return getIndexOfTheDevice(obj, deviceToFind, log)}
+  log.loaderCallsVerbose && console.log(`looking for ${callsToFind} with ${deviceToFind} as part of ${obj.call} and its clones`)
+  if ((callsToFind.includes(obj.call)) || (callsToFind.includes(obj.cloneof) ) ) return getIndexOfTheDevice(obj, deviceToFind, log)
 }
 
 //pointfree takes systems list
 const fillDeviceLoadingCalls = (romLoaderItem, log) => {
-  log.loaderCalls && romLoaderItem['device'] && console.log(`seeking matches for ${romLoaderItem.device} of ${romLoaderItem.calls.toString()}`)
+  log.loaderCalls && romLoaderItem['device'] && console.log(`LOADER CALLS: seeking matches for ${romLoaderItem.device} of ${romLoaderItem.calls.toString()}`)
   return R.map( obj => {
-    if (!(romLoaderItem['device'])) {return obj} //note only checking device not calls, should really check both
+    if (!(romLoaderItem['device'])) return obj //note only checking device not calls, should really check both
     const foundIndex = doesSystemHaveThisCall(obj, romLoaderItem.calls, romLoaderItem.device, log)
     return (foundIndex > -1)? ( 
         log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${romLoaderItem.device}`)

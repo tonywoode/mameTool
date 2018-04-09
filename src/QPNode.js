@@ -73,7 +73,7 @@ MAME exe path:          ${settings.mameExePath}`
 const log = {
   //datAndEfind
     efindProblems      : devMode 
-  , loaderCalls        : false
+  , loaderCalls        : true
   , loaderCallsVerbose : false
   //the data/efind/scan artifacts
   , dat                : false 
