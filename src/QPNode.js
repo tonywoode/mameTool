@@ -73,6 +73,8 @@ MAME exe path:          ${settings.mameExePath}`
 const log = {
   //datAndEfind
     efindProblems      : devMode 
+  , loaderCalls        : false
+  , loaderCallsVerbose : false
   //the data/efind/scan artifacts
   , dat                : false 
   , efind              : false 
@@ -80,7 +82,7 @@ const log = {
   //softlist
     //these probably should be printed to the user
   , printer            : true //prints softlist names as syncrhonously printed, leave on
-  , fileProblems       : true //there is persistently one file missing however in mame's hash: 'squale'
+  , fileProblems       : true //as of mame 187, there is persistently one file missing in mame's hash: 'squale'
     //these probably shouldn't
   , deviceProblems     : false
   , otherSoftlists     : false
