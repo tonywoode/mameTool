@@ -17,6 +17,14 @@ const R                    = require('ramda')
   * one problem is that nes and snes looksilly when you do this, there are a ton of systems you unncesessarily need
   * to add to the calls. You could always say: if the onkect doesn't have a 'calls', then add it to all systems that are original
   * */
+
+//note i'm searching for a softlist key to do the softlist ones, and a device key to do the device ones, so neither checks 'calls'
+//
+//calls and device always need each other, and it may be that a system needs the same loader for both cass and floppy, so maybe the value of calls should be an object containing devices,
+//but then you need to iterate over calls (not doing atm) - how am i going to do to7's cass and floppy which both need the basic cart?
+//
+//also its such a shame the softlist calls apply so generically to systems that 'have' the softlist. We could get a similar effect by using cloneof as well as call 
+//ie: look for the system to8 or clones of to8 and then look for our device in all of those
 const needsARomToLoad = [
   {   'calls'    : ['apfimag']
     , 'softlist' : 'apfimag_cass'
@@ -40,15 +48,17 @@ const needsARomToLoad = [
   },
   {   'softlist' : 'snes_strom'
     , 'romcall'  : 'cart sufami'
+  },
+  {   'test' : 'reducer should cope with me'
   }
 ]
 
 
 
 //we are going to need to know the index of the softlist, because each is an object and we need to attach the loader call key onto one of them
-const doSoftlistsContainSoftlist = (softlistToFind, obj) => { 
+const doSoftlistsContainSoftlist = (softlistToFind, obj, log) => { 
     for (const [index, aSoftlist] of obj.softlist.entries()) { 
-      console.log(`  which has softlist ${aSoftlist.name}`)
+     log.loaderCalls && console.log(`  which has softlist ${aSoftlist.name}`)
       if (softlistToFind === aSoftlist.name && aSoftlist.status === `original`) return index
     }   
   }
@@ -57,39 +67,78 @@ const doSoftlistsContainSoftlist = (softlistToFind, obj) => {
 /* as well as finding a match, we also need to make sure we have an ORIGINAL softlist not a COMPATIBLE one, 
  * consider what would happen for Thomson TO8 with Thomson TO7's softlist, the TO8 doesn't need the basic cart, 
  * and if it DID need a basic cart, it wouldn't need the same one as the TO7 */
-const doesSystemHaveThisSoftlist = (obj, softlistToFind) => {
-  console.log(`looking for ${softlistToFind} in ${obj.call}`)
-  if (obj.softlist) {return doSoftlistsContainSoftlist(softlistToFind, obj)}
+const doesSystemHaveThisSoftlist = (obj, softlistToFind, log) => {
+  log.loaderCalls && console.log(`looking for ${softlistToFind} in ${obj.call}`)
+  if (obj.softlist) {return doSoftlistsContainSoftlist(softlistToFind, obj, log)}
 }
 
+//pointfree takes systems list, searches for systems who have the (original) softlist we have loader rom info for, 
+//if found, inserts the call against the softlist so we can check for its existence later
+const fillSoftlistLoaderCalls = (romLoaderItem, log) => {
+  return R.map( obj => {
+  if (!(romLoaderItem['softlist'])) {return obj} //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
+    const foundIndex = doesSystemHaveThisSoftlist(obj, romLoaderItem.softlist, log)
+    return foundIndex? ( 
+        log.loaderCalls && console.log(`    ---> ${obj.call} has an original softlist called ${romLoaderItem.softlist}`)
+      , R.assocPath([`softlist`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
+    )
+    : obj
+  })
+}
+
+// a subtely here is that the system's device briefname may or may not have a number at the end. There's never likely to be 
+// much variety in briefnames so the simplest substring check is fine
+const getIndexOfTheDevice = (obj, deviceToFind, log) => {
+  for (const [index, device] of obj.device.entries()) {
+    if (device.briefname.includes(deviceToFind)) {
+      console.log(`  --> found a match and the index for ${deviceToFind} in ${obj.call} is ${index}`)
+      return index
+    }
+  }
+}
+
+
+const doesSystemHaveThisCall = (obj, callsToFind, deviceToFind, log) => {
+  console.log(`looking for ${callsToFind} with ${deviceToFind} as part of ${obj.call}`)
+  if (callsToFind.includes(obj.call)) {return getIndexOfTheDevice(obj, deviceToFind, log)}
+}
+
+//pointfree takes systems list
+const fillDeviceLoadingCalls = (romLoaderItem, log) => {
+  return R.map( obj => {
+    if (!(romLoaderItem['device'])) {return obj} //note only checking device not calls, should really check both
+    const foundIndex = doesSystemHaveThisCall(obj, romLoaderItem.calls, romLoaderItem.device, log)
+    return foundIndex? ( 
+        console.log(`    ---> inserting a loading call for ${obj.call}'s ${romLoaderItem.device}`)
+      , R.assocPath([`device`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
+    )
+    : obj
+  })
+}
 
 module.exports = log => systems => {
-
-  //pointfree takes systems list, searces for systems who have the (original) softlist we have loader rom info for, 
-  //if found, inserts the call against the softlist so we can check for its existence later
-  const fillLoaderCalls = romLoaderItem => {
-    return R.map( obj => {
-      const foundIndex = doesSystemHaveThisSoftlist(obj, romLoaderItem.softlist)
-      return foundIndex? ( 
-          console.log(`    ---> ${obj.call} has an original softlist called ${romLoaderItem.softlist}`)
-        , R.assocPath([`softlist`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
-      )
-      : obj
-    })
-  }
-
+  log.loaderCalls = true
   //populate the systems list with the calls to rom loading media that some softlists always need
   const insertedSoftlistLoadingCalls = needsARomToLoad.reduce( 
-    (systemsAccum, romLoaderItem) => fillLoaderCalls(romLoaderItem)(systemsAccum)
+    (systemsAccum, romLoaderItem) => fillSoftlistLoaderCalls(romLoaderItem, log)(systemsAccum)
   , systems)
     
-  console.log(JSON.stringify(insertedSoftlistLoadingCalls, null, '\t'))
+ // log.loaderCalls && console.log(JSON.stringify(insertedSoftlistLoadingCalls, null, '\t'))
+
+  //we can use those softlist romnames to also auto-insert the loading media for non-softlist emulators
+  //the principle is much the same, but we have to be much more granular with the systems we apply it to
+  //(because we can't use system type for the call as they are too general)
+  const insertedDeviceLoadingCalls = needsARomToLoad.reduce(
+    (systemsAccum, romLoaderItem) => fillDeviceLoadingCalls(romLoaderItem, log)(systemsAccum)
+  , insertedSoftlistLoadingCalls)
+
+
+  console.log(JSON.stringify(insertedDeviceLoadingCalls, null, '\t'))
 
 }
 
 
-//the below code i originally put in to src/scan/datAndEfind/printEfind
-
+//the below i originally put in to src/scan/datAndEfind/printEfind
 
 /* There are many systems that cannot load a game on some device (floppy/cassette) without bootstrapping code, 
  * usually a basic cart or floppy, being inserted at the same time. Thnaks to softlist names, we can automatically 
@@ -101,12 +150,12 @@ module.exports = log => systems => {
  *
  
 /* we want a single set of data to work on an overloaded function that can replace both softlist emulators but also individual device emulators.
- * if we pass a softlist name, use that as the lookup, if we pass emulatorName, use that and device as the lookup - OH NO NO NO TONE: problem with using the softlist name is  what happens when the to8 runs the to7 cassette list!!! 
- oh god look you need to be able to go through to8 and say what to do if a to8 is loading a to7 cassette softlist, right, which is 
-  //different to what the to7 will do with a cassette softlist. essentially the loader insert has nothing to do with the softlist and everything
-  //to do with the machine its running on and the device being loaded. so in fact isn't the softlist name redundant in our json here in that case?
-  //the only reason i'm using the softlist is that the device is coded into it, but i MUST be working out the device some other way, since i manage to
-  //attribute the right device to every softlist, isn't it in the mess.json itself already?
+ * if we pass a softlist name, use that as the lookup, if we pass emulatorName, use that and device as the lookup: problem with using the softlist name is what happens when the to8 runs the to7 cassette list?
+ * oh god look you need to be able to go through to8 and say what to do if a to8 is loading a to7 cassette softlist, right, which is 
+ * different to what the to7 will do with a cassette softlist. essentially the loader insert has nothing to do with the softlist and everything
+ * to do with the machine its running on and the device being loaded. so in fact isn't the softlist name redundant in our json here in that case?
+ * the only reason i'm using the softlist is that the device is coded into it, but i MUST be working out the device some other way, since i manage to
+ * attribute the right device to every softlist, isn't it in the mess.json itself already?
 
  * so it has to be a xor: if the call and the softlist match, add the loader code to the softlist emu. then separately, if the call and the device match, add that to the device's emulator. so what you musn't do is add the calll to any emulator that happens to use a softlist
  * another option would be to add the call to the softlist only where the type is 'original' ie not 'compatible' 
