@@ -74,6 +74,11 @@ const needsARomToLoad = [
     , 'device'   : 'cass'
     , 'romcall'  : 'cart basic3e'
   },
+  {   'calls'    : ['to7', 'to770', 'to9'] //i suspect the to770 will load cassettes with the same loader as the to7, but its not a cloneof for some reason (it says to7 softlists are original with it)
+    , 'softlist' : 'to7_cass'
+    , 'device'   : 'cass'
+    , 'romcall'  : 'cart basic'
+  },
   {   'test' : 'reducer should cope with me'
   }
 ]
