@@ -70,6 +70,7 @@ const needsARomToLoad = [
     , 'comment'   : 'sc-3000, sg-1000 and sf-7000 hopefully all the same underlying system. Why add sg1000 here if its a cloneof sc3000? To get the sg1000m2, a clone of the sg1000 (a subtely is the sg1000 doesnt have a cass, so it wont iteself get the loader call)'
   },
   {   'calls'     : ['to7', 'to770', 'to9'] 
+    , 'softlistExclusions' : ['to8']
     , 'softlists' : ['to7_cass', 'to_flop']
     , 'devices'   : ['cass', 'flop']
     , 'romcall'   : 'cart basic'
@@ -100,9 +101,10 @@ const doSoftlistsContainSoftlist = (softlistToFind, obj, log) => {
 /* as well as finding a match, we also need to make sure we have an ORIGINAL softlist not a COMPATIBLE one, 
  *   consider what would happen for Thomson TO8 with Thomson TO7's softlist, the TO8 doesn't need the basic cart, 
  *   and if it DID need a basic cart, it wouldn't need the same one as the TO7 */
-const doesSystemHaveThisSoftlist = (obj, softlistToFind, log) => {
+const doesSystemHaveThisSoftlist = (obj, softlistToFind, exclusions, log) => {
   log.loaderCallsVerbose && console.log(`looking for ${softlistToFind} in ${obj.call}`)
-  if (obj.softlist) {return doSoftlistsContainSoftlist(softlistToFind, obj, log)}
+  if  (exclusions && ( exclusions.includes(obj.call) || exclusions.includes(obj.cloneof) ) ) return -1
+  if ( obj.softlist ) {return doSoftlistsContainSoftlist(softlistToFind, obj, log)}
 }
 
 /* pointfree takes systems list, searches for systems who have the (original) softlist we have loader rom info for, 
@@ -113,7 +115,7 @@ const fillSoftlistLoaderCalls = (romLoaderItem, log) => {
   if (!(romLoaderItem['softlists'])) return obj //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
     let newObj = obj
     for (const softlist of romLoaderItem.softlists) {
-    const foundIndex = doesSystemHaveThisSoftlist(obj, softlist, log)
+    const foundIndex = doesSystemHaveThisSoftlist(obj, softlist, romLoaderItem.softlistExclusions, log)
     if (foundIndex > -1) ( 
         log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${softlist}`)
       , newObj = R.assocPath([`softlist`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, newObj)

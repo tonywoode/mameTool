@@ -74,7 +74,7 @@ const log = {
   //datAndEfind
     efindProblems      : devMode 
   , loaderCalls        : true
-  , loaderCallsVerbose : true
+  , loaderCallsVerbose : false
   //the data/efind/scan artifacts
   , dat                : false 
   , efind              : false 
