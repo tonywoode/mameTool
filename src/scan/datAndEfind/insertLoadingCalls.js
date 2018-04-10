@@ -47,22 +47,22 @@ const needsARomToLoad = [
     , 'romcall'  : 'cart basic'
   }, 
   {   'softlist' : 'nes_ade'
-    , 'romcall'  : 'cart ade'
+    , 'romcall'  : 'cart ade' //you don't seem to need the -cart2 call here, wouldn't hurt to put it in though
   },
-  {   'softlist' : 'nes_ntbrom'
-    , 'romcall'  : 'cart ntb'
+  {   'softlist' : 'nes_ntbrom' 
+    , 'romcall'  : 'cart ntb'  //this romcall isn't valid. there's only two games
   },
   {   'softlist' : 'nes_kstudio'
-    , 'romcall'  : 'cart karaoke'
+    , 'romcall'  : 'cart karaoke -cart2' //you do need the cart2 call
   },
   {   'softlist' : 'nes_datach'
-    , 'romcall'  : 'cart datach'
+    , 'romcall'  : 'cart datach -cart2' //you need the cart2 call
   },
-  {   'softlist' : 'snes_bspack'
-    , 'romcall'  : 'cart bsx'
+  {   'softlist' : 'snes_bspack' 
+    , 'romcall'  : 'cart bsx' //this romcall isn't valid. there's only one game
   },
   {   'softlist' : 'snes_strom'
-    , 'romcall'  : 'cart sufami'
+    , 'romcall'  : 'cart sufami -cart2' //you need the cart2. there is another cart slot you're supposed to combine games
   },
   {   'calls'    : ['orion128'] //clone search also finds, 'orionide', 'orionidm', 'orionms', 'orionpro', 'orionz80', 'orionzms']
     , 'softlist' : 'orion_cass'
@@ -118,7 +118,7 @@ const fillSoftlistLoaderCalls = (romLoaderItem, log) => {
     const foundIndex = doesSystemHaveThisSoftlist(obj, romLoaderItem.softlist, log)
     return (foundIndex > -1)? ( 
         log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${romLoaderItem.softlist}`)
-      , R.assocPath([`softlist`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
+      , R.assocPath([`softlist`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, obj)
     )
     : obj
   })
@@ -148,7 +148,7 @@ const fillDeviceLoadingCalls = (romLoaderItem, log) => {
     const foundIndex = doesSystemHaveThisCall(obj, romLoaderItem.calls, romLoaderItem.device, log)
     return (foundIndex > -1)? ( 
         log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${romLoaderItem.device}`)
-      , R.assocPath([`device`, foundIndex, `loaderCall`], romLoaderItem.romcall, obj)
+      , R.assocPath([`device`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, obj)
     )
     : obj
   })
