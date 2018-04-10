@@ -3,41 +3,28 @@
 const R                    = require('ramda')
 //const {needsARomToLoad} = require('../../messFilters.json')
 
-/* we want a single set of data to work on an overloaded function that can replace both softlist emulators but also individual device emulators.
- * if we pass a softlist name, use that as the lookup, if we pass emulatorName, use that and device as the lookup: problem with using the softlist name is what happens when the to8 runs the to7 cassette list?
- * oh god look you need to be able to go through to8 and say what to do if a to8 is loading a to7 cassette softlist, right, which is 
- * different to what the to7 will do with a cassette softlist. essentially the loader insert has nothing to do with the softlist and everything
- * to do with the machine its running on and the device being loaded. so in fact isn't the softlist name redundant in our json here in that case?
- * the only reason i'm using the softlist is that the device is coded into it, but i MUST be working out the device some other way, since i manage to
- * attribute the right device to every softlist, isn't it in the mess.json itself already?
+/* we want a single set of data to replace both softlist calls and device calls: as the imp is different, 
+ *   yet the systems affected often need both softlists and device emulators (e.g.: the cassette emulator for the to7) 
+ *   patching for a loader call.
+ * Naively it seems looking up systems which run a particular softlist will be trivial, but a problem arises when 
+ *   e.g.: the to8 runs the to7 cassette softlist. The to7 needed its basic cart to be inserted
+ *   but the to8 included its own built-in basic. Essentially the loader call is about the machine software is running on,
+ *   and the device being loaded, the call made doesn't follow the softlist. 
+ * A third factor is that we need the application to be as wide-randing as possible: we DO want clones of the to7, and
+ *   systems with 'original' (as opposed to 'compatible') support for its softlists (eg: snes and snes_pal) to have the loader call added, so the
+ *   caller needs to look for these (looking for 'original' softlists aslo solves the previous problem). We use 'cloneof' instead of system type
+ *   because, e.g.: the to8 and to7 are both members of 'Thomson TO-series'
+ *
+ *
 
- * so it has to be a xor: if the call and the softlist match, add the loader code to the softlist emu. then separately, if the call and the device match, add that to the device's emulator. so what you musn't do is add the calll to any emulator that happens to use a softlist
- * another option would be to add the call to the softlist only where the type is 'original' ie not 'compatible' 
-
-and actually its a good idea to do all the 'original' systems - the snes cart calls need to apply to the systems 'snes' AND 'snes_pal' */
-
- 
-  
-/* the k-v's are not obvious here:  we need something + a media device, but is that something the particular machine call, 
- * or is it the system type? Take thomson to-series as an example, you need a basic loader rom for the to7, 
- * but not for the to8, yet both can load to7 floppies and cassettes on both. They are both part of the same system type
- * (Thomson TO-series) because of this, yet that means we can't use the system type for any matching here. We need to be granular
-
-/* In the case of apfimag, we need to patch both the softlist cassette emulator and the cassette emulator. 
- * So we find the call and first ask if the softlist exists and add patch keys if so, 
-  * then ask if the cassette device exists and do the same there. Later we'll ask if a patch exists at that key 
-  * one problem is that nes and snes looksilly when you do this, there are a ton of systems you unncesessarily need
-  * to add to the calls. You could always say: if the onkect doesn't have a 'calls', then add it to all systems that are original
-  * */
-
-// for a truly horrid corner case, thomson to8 lists the softlist to7_cart as an original system, but to7_cass as a compatible, luckily
-// that suits our purposes */
-//
-//note i'm searching for a softlist key to do the softlist ones, and a device key to do the device ones, so neither checks 'calls'
-//
-//calls and device always need each other, and it may be that a system needs the same loader for both cass and floppy, so maybe the value of calls should be an object containing devices,
+/* So to describe the data structure, in the case of apfimag, we need to patch both the softlist cassette emulator and the cassette emulator. 
+ *   We first use the softlist key to add romcall to that softlist in original systems, then we use both the calls and the device key to add romcall 
+ *   to the cassette emulator.  
+ * A corner case, thomson to8 lists the softlist to7_cart as an original system, but to7_cass as a compatible, luckily that suits our purposes
+ * TODO: calls and device always need each other, and it may be that a system needs the same loader for both cass and floppy 
+  * (Thomson TO-series narrowly misses needing this), so maybe the value of calls should be an object containing devices
 //but then you need to iterate over calls (not doing atm) - how am i going to do to7's cass and floppy which both need the basic cart?
-//
+*/
 //also its such a shame the softlist calls apply so generically to systems that 'have' the softlist. We could get a similar effect by using cloneof as well as call 
 //ie: look for the system to8 or clones of to8 and then look for our device in all of those
 const needsARomToLoad = [
@@ -47,39 +34,48 @@ const needsARomToLoad = [
     , 'romcall'  : 'cart basic'
   }, 
   {   'softlist' : 'nes_ade'
-    , 'romcall'  : 'cart ade' //you don't seem to need the -cart2 call here, wouldn't hurt to put it in though
+    , 'romcall'  : 'cart ade'
+    , 'comment'  : 'you dont seem to need the -cart2 call here, though having it would also be fine'
   },
   {   'softlist' : 'nes_ntbrom' 
-    , 'romcall'  : 'cart ntb'  //this romcall isn't valid. there's only two games
+    , 'romcall'  : 'cart ntb'
+    , 'comment'  : 'this romcall isnt valid. theres only two games'
   },
   {   'softlist' : 'nes_kstudio'
-    , 'romcall'  : 'cart karaoke -cart2' //you do need the cart2 call
+    , 'romcall'  : 'cart karaoke -cart2' 
+    , 'comment'  : 'you need the cart2 call'
   },
   {   'softlist' : 'nes_datach'
-    , 'romcall'  : 'cart datach -cart2' //you need the cart2 call
+    , 'romcall'  : 'cart datach -cart2'
+    , 'comment'  : 'you need the cart2 call'
   },
   {   'softlist' : 'snes_bspack' 
-    , 'romcall'  : 'cart bsx' //this romcall isn't valid. there's only one game
+    , 'romcall'  : 'cart bsx' 
+    , 'comment'  : 'this romcall isnt valid. theres only one game'
   },
   {   'softlist' : 'snes_strom'
-    , 'romcall'  : 'cart sufami -cart2' //you need the cart2. there is another cart slot you're supposed to combine games
+    , 'romcall'  : 'cart sufami -cart2'
+    , 'comment'  : 'you need the cart2. there is another cart slot - youre supposed to combine games'
   },
-  {   'calls'    : ['orion128'] //clone search also finds, 'orionide', 'orionidm', 'orionms', 'orionpro', 'orionz80', 'orionzms']
+  {   'calls'    : ['orion128'] 
     , 'softlist' : 'orion_cass'
     , 'device'   : 'cass'
     , 'romcall'  : 'cart ROMDISK'
+    , 'comment'  : 'the calling function looks up clones too so should alter devices in orionide, orionidm, orionms, orionpro, orionz80 and orionzms'
   }, 
-  {   'calls'    : ['sc3000', 'sg1000' ] //the sc-3000, sg-1000 and sf-7000 are hopefully all the same underlying system, so why do i add sg1000 here if its a cloneof sc3000? in order to get the sg1000m2, a clone of the sg1000, but a subtely is the sg1000 doesn't have a cass, so it won't iteself get the loader call
+  {   'calls'    : ['sc3000', 'sg1000' ]
     , 'softlist' : 'sc3000_cass'
     , 'device'   : 'cass'
     , 'romcall'  : 'cart basic3e'
+    , 'comment'  : 'sc-3000, sg-1000 and sf-7000 hopefully all the same underlying system. Why add sg1000 here if its a cloneof sc3000? To get the sg1000m2, a clone of the sg1000 (a subtely is the sg1000 doesnt have a cass, so it wont iteself get the loader call)'
   },
-  {   'calls'    : ['to7', 'to770', 'to9'] //i suspect the to770 will load cassettes with the same loader as the to7, but its not a cloneof for some reason (it says to7 softlists are original with it)
+  {   'calls'    : ['to7', 'to770', 'to9'] 
     , 'softlist' : 'to7_cass'
     , 'device'   : 'cass'
     , 'romcall'  : 'cart basic'
+    , 'comment'  : 'suspect the to770 and to9 will load cassettes with the same loader as the to7, but they are not cloneof for some reason (yet to7 softlists are original with them)'
   },
-  {   'test' : 'reducer should cope with me'
+  {   'comment'  : 'caller must be able to cope with epmty objects'
   }
 ]
 
@@ -168,25 +164,5 @@ module.exports = log => systems => {
   , insertedSoftlistLoadingCalls)
 
   return insertedDeviceLoadingCalls
-}
-
-
-//the below i originally put in to src/scan/datAndEfind/printEfind
-
- 
-//so both forms have a call, but softlistname has a softlistname and device has a device. so can we just do this by devicename ie: be entirely granular?
-//if so we can write this overloaded function. I think maybe its a case of we have to rather than we can: think of thomson again eh?
-//what we have to do is say is there a softlistname? if there isn't then we use the call ITSELF plus device to try and find a match, so the paths are very different. hmmm given that we have two differnt functions calling here can't we just have two functions doing the work here, the thing that needs to be common is the json replacement list. YES THATS RIGHT! OK!
-const insertSoftlistLoaderCode = (softlistName, call) => {
- //return 
-  R.map( system => console.log(emulatorName, softlistName, device, system.emulator, system.softlist, system.device, system.romCall), needsARomToLoad) 
- process.exit() 
-  //softlistName in nes_snes_exceptions? `${call} -cart ${nes_snes_exceptions[softlistName]} -cart2` : call 
-}
-const insertDeviceLoaderCode = (call, device) => {
- //return 
-  R.map( system => console.log(emulatorName, softlistName, device, system.emulator, system.softlist, system.device, system.romCall), needsARomToLoad) 
- process.exit() 
-  //softlistName in nes_snes_exceptions? `${call} -cart ${nes_snes_exceptions[softlistName]} -cart2` : call 
 }
 
