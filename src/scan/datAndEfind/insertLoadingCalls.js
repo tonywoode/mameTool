@@ -14,19 +14,16 @@ const R                    = require('ramda')
  *   systems with 'original' (as opposed to 'compatible') support for its softlists (eg: snes and snes_pal) to have the loader call added, so the
  *   caller needs to look for these (looking for 'original' softlists aslo solves the previous problem). We use 'cloneof' instead of system type
  *   because, e.g.: the to8 and to7 are both members of 'Thomson TO-series'
- *
- *
-
-/* So to describe the data structure, in the case of apfimag, we need to patch both the softlist cassette emulator and the cassette emulator. 
+ * So to describe the data structure, in the case of apfimag, we need to patch both the softlist cassette emulator and the cassette emulator. 
  *   We first use the softlist key to add romcall to that softlist in original systems, then we use both the calls and the device key to add romcall 
  *   to the cassette emulator.  
  * A corner case, thomson to8 lists the softlist to7_cart as an original system, but to7_cass as a compatible, luckily that suits our purposes
- * TODO: calls and device always need each other, and it may be that a system needs the same loader for both cass and floppy 
-  * (Thomson TO-series narrowly misses needing this), so maybe the value of calls should be an object containing devices
-//but then you need to iterate over calls (not doing atm) - how am i going to do to7's cass and floppy which both need the basic cart?
-*/
-//also its such a shame the softlist calls apply so generically to systems that 'have' the softlist. We could get a similar effect by using cloneof as well as call 
-//ie: look for the system to8 or clones of to8 and then look for our device in all of those
+ *   TODO: calls and device always need each other, and it may be that a system needs the same loader for both cass and floppy 
+ *   (Thomson TO-series narrowly misses needing this), so maybe the value of calls should be an object containing devices
+ * In the case of the to_flop softlist, there is an explicit exception for to8 (notice that this isn't required for the non-softlist to8 emulators), since
+ *  the to_flop softlist contains both to7 and to8 games, but the to8 shouldn't get the basic cart load. (in fact we run to_flop with to8). 
+ *  Note also the to7 devices, both flop and cassette need that cart inserted to load anything */
+
 const needsARomToLoad = [
   {   'calls'     : ['apfimag']
     , 'softlists' : ['apfimag_cass']
@@ -76,7 +73,7 @@ const needsARomToLoad = [
     , 'romcall'   : 'cart basic'
     , 'comment'   : 'suspect the to770 and to9 will load cassettes and floppies with the same loader as the to7, but they are not cloneof for some reason (yet to7 softlists are original with them)'
   },
-  {   'comment'   : 'caller must be able to cope with epmty objects'
+  {   'comment'   : 'caller must be able to cope with empty objects'
   }
 ]
 
