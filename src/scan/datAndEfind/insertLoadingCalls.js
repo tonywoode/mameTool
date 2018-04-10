@@ -28,54 +28,54 @@ const R                    = require('ramda')
 //also its such a shame the softlist calls apply so generically to systems that 'have' the softlist. We could get a similar effect by using cloneof as well as call 
 //ie: look for the system to8 or clones of to8 and then look for our device in all of those
 const needsARomToLoad = [
-  {   'calls'    : ['apfimag']
-    , 'softlist' : 'apfimag_cass'
-    , 'device'   : 'cass'
-    , 'romcall'  : 'cart basic'
+  {   'calls'     : ['apfimag']
+    , 'softlists' : ['apfimag_cass']
+    , 'devices'   : ['cass']
+    , 'romcall'   : 'cart basic'
   }, 
-  {   'softlist' : 'nes_ade'
-    , 'romcall'  : 'cart ade'
-    , 'comment'  : 'you dont seem to need the -cart2 call here, though having it would also be fine'
+  {   'softlists' : ['nes_ade']
+    , 'romcall'   : 'cart ade'
+    , 'comment'   : 'you dont seem to need the -cart2 call here, though having it would also be fine'
   },
-  {   'softlist' : 'nes_ntbrom' 
-    , 'romcall'  : 'cart ntb'
-    , 'comment'  : 'this romcall isnt valid. theres only two games'
+  {   'softlists' : ['nes_ntbrom'] 
+    , 'romcall'   : 'cart ntb'
+    , 'comment'   : 'this romcall isnt valid. theres only two games'
   },
-  {   'softlist' : 'nes_kstudio'
-    , 'romcall'  : 'cart karaoke -cart2' 
-    , 'comment'  : 'you need the cart2 call'
+  {   'softlists' : ['nes_kstudio']
+    , 'romcall'   : 'cart karaoke -cart2' 
+    , 'comment'   : 'you need the cart2 call'
   },
-  {   'softlist' : 'nes_datach'
-    , 'romcall'  : 'cart datach -cart2'
-    , 'comment'  : 'you need the cart2 call'
+  {   'softlists' : ['nes_datach']
+    , 'romcall'   : 'cart datach -cart2'
+    , 'comment'   : 'you need the cart2 call'
   },
-  {   'softlist' : 'snes_bspack' 
-    , 'romcall'  : 'cart bsx' 
-    , 'comment'  : 'this romcall isnt valid. theres only one game'
+  {   'softlists' : ['snes_bspack'] 
+    , 'romcall'   : 'cart bsx' 
+    , 'comment'   : 'this romcall isnt valid. theres only one game'
   },
-  {   'softlist' : 'snes_strom'
-    , 'romcall'  : 'cart sufami -cart2'
-    , 'comment'  : 'you need the cart2. there is another cart slot - youre supposed to combine games'
+  {   'softlists' : ['snes_strom']
+    , 'romcall'   : 'cart sufami -cart2'
+    , 'comment'   : 'you need the cart2. there is another cart slot - youre supposed to combine games'
   },
-  {   'calls'    : ['orion128'] 
-    , 'softlist' : 'orion_cass'
-    , 'device'   : 'cass'
-    , 'romcall'  : 'cart ROMDISK'
-    , 'comment'  : 'the calling function looks up clones too so should alter devices in orionide, orionidm, orionms, orionpro, orionz80 and orionzms'
+  {   'calls'     : ['orion128'] 
+    , 'softlists' : ['orion_cass']
+    , 'devices'   : ['cass']
+    , 'romcall'   : 'cart ROMDISK'
+    , 'comment'   : 'the calling function looks up clones too so should alter devices in orionide, orionidm, orionms, orionpro, orionz80 and orionzms'
   }, 
-  {   'calls'    : ['sc3000', 'sg1000' ]
-    , 'softlist' : 'sc3000_cass'
-    , 'device'   : 'cass'
-    , 'romcall'  : 'cart basic3e'
-    , 'comment'  : 'sc-3000, sg-1000 and sf-7000 hopefully all the same underlying system. Why add sg1000 here if its a cloneof sc3000? To get the sg1000m2, a clone of the sg1000 (a subtely is the sg1000 doesnt have a cass, so it wont iteself get the loader call)'
+  {   'calls'     : ['sc3000', 'sg1000' ]
+    , 'softlists' : ['sc3000_cass']
+    , 'devices'   : ['cass']
+    , 'romcall'   : 'cart basic3e'
+    , 'comment'   : 'sc-3000, sg-1000 and sf-7000 hopefully all the same underlying system. Why add sg1000 here if its a cloneof sc3000? To get the sg1000m2, a clone of the sg1000 (a subtely is the sg1000 doesnt have a cass, so it wont iteself get the loader call)'
   },
-  {   'calls'    : ['to7', 'to770', 'to9'] 
-    , 'softlist' : 'to7_cass'
-    , 'device'   : 'cass'
-    , 'romcall'  : 'cart basic'
-    , 'comment'  : 'suspect the to770 and to9 will load cassettes with the same loader as the to7, but they are not cloneof for some reason (yet to7 softlists are original with them)'
+  {   'calls'     : ['to7', 'to770', 'to9'] 
+    , 'softlists' : ['to7_cass', 'to_flop']
+    , 'devices'   : ['cass', 'flop']
+    , 'romcall'   : 'cart basic'
+    , 'comment'   : 'suspect the to770 and to9 will load cassettes and floppies with the same loader as the to7, but they are not cloneof for some reason (yet to7 softlists are original with them)'
   },
-  {   'comment'  : 'caller must be able to cope with epmty objects'
+  {   'comment'   : 'caller must be able to cope with epmty objects'
   }
 ]
 
@@ -108,15 +108,18 @@ const doesSystemHaveThisSoftlist = (obj, softlistToFind, log) => {
 /* pointfree takes systems list, searches for systems who have the (original) softlist we have loader rom info for, 
  * if found, inserts the call against the softlist so we can check for its existence later */
 const fillSoftlistLoaderCalls = (romLoaderItem, log) => {
-  log.loaderCalls && romLoaderItem['softlist'] && console.log(`LOADER CALLS: seeking matches for softlist ${romLoaderItem.softlist}`)
+  log.loaderCalls && romLoaderItem['softlists'] && console.log(`LOADER CALLS: seeking matches for softlists ${romLoaderItem.softlists.toString()}`)
   return R.map( obj => {
-  if (!(romLoaderItem['softlist'])) return obj //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
-    const foundIndex = doesSystemHaveThisSoftlist(obj, romLoaderItem.softlist, log)
-    return (foundIndex > -1)? ( 
-        log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${romLoaderItem.softlist}`)
-      , R.assocPath([`softlist`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, obj)
+  if (!(romLoaderItem['softlists'])) return obj //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
+    let newObj = obj
+    for (const softlist of romLoaderItem.softlists) {
+    const foundIndex = doesSystemHaveThisSoftlist(obj, softlist, log)
+    if (foundIndex > -1) ( 
+        log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${softlist}`)
+      , newObj = R.assocPath([`softlist`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, newObj)
     )
-    : obj
+    }
+    return newObj
   })
 }
 
@@ -138,15 +141,18 @@ const doesSystemHaveThisCall = (obj, callsToFind, deviceToFind, log) => {
 
 //pointfree takes systems list
 const fillDeviceLoadingCalls = (romLoaderItem, log) => {
-  log.loaderCalls && romLoaderItem['device'] && console.log(`LOADER CALLS: seeking matches for ${romLoaderItem.device} of ${romLoaderItem.calls.toString()}`)
+  log.loaderCalls && romLoaderItem['devices'] && console.log(`LOADER CALLS: seeking matches for ${romLoaderItem.devices.toString()} of ${romLoaderItem.calls.toString()}`)
   return R.map( obj => {
-    if (!(romLoaderItem['device'])) return obj //note only checking device not calls, should really check both
-    const foundIndex = doesSystemHaveThisCall(obj, romLoaderItem.calls, romLoaderItem.device, log)
-    return (foundIndex > -1)? ( 
-        log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${romLoaderItem.device}`)
-      , R.assocPath([`device`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, obj)
+    if (!(romLoaderItem['devices'])) return obj //note only checking device not calls, should really check both
+    let newObj = obj
+    for (const device of romLoaderItem.devices) {
+    const foundIndex = doesSystemHaveThisCall(obj, romLoaderItem.calls, device, log)
+    if (foundIndex > -1) ( 
+        log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${device}`)
+      , newObj = R.assocPath([`device`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, newObj)
     )
-    : obj
+    }
+    return newObj
   })
 }
 
