@@ -63,22 +63,6 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
           `${obj.displaySystem}` : `${obj.displayCompany} ${obj.displaySystem}`, obj) )
 
   )(systems)
- 
-  //some softlists for nes and snes are exceptional in that they emulate a special 'cartridge' that a different
-  //  kind of cartridge plugs into.
-  const softlistCartExceptions = (softlistName, call) => {
-    const nes_snes_exceptions = {
-        nes_ade : "ade"
-      , nes_ntbrom : "ntb"
-      , nes_kstudio : "karaoke"
-      , nes_datach: "datach"
-      , snes_bspack: "bsx"
-      , snes_strom: "sufami"
-      , snes_vkun: "tbc - not found"
-    }
-
-    return softlistName in nes_snes_exceptions? `${call} -cart ${nes_snes_exceptions[softlistName]} -cart2` : call 
-  }
 
   //create the vars which will populate each instance of the EfindTemplate, first for each machine's softlist (if they exist)
   //topLine here becomes the Emulator name for softlist generation. Save it back into the object while we have it
@@ -90,8 +74,6 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
         topLine    : emulatorName
       , systemType : obj.systemType
       , callToMake : `${softlist.loaderCall? softlist.loaderCall : obj.call} %ROMMAME%` //for we are running from a generated softlist romdata.dat
-      //, callToMake : insertLoaderCode(emulatorName, "blah", "its a cassette") //for we are running from a generated softlist romdata.dat
-      //, callToMake : `${softlistCartExceptions(softlist.name, obj.call)} %ROMMAME%` //for we are running from a generated softlist romdata.dat
       , info       : `http://mameworld.info` //we don't have anything but a url to tell you about with softlists
     }
     settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
@@ -106,7 +88,6 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
         topLine    : emulatorName
       , systemType : obj.systemType
       , callToMake : `${device.loaderCall? device.loaderCall : obj.call} -${device.briefname} "%ROM%"` //for we are running from a generated softlist romdata.dat
-     // , callToMake : `${obj.call} -${device.briefname} "%ROM%"` //this is not about softlists
       , info       : `Supports: ${device.extensions}`
     } 
     settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
