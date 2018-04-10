@@ -89,8 +89,9 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
     const params = {
         topLine    : emulatorName
       , systemType : obj.systemType
+      , callToMake : `${softlist.loaderCall? softlist.loaderCall : obj.call} %ROMMAME%` //for we are running from a generated softlist romdata.dat
       //, callToMake : insertLoaderCode(emulatorName, "blah", "its a cassette") //for we are running from a generated softlist romdata.dat
-      , callToMake : `${softlistCartExceptions(softlist.name, obj.call)} %ROMMAME%` //for we are running from a generated softlist romdata.dat
+      //, callToMake : `${softlistCartExceptions(softlist.name, obj.call)} %ROMMAME%` //for we are running from a generated softlist romdata.dat
       , info       : `http://mameworld.info` //we don't have anything but a url to tell you about with softlists
     }
     settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
@@ -104,7 +105,8 @@ Compression=2E7A69703D300D0A2E7261723D300D0A2E6163653D300D0A2E377A3D300D0A
     const params = {
         topLine    : emulatorName
       , systemType : obj.systemType
-      , callToMake : `${obj.call} -${device.briefname} "%ROM%"` //this is not about softlists
+      , callToMake : `${device.loaderCall? device.loaderCall : obj.call} -${device.briefname} "%ROM%"` //for we are running from a generated softlist romdata.dat
+     // , callToMake : `${obj.call} -${device.briefname} "%ROM%"` //this is not about softlists
       , info       : `Supports: ${device.extensions}`
     } 
     settings.isItRetroArch? devices.push(retroarchEfindTemplate(params)) : devices.push(mameEfindTemplate(params))
