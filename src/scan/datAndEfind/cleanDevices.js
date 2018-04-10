@@ -1,7 +1,7 @@
 'use strict'
 
 const R                      = require('ramda')
-const {uninterestingDevices} = require('../../messFilters.json')
+const {uninterestingDevices} = require('../../messConfig.json')
 
 module.exports = systems => {
   //not all devices have media, so we must check for null. Time to introduce maybe

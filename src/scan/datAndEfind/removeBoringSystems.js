@@ -1,7 +1,7 @@
 'use strict'
 
 const R                    = require('ramda')
-const {efindBoringSystems} = require('../../messFilters.json')
+const {efindBoringSystems} = require('../../messConfig.json')
 
 /* Many systems aren't of interest since they're never going to have enjoyable games
  *  it was easiest to specify the fully munged system types (that's why i'm removing these as a last step) */

@@ -1,7 +1,7 @@
 'use strict'
 
 const R                              = require('ramda')
-const {embeddedSystemsBoringSystems} = require('../../messFilters.json')
+const {embeddedSystemsBoringSystems} = require('../../messConfig.json')
 
 module.exports = systems => {
 

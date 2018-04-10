@@ -1,7 +1,7 @@
 'use strict'
 
 const R                 = require('ramda')
-const {needsARomToLoad} = require('../../messFilters.json')
+const {needsARomToLoad} = require('../../messConfig.json')
 
 /* There are many systems that cannot load a game on some device (floppy/cassette) without bootstrapping code, 
  *   usually a basic cart or floppy, being inserted at the same time. Thanks to softlist names, we can automatically 

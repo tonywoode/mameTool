@@ -3,7 +3,7 @@
 const R = require('ramda')
 
 
-const {softlistsWithNoGames} = require('../messFilters.json')
+const {softlistsWithNoGames} = require('../messConfig.json')
 
 //read the json for softlists and make a list of those xmls to find. Need to grab emu name also and pass it all the way down our pipeline
 module.exports = log => systems => {
