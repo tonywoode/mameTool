@@ -8,7 +8,7 @@
  *
  *   It would be tempting to think that the postfix of the first part's device name in a softlist entry
  *   is the same as how the emulator would call it, but flop1 in the softlist part name means its the first
- *   disk in the box, not that it loads in its repsective emulators by using device -'flop1' */
+ *   disk in the box, not that it loads in its respective emulators by using device -'flop1' */
 
 
 // ensure $device-name01 is enforced
@@ -23,24 +23,22 @@ const postfixLastDigitIfNecessary = str => {
 const addHypen = str => `-${str}`
 const partNameToDeviceCall = str => addHypen(postfixLastDigitIfNecessary(str))
 
-// TODO: same code as in src/scan/datAndEfind/printEfind
-const exceptions = {
-    nes_ade : "ade"
-  , nes_ntbrom : "ntb"
-  , nes_kstudio : "karaoke"
-  , nes_datach: "datach"
-  , snes_bspack: "bsx"
-  , snes_strom: "sufami"
-  , snes_vkun: "tbc - not found"
-}
-
-// If a gamename clashes with another game on a softlist for this system, we'll replace the entire call made 
-//   to the efinder soflist emulator, with what we'll prepare here, so we can specify device. This is complicated
-//   by soflists like `nes_ade` which need a customised call we'll ahve to repeat
-const makeParameters = (systemCall, softlistName, firstPartsDevice, log) => {
-  const result = softlistName in exceptions? 
-      `${systemCall} -cart ${exceptions[softlistName]} -cart2 %ROMMAME%` 
-    : `${systemCall} ${partNameToDeviceCall(firstPartsDevice)} %ROMMAME%`  
+/* If a gamename clashes with another game on a softlist for this system, we'll replace the entire call made 
+ *   to the efinder soflist emulator, with what we'll prepare here, so we can specify device. This is complicated
+ *   by soflists like `nes_ade` which need a customised call we'll have to repeat. Remember the goal here is:
+ *     every call that gets printed as an override in the romdata, must have a device call before the gamename 
+ *
+ *   if the loaderCall includes a call to a device already (as is the case with some of the nes and snes
+ *   softlists, don't add another....this entailed adding a -cart2 call to nes_ade, when it didn't actually need it,
+ *   (doesn't hurt). A proper fix would be to pass a flag for existing cart call down to here, but the data atm doesn't
+ *   require this */
+const makeParameters = (systemCall, softlistName, loaderCall, firstPartsDevice, log) => {
+  const doesTheLoaderCallAlreadyIncludeASecondDeviceCall = loaderCall => loaderCall.match(/-.*-/) //two device calls 
+  const result = loaderCall? 
+    doesTheLoaderCallAlreadyIncludeASecondDeviceCall(loaderCall)?
+        `${loaderCall} %ROMMAME%` 
+      : `${loaderCall} ${partNameToDeviceCall(firstPartsDevice)} %ROMMAME%`
+  : `${systemCall} ${partNameToDeviceCall(firstPartsDevice)} %ROMMAME%` 
   log.otherGameConflicts && console.log(`   ---> disambiguate by printing overwrite params: ${result}`)
   return result
 }

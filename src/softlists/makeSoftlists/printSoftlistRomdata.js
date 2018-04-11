@@ -64,8 +64,9 @@ module.exports = (settings, softlistParams, softlist, log) => {
 
   const emuWithRegionSet = setRegionalEmu(log, obj.name, softlistParams.thisEmulator, softlistParams.thisEmulator.regions)
 
+  //TODO: to catch that situation where some c64 games have both a cart and a disk, you could send the part names of all the parts that make up the softlist item here, not just the first one
   const parameters = doWeNeedToSpecifyDevice(originalOtherSoftlists, obj.call, softlistParams, log)? 
-      makeParameters(emuWithRegionSet.call, softlistParams.name, obj.part[0].name, log) : ``
+      makeParameters(emuWithRegionSet.call, softlistParams.name, softlistParams.thisEmulator.loaderCall, obj.part[0].name, log) : ``
 
   const romParams = {
       name        : obj.name.replace(/[^\x00-\x7F]/g, "") //remove japanese

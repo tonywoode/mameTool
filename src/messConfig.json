@@ -86,7 +86,7 @@
     , "rainbow", "rx78", "sitcom", "snread", "snspell", "tntell", "trs80m2", "trsm100", "unichamp", "victor9k_flop"
     , "vip", "vixen", "wangpc"
   ],
-  "needsARomToLoadComment": "We want a single set of data to replace both softlist calls and device calls: as the imp is different, yet the systems affected often need both softlists and device emulators (e.g.: the cassette emulator for the to7) patching for a loader call.  Naively it seems looking up systems which run a particular softlist will be trivial, but a problem arises when e.g.: the to8 runs the to7 cassette softlist. The to7 needed its basic cart to be inserted but the to8 included its own built-in basic. Essentially the loader call is about the machine software is running on, and the device being loaded, the call made doesn't follow the softlist.  A third factor is that we need the application to be as wide-randing as possible: we DO want clones of the to7, and systems with 'original' (as opposed to 'compatible') support for its softlists (eg: snes and snes_pal) to have the loader call added, so the caller needs to look for these (looking for 'original' softlists aslo solves the previous problem). We use 'cloneof' instead of system type because, e.g.: the to8 and to7 are both members of 'Thomson TO-series' So to describe the data structure, in the case of apfimag, we need to patch both the softlist cassette emulator and the cassette emulator.  We first use the softlist key to add romcall to that softlist in original systems, then we use both the calls and the device key to add romcall to the cassette emulator.  A corner case, thomson to8 lists the softlist to7_cart as an original system, but to7_cass as a compatible, luckily that suits our purposes TODO: calls and device always need each other, and it may be that a system needs the same loader for both cass and floppy (Thomson TO-series narrowly misses needing this), so maybe the value of calls should be an object containing devices In the case of the to_flop softlist, there is an explicit exception for to8 (notice that this isn't required for the non-softlist to8 emulators), since the to_flop softlist contains both to7 and to8 games, but the to8 shouldn't get the basic cart load. (in fact we run to_flop with to8).  Note also the to7 devices, both flop and cassette need that cart inserted to load anything",
+  "needsARomToLoadComment": "Some systems need some form of loading media inserted into some device, as well as inserting the game, for the game to load. We want a single set of data to replace both softlist calls and device calls: as the imp is different, yet the systems affected often need both softlists and device emulators (e.g.: the cassette emulator for the to7) patching for a loader call.  Naively it seems looking up systems which run a particular softlist will be trivial, but a problem arises when e.g.: the to8 runs the to7 cassette softlist. The to7 needed its basic cart to be inserted but the to8 included its own built-in basic. Essentially the loader call is about the machine software is running on, and the device being loaded, the call made doesn't follow the softlist.  A third factor is that we need the application to be as wide-randing as possible: we DO want clones of the to7, and systems with 'original' (as opposed to 'compatible') support for its softlists (eg: snes and snes_pal) to have the loader call added, so the caller needs to look for these (looking for 'original' softlists aslo solves the previous problem). We use 'cloneof' instead of system type because, e.g.: the to8 and to7 are both members of 'Thomson TO-series'. So to describe the data structure, in the case of apfimag, we need to patch both the softlist cassette emulator and the cassette emulator.  We first use the softlist key to add romcall to that softlist in original systems, then we use both the calls and the device key to add romcall to the cassette emulator.  A corner case, thomson to8 lists the softlist to7_cart as an original system, but to7_cass as a compatible, luckily that suits our purposes. A final responsibility for the caller arises due to some romcalls including a second device call (-cart2): the otherGameName functionality in the softlist code seeks to add a second device call, so needs to detect whether one has already been added here first. TODO: calls and device always need each other, and it may be that a system needs the same loader for both cass and floppy (Thomson TO-series narrowly misses needing this), so maybe the value of calls should be an object containing devices In the case of the to_flop softlist, there is an explicit exception for to8 (notice that this isn't required for the non-softlist to8 emulators), since the to_flop softlist contains both to7 and to8 games, but the to8 shouldn't get the basic cart load. (in fact we run to_flop with to8).  Note also the to7 devices, both flop and cassette need that cart inserted to load anything",
   "needsARomToLoad" : [
   {   "calls"     : ["apfimag"]
     , "softlists" : ["apfimag_cass"]
@@ -94,11 +94,11 @@
     , "romcall"   : "cart basic"
   }, 
   {   "softlists" : ["nes_ade"]
-    , "romcall"   : "cart ade"
-    , "comment"   : "you dont seem to need the -cart2 call here, though having it would also be fine"
+    , "romcall"   : "cart ade -cart2"
+    , "comment"   : "you dont actually need the -cart2 call here, but it complicates the 'other-gamename' functionality later not to have it"
   },
   {   "softlists" : ["nes_ntbrom"] 
-    , "romcall"   : "cart ntb"
+    , "romcall"   : "cart ntb -cart2"
     , "comment"   : "this romcall isnt valid. theres only two games"
   },
   {   "softlists" : ["nes_kstudio"]
@@ -110,7 +110,7 @@
     , "comment"   : "you need the cart2 call"
   },
   {   "softlists" : ["snes_bspack"] 
-    , "romcall"   : "cart bsx" 
+    , "romcall"   : "cart bsx -cart2" 
     , "comment"   : "this romcall isnt valid. theres only one game"
   },
   {   "softlists" : ["snes_strom"]

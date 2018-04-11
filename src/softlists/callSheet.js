@@ -56,6 +56,7 @@ module.exports = log => systems => {
        , systemType    : obj.systemType
        , name          : softlist.name
        , status        : softlist.status
+       , loaderCall    : softlist.loaderCall
        , filter        : softlist.filter
        , device        : obj.device
        , call          : obj.call
