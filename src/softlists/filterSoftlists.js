@@ -118,14 +118,30 @@ module.exports = (hashDir, log) => softlistEmus => {
   const  ratingLens = R.lensProp('rating')
   const  setHigh = R.set(ratingLens, 100)
 
-  const hardCodeDefaults = R.pipe(
-      //Cannot figure out how to load from the corrupt-looking original apple2 dos. Apple2e just works for loading games
-      R.map(obj => obj.name === `apple2`     && obj.call === `apple2e`  ? setHigh(obj) : obj)
-      //by default Leven will pull up an MSX2 as the best MSX1_flop emu, which bizarrely is actually correct. The msx1 flppy drive ws a rare external periphereal, and most all MSX1_flop emus aren't 2 sided-disks, yet the softlist set are all double-density!, so they crash MAME. But we rely later on systems being Original or compatible in the duplicate-mamename checking code, so we need an MSX1 to play MSX1 games. Gradiente Expert DD Plus(Brazil) (MSX!) works fine, I think because the Brazilian stiuff is always years later, by that time the disk drive was DD.
-    , R.map(obj => obj.name === `msx1_flop`  && obj.call === `expertdp` ? setHigh(obj) : obj)
-      //else we end up at 'that' panasonic japanese loading menu, which is impossible to comprehend...SONY HB-F1XV (Japan) (MSX2+) seems to load many things fine
-    , R.map(obj => obj.name === `msx2p_flop` && obj.call === `hbf1xv`   ? setHigh(obj) : obj)
-  )(deRateClones)
+  //Some softlists are best used with particular systems, for reasons that are not easily computable. An example is
+  //  we want to use an msx which doesn't present its menus in japanese (as its impossible to work out how to load
+  //  the game)
+  const softlistSystemOverrides = [
+    {   "softlist" : "apple2"
+      , "system"   : "apple2e" 
+      , "comment"  : "Cannot figure out how to load from the corrupt-looking original apple2 dos. Apple2e just works for loading games"
+    },
+    {   "softlist" : "msx1_flop"
+      , "system"   : "expertdp" 
+      , "comment"  : "by default Leven will pull up an MSX2 as the best MSX1_flop emu, which bizarrely is actually correct. The msx1 flppy drive ws a rare external periphereal, and most all MSX1_flop emus aren't 2 sided-disks, yet the softlist set are all double-density!, so they crash MAME. But we rely later on systems being Original or compatible in the duplicate-mamename checking code, so we need an MSX1 to play MSX1 games. Gradiente Expert DD Plus(Brazil) (MSX!) works fine, I think because the Brazilian stiuff is always years later, by that time the disk drive was DD."
+    },
+    {   "softlist" : "msx2p_flop" 
+      , "system"   : "hbf1xv"
+      , "comment"  : "else we end up at 'that' panasonic japanese loading menu, which is impossible to comprehend...SONY HB-F1XV (Japan) (MSX2+) seems to load many things fine"
+    }
+  ]
+
+  //When passed a softlist and a system, ensures that system in the systems list will get selected for that softlist
+  const hardCodeASoftlistsSystem = (softlist, system, systems) => R.map( obj => {
+    return obj.name === softlist && obj.call === system? setHigh(obj) : obj
+  }, systems)
+  //passes each softlist override in turn to the function above, needs override array-of-objects with softlist:systems kv's
+  const hardCodeDefaults = softlistSystemOverrides.reduce( (systemsAccum, overrideItem) => hardCodeASoftlistsSystem(overrideItem.softlist, overrideItem.system, systemsAccum), deRateClones)
 
   return hardCodeDefaults
 
