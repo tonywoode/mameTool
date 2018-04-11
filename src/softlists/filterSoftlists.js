@@ -133,6 +133,50 @@ module.exports = (hashDir, log) => softlistEmus => {
     {   "softlist" : "msx2p_flop" 
       , "system"   : "hbf1xv"
       , "comment"  : "else we end up at 'that' panasonic japanese loading menu, which is impossible to comprehend...SONY HB-F1XV (Japan) (MSX2+) seems to load many things fine"
+    },
+    {   "softlist" : "wscolor"
+      , "system"   : "wscolor"
+      , "comment"  : "else the picker chooses the wonderswan (wswan), which is available because it had a mode to play color games"
+    },
+    {   "softlist" : "bk0010"
+      , "system"   : "bk001001"
+      , "comment"  : "all the Elektronica BK-0010 softlist games need to run with the Elektronica BK-0010-01 or else none of the load commands that mame specify are recognised"
+    },
+    {   "softlist" : "ondra"
+      , "system"   : "ondrav"
+      , "comment"  : "some games e.g.: Galaxian won't work on ondrat but will on the  vili (just the newer ondra)"
+    },
+    {   "softlist" : "intvecs"
+      , "system"   : "intvecs"
+      , "comment"  : "we pick intv by default. The ecs had a keyboard and these games need a keyboard (see comments). TODO: is this a bug as the ecs is only a compatible softlist with the softlist intvecs"
+    },
+    {   "softlist" : "orao"
+      , "system"   : "orao103"
+      , "comment"  : "the basic orao can't load cassettes because the driver is bugged, nor can you type double quotes to load casettes, needs to be orao103"
+    },
+    {   "softlist" : "svi328"
+      , "system"   : "svi318_cass"
+      , "comment"  : "many of the cass games (eg: konami's tennis) actually need an svi-328 to work (even if you up the memory on the 318 it still doesn't work). "
+    },
+    {   "softlist" : "coco_cart"
+      , "system"   : "coco3"
+      , "comment"  : "a lot of the coco games comments say 'coco3 only'. In fact we picked coco3 on mame 0.187, but its worth explicitly setting"
+    },
+    {   "softlist" : "coco_flop"
+      , "system"   : "coco3"
+      , "comment"  : "same reason as coco_cart"
+    },
+    {   "softlist" : "ti99_cart"
+      , "system"   : "ti99_4a"
+      , "comment"  : "the ti99 seems to display only a choice to load basic when a cart is inserted. the messinfo says that a few games only require the 4a but it seemed a wider issue. Since we autoselected the us version of the 99_4, lets hardcode the us version of the 4a"
+    },
+    {   "softlist" : "to_flop"
+      , "system"   : "to8"
+      , "comment"  : "this softlist seems a mix of to7-ish and to8-ish games, the to8 should load them all"
+    },
+    {   "softlist" : "to7_qd"
+      , "system"   : "to8"
+      , "comment"  : "these are easy to load on the to8 and seemed impossible to load on the to7"
     }
   ]
 
