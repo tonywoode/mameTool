@@ -1,8 +1,9 @@
 'use strict'
 
-const fs    = require('fs')
-const R     = require('ramda')
-const Leven = require('levenshtein')
+const fs                        = require('fs')
+const R                         = require('ramda')
+const Leven                     = require('levenshtein')
+const {softlistSystemOverrides} = require('../messConfig.json')
 
 module.exports = (hashDir, log) => softlistEmus => {
 
@@ -111,75 +112,11 @@ module.exports = (hashDir, log) => softlistEmus => {
   //now any emu that is a clone gets reduced in rating by 40 (problem here is we lose accuracy if there are clone trees, i'm not sure if there are)
   const deRateClones = R.map(obj => obj.cloneof? (obj.rating -= 90 , obj): obj, addedRatings)
   
-  /* There are some issues that prevent games from working, make it difficult for games to work, or break reasonable expectations I later want to rely on in the code 
-   *  (a system's softlist should be the same system type as the system its running) 
-   *  So manually pick these now by bumping their ratings */
-
+  /*  Process overrides set in the messConfig.json
+   *  We ensure they get selected simply by bumping their ratings */
   const  ratingLens = R.lensProp('rating')
   const  setHigh = R.set(ratingLens, 100)
-
-  //Some softlists are best used with particular systems, for reasons that are not easily computable. An example is
-  //  we want to use an msx which doesn't present its menus in japanese (as its impossible to work out how to load
-  //  the game)
-  const softlistSystemOverrides = [
-    {   "softlist" : "apple2"
-      , "system"   : "apple2e" 
-      , "comment"  : "Cannot figure out how to load from the corrupt-looking original apple2 dos. Apple2e just works for loading games"
-    },
-    {   "softlist" : "msx1_flop"
-      , "system"   : "expertdp" 
-      , "comment"  : "by default Leven will pull up an MSX2 as the best MSX1_flop emu, which bizarrely is actually correct. The msx1 flppy drive ws a rare external periphereal, and most all MSX1_flop emus aren't 2 sided-disks, yet the softlist set are all double-density!, so they crash MAME. But we rely later on systems being Original or compatible in the duplicate-mamename checking code, so we need an MSX1 to play MSX1 games. Gradiente Expert DD Plus(Brazil) (MSX!) works fine, I think because the Brazilian stiuff is always years later, by that time the disk drive was DD."
-    },
-    {   "softlist" : "msx2p_flop" 
-      , "system"   : "hbf1xv"
-      , "comment"  : "else we end up at 'that' panasonic japanese loading menu, which is impossible to comprehend...SONY HB-F1XV (Japan) (MSX2+) seems to load many things fine"
-    },
-    {   "softlist" : "wscolor"
-      , "system"   : "wscolor"
-      , "comment"  : "else the picker chooses the wonderswan (wswan), which is available because it had a mode to play color games"
-    },
-    {   "softlist" : "bk0010"
-      , "system"   : "bk001001"
-      , "comment"  : "all the Elektronica BK-0010 softlist games need to run with the Elektronica BK-0010-01 or else none of the load commands that mame specify are recognised"
-    },
-    {   "softlist" : "ondra"
-      , "system"   : "ondrav"
-      , "comment"  : "some games e.g.: Galaxian won't work on ondrat but will on the  vili (just the newer ondra)"
-    },
-    {   "softlist" : "intvecs"
-      , "system"   : "intvecs"
-      , "comment"  : "we pick intv by default. The ecs had a keyboard and these games need a keyboard (see comments). TODO: is this a bug as the ecs is only a compatible softlist with the softlist intvecs"
-    },
-    {   "softlist" : "orao"
-      , "system"   : "orao103"
-      , "comment"  : "the basic orao can't load cassettes because the driver is bugged, nor can you type double quotes to load casettes, needs to be orao103"
-    },
-    {   "softlist" : "svi328"
-      , "system"   : "svi318_cass"
-      , "comment"  : "many of the cass games (eg: konami's tennis) actually need an svi-328 to work (even if you up the memory on the 318 it still doesn't work). "
-    },
-    {   "softlist" : "coco_cart"
-      , "system"   : "coco3"
-      , "comment"  : "a lot of the coco games comments say 'coco3 only'. In fact we picked coco3 on mame 0.187, but its worth explicitly setting"
-    },
-    {   "softlist" : "coco_flop"
-      , "system"   : "coco3"
-      , "comment"  : "same reason as coco_cart"
-    },
-    {   "softlist" : "ti99_cart"
-      , "system"   : "ti99_4a"
-      , "comment"  : "the ti99 seems to display only a choice to load basic when a cart is inserted. the messinfo says that a few games only require the 4a but it seemed a wider issue. Since we autoselected the us version of the 99_4, lets hardcode the us version of the 4a"
-    },
-    {   "softlist" : "to_flop"
-      , "system"   : "to8"
-      , "comment"  : "this softlist seems a mix of to7-ish and to8-ish games, the to8 should load them all"
-    },
-    {   "softlist" : "to7_qd"
-      , "system"   : "to8"
-      , "comment"  : "these are easy to load on the to8 and seemed impossible to load on the to7"
-    }
-  ]
-
+ 
   //When passed a softlist and a system, ensures that system in the systems list will get selected for that softlist
   const hardCodeASoftlistsSystem = (softlist, system, systems) => R.map( obj => {
     return obj.name === softlist && obj.call === system? setHigh(obj) : obj
