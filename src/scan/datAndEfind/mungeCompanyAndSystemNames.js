@@ -76,6 +76,7 @@ module.exports = systems => {
     , sysMatchRep(`Ei Nis`, `Pecom 32`, `Pecom`) 
     , sysMatchRep(`Elektronika`, `BK 0010`, `BK`)
     , sysMatchRep(`Emerson`, `Arcadia 2001`, `Arcadia`)
+    , sysMatchRep(`Enterprise Computers`, /Sixty Four|One Two Eight/, `64`), compRep(`Enterprise Computers`, `Enterprise`)
     , sysMatchRep(`Epson`, `PX-4`, `PX`)
     , compRep(`Exidy Inc`, `Exidy`)
     , compRep(`Eurohard S.A.`, `Eurohard`)
