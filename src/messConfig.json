@@ -129,6 +129,12 @@
     , "romcall"   : "cart basic3e"
     , "comment"   : "sc-3000, sg-1000 and sf-7000 hopefully all the same underlying system. Why add sg1000 here if its a cloneof sc3000? To get the sg1000m2, a clone of the sg1000 (a subtely is the sg1000 doesnt have a cass, so it wont iteself get the loader call)"
   },
+  {   "calls"     : ["sorcerer"]
+    , "soflists"  : ["sorcerer_cass"]
+    , "devices"   : ["cass", "flop"]
+    , "romcall"   : "cart basicmod"
+    , "comment"   : "its close, but the majority of games load with basic, machine code games will for now need the basic cart removed and a reboot. I tried basicb and it corrupts if you try and cload"
+  },
   {   "calls"     : ["to7", "to770", "to9"] 
     , "softlistExclusions" : ["to8"]
     , "softlists" : ["to7_cass", "to_flop"]
