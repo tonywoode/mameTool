@@ -31,24 +31,27 @@ const doesSystemHaveThisSoftlist = (obj, softlistToFind, exclusions, log) => {
   if ( obj.softlist ) {return doSoftlistsContainSoftlist(softlistToFind, obj, log)}
 }
 
-/* pointfree takes systems list, searches for systems who have the (original) softlist we have loader rom info for, 
+/* Searches for systems who have the (original) softlist we have loader rom info for, 
  * if found, inserts the call against the softlist so we can check for its existence later */
-const fillSoftlistLoaderCalls = (romLoaderItem, log) => {
+const fillSoftlistLoaderCalls = (romLoaderItem, log) => systemsAccum => {
   log.loaderCalls && romLoaderItem['softlists'] && console.log(
     `LOADER CALLS: seeking matches for softlists ${romLoaderItem.softlists.toString()}`
   )
-  return R.map( obj => {
-  if (!(romLoaderItem['softlists'])) return obj //vs 'in' see: - https://stackoverflow.com/a/22074727/3536094
-    let newObj = obj
-    for (const softlist of romLoaderItem.softlists) {
-    const foundIndex = doesSystemHaveThisSoftlist(obj, softlist, romLoaderItem.softlistExclusions, log)
-    if (foundIndex > -1) ( 
-        log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${softlist}`)
-      , newObj = R.assocPath([`softlist`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, newObj)
+
+  return Just(romLoaderItem)
+    .chain(item => item.softlists? Just(romLoaderItem) : Nothing() )
+    .map( ({softlists, softlistExclusions, romcall}) => R.map( obj => {
+        for (const softlist of romLoaderItem.softlists) {
+          const foundIndex = doesSystemHaveThisSoftlist(obj, softlist, romLoaderItem.softlistExclusions, log)
+          if (foundIndex > -1) { 
+              log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s original softlist ${softlist}`)
+              obj = R.assocPath([`softlist`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, obj)
+          }
+        }
+        return obj
+      }, systemsAccum)
     )
-    }
-    return newObj
-  })
+    .getOrElse(systemsAccum)
 }
 
 /* a subtely here is that the system's device briefname may or may not have a number at the end. There's never likely 
@@ -68,23 +71,20 @@ const doesSystemHaveThisCall = (obj, callsToFind, deviceToFind, log) => {
 }
 
 
-const filterMaybe = predicate => value => predicate(value)? Just(value) : Nothing 
-
 const fillDeviceLoadingCalls = (romLoaderItem, log) => systemsAccum => {
   log.loaderCalls && romLoaderItem['devices'] && console.log(
     `LOADER CALLS: seeking matches for ${romLoaderItem.devices.toString()} of ${romLoaderItem.calls.toString()}`
   )
   
   return Just(romLoaderItem)
-    .chain(filterMaybe(R.has('devices')))
-    .map(
-      ({calls, devices, romcall}) => R.map( obj => {
-       for (const device of devices) {
-         const foundIndex = doesSystemHaveThisCall(obj, calls, device, log)
-         if (foundIndex > -1) ( 
+    .chain(item => item.devices? Just(romLoaderItem) : Nothing() )
+    .map( ({calls, devices, romcall}) => R.map( obj => {
+        for (const device of devices) {
+          const foundIndex = doesSystemHaveThisCall(obj, calls, device, log)
+          if (foundIndex > -1) { 
             log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${device}`)
-          , obj = R.assocPath([`device`, foundIndex, `loaderCall`], `${obj.call} -${romcall}`, obj)
-        )
+            obj = R.assocPath([`device`, foundIndex, `loaderCall`], `${obj.call} -${romcall}`, obj)
+          }
        }
         return obj
       }, systemsAccum)
@@ -92,25 +92,6 @@ const fillDeviceLoadingCalls = (romLoaderItem, log) => systemsAccum => {
     .getOrElse(systemsAccum)
 }
 
-
-////pointfree takes systems list
-//const fillDeviceLoadingCalls = (romLoaderItem, log) => {
-//  log.loaderCalls && romLoaderItem['devices'] && console.log(
-//    `LOADER CALLS: seeking matches for ${romLoaderItem.devices.toString()} of ${romLoaderItem.calls.toString()}`
-//  )
-//  return R.map( obj => {
-//    if (!(romLoaderItem['devices'])) return obj //note only checking device not calls, should really check both
-//    let newObj = obj
-//    for (const device of romLoaderItem.devices) {
-//    const foundIndex = doesSystemHaveThisCall(obj, romLoaderItem.calls, device, log)
-//    if (foundIndex > -1) ( 
-//        log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${device}`)
-//      , newObj = R.assocPath([`device`, foundIndex, `loaderCall`], `${obj.call} -${romLoaderItem.romcall}`, newObj)
-//    )
-//    }
-//    return newObj
-//  })
-//}
 
 module.exports = log => systems => {
   //populate the systems list with the calls to rom loading media that some softlists always need
