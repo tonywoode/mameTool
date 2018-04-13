@@ -2,6 +2,8 @@
 
 const R                 = require('ramda')
 const {needsARomToLoad} = require('../../messConfig.json')
+const Maybe             = require('data.maybe')
+const { Just, Nothing } = Maybe
 
 /* There are many systems that cannot load a game on some device (floppy/cassette) without bootstrapping code, 
  *   usually a basic cart or floppy, being inserted at the same time. Thanks to softlist names, we can automatically 
@@ -65,24 +67,27 @@ const doesSystemHaveThisCall = (obj, callsToFind, deviceToFind, log) => {
   if ((callsToFind.includes(obj.call)) || (callsToFind.includes(obj.cloneof) ) ) return getIndexOfTheDevice(obj, deviceToFind, log)
 }
 
-const Maybe             = require('data.maybe')
-const { Just, Nothing } = Maybe
 
 const filterMaybe = predicate => value => predicate(value)? Just(value) : Nothing 
 
-//pointfree takes systems list
 const fillDeviceLoadingCalls = (romLoaderItem, log) => systemsAccum => {
   log.loaderCalls && romLoaderItem['devices'] && console.log(
     `LOADER CALLS: seeking matches for ${romLoaderItem.devices.toString()} of ${romLoaderItem.calls.toString()}`
   )
   
-  Just(romLoaderItem)
-  .chain(filterMaybe(R.has('devices')))
-
   return Just(romLoaderItem)
-    .chain(item => item.devices? Just(romLoaderItem) : Nothing() )
+    .chain(filterMaybe(R.has('devices')))
     .map(
-      ({calls, devices, romcall}) => R.map(f({calls, devices, romcall}), systemsAccum)
+      ({calls, devices, romcall}) => R.map( obj => {
+       for (const device of devices) {
+         const foundIndex = doesSystemHaveThisCall(obj, calls, device, log)
+         if (foundIndex > -1) ( 
+            log.loaderCalls && console.log(`    ---> inserting a loading call for ${obj.call}'s ${device}`)
+          , obj = R.assocPath([`device`, foundIndex, `loaderCall`], `${obj.call} -${romcall}`, obj)
+        )
+       }
+        return obj
+      }, systemsAccum)
     )
     .getOrElse(systemsAccum)
 }
