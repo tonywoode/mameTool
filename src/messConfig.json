@@ -98,8 +98,8 @@
     , "comment"   : "you dont actually need the -cart2 call here, but it complicates the 'other-gamename' functionality later not to have it"
   },
   {   "softlists" : ["nes_ntbrom"] 
-    , "romcall"   : "cart ntb -cart2"
-    , "comment"   : "this romcall isnt valid. theres only two games"
+    , "romcall"   : "cart nantbb -cart2"
+    , "comment"   : "only two games"
   },
   {   "softlists" : ["nes_kstudio"]
     , "romcall"   : "cart karaoke -cart2" 
@@ -110,8 +110,8 @@
     , "comment"   : "you need the cart2 call"
   },
   {   "softlists" : ["snes_bspack"] 
-    , "romcall"   : "cart bsx -cart2" 
-    , "comment"   : "this romcall isnt valid. theres only one game"
+    , "romcall"   : "cart bsxsore -cart2" 
+    , "comment"   : "many games in the softlist, but only one marked as working"
   },
   {   "softlists" : ["snes_strom"]
     , "romcall"   : "cart sufami -cart2"
