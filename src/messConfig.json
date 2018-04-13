@@ -179,8 +179,8 @@
       , "system"   : "orao103"
       , "comment"  : "the basic orao can't load cassettes because the driver is bugged, nor can you type double quotes to load casettes, needs to be orao103"
     },
-    {   "softlist" : "svi328"
-      , "system"   : "svi318_cass"
+    {   "softlist" : "svi318_cass"
+      , "system"   : "svi328"
       , "comment"  : "many of the cass games (eg: konami's tennis) actually need an svi-328 to work (even if you up the memory on the 318 it still doesn't work). "
     },
     {   "softlist" : "coco_cart"
