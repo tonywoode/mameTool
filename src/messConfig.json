@@ -203,6 +203,9 @@
       , "system"   : "to8"
       , "comment"  : "these are easy to load on the to8 and seemed impossible to load on the to7"
     }
-  ]
+  ],
+ "systemTypesToRemoveComments" : "there are some system types that we've used and then changed, the example is Thomson TO8 which turned out to be best collected as one of the Thomson TO-Series. Its very likely the user has these system names due to previously running mametool, so we dare to delete them now the new names have been generated",
+ "systemTypesToRemove" : [ "Dragon Beta Prototype", "Enterprise Computers One Two Eight", "Enterprise Computers Sixty Four", "ExcelVision EXL100", "Hewlett Packard HP", "Hewlett-Packard 9845B", "Hewlett-Packard 9845C", "Hewlett-Packard 9845T", "Otrona Attach˝", "Samsung SPC-1000", "Samsung SPC-1500", "SME Systems Aussie Byte II", "Tandy/Memorex Video Information System MD-2500", "Thomson MO5", "Thomson MO6", "Thomson TO7/TO9", "Thomson TO8", "Video Technology Socrates", "Videoton TVC", "Camputers Lynx 48k", "Fidelity Electronics Elite A/S Challenger", "Fidelity Electronics Elite Avant Garde", "Fidelity Electronics Elite Avant Garde 2100", "Fidelity Electronics Sensory Chess Challenger 12-B", "Fidelity Electronics Sensory Chess Challenger 9", "Micro Genius IQ-501", "Micro Genius IQ-502", "NEC PC-8201A", "NPO Microprocessor Elektronika MS 1502", "SMT Goupil G1", "SMT Goupil G2"
+]
 
 }
