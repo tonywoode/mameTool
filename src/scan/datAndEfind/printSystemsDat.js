@@ -23,19 +23,17 @@ module.exports = (log, existingSystemsDat, datOutPath) => systems => {
   //::[a] => [a] => [a] - (change filter to reject to debug)
   const filterSystemsDat = exclusions => R.filter(isItInExclusionList(exclusions), existingSystemsDat)
   const filteredExistingSystemsDat = R.reduce( (accum, item) => filterSystemsDat(item), [], sections)
-  console.log(filteredExistingSystemsDat)
 
   //native js version of the same....
   //const filterSystemsDat = (source, sections) => source.filter(x => !sections.some(e => e.indexOf(x) !== -1))
   //const filteredExistingSystemsDat = filterSystemsDat(existingSystemsDat, sections)
   //console.log(filteredExistingSystemsDat)
-  process.exit()
 
   const lister = R.pipe( R.map( ({systemType}) => (`${systemType}`) ), R.uniq)(systems)
   const ordered = lister.sort( (a, b) => a.localeCompare(b) )
 
   //make the union dat of the old quickplay and the new systems dat
-  const unionDat        = R.union(existingSystemsDat, ordered)
+  const unionDat        = R.union(filteredExistingSystemsDat, ordered)
   const orderedUnionDat = unionDat.sort( (a, b) => a.localeCompare(b) )
   const joinedUnionDat  = orderedUnionDat.join(`\n`) 
 
