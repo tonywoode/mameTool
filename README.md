@@ -1,10 +1,6 @@
 # mametool
-create frontend configuration files for the MAME emulator's arcade sets, running from RetroArch or standalone
-
-includes messtool:
-
-# messTool
-create frontend configuration files for the MAME emulator's non-arcade sets, running from RetroArch or standalone
+1) create frontend configuration files for the MAME emulator's arcade sets, running from RetroArch or standalone
+2) create frontend configuration files for the MAME emulator's non-arcade sets, running from RetroArch or standalone (formerly known as  messtool)
 
 ## Inputs
 

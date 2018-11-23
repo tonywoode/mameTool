@@ -5,7 +5,7 @@ const _throw = m => { throw new Error(m) }
 
 // TODO: what happens if path provided to prop and PropEq resolves to an oject?
 
-// getUniqueProps:: String -> Array Object -> Array a
+// getUniqueProps:: String -> [Object] -> [a]
 const getUniqueProps = prop => systems => R.uniq( R.pipe(
      R.pluck(prop)
    , R.reject(R.isNil) //pluck will pluck undef if the key doesn't exist in an item
@@ -13,30 +13,30 @@ const getUniqueProps = prop => systems => R.uniq( R.pipe(
 )
 
 // get a value, nested if neccessary
-// getProp:: Array path -> value
+// getProp:: [path] -> value
 const getProp = keyPath => R.path(keyPath) 
 
 // copes with both regex searches and nested kvs
-// doesPropHaveValue:: Array path -> string|RegExp -> Object -> Bool
+// doesPropHaveValue:: [path] -> string|RegExp -> Object -> Bool
 const doesPropHaveThisValue = (keyPath, value) => obj => 
   // if it isn't a regex, treat it like a string
   R.type(value) === "RegExp"?  R.test(value, R.path(keyPath)(obj)) : 
     R.pathEq(keyPath, value)(obj)
 
-// removeBool:: Array a -> Object a
+// removeBool:: [a] -> {a}
 const removeBool = keyPath => R.reject(getProp(keyPath)) 
 
-// filterBool:: Array a -> Object a
+// filterBool:: [a] -> {a}
 const keepBool = keyPath => R.filter(getProp(keyPath))  
 
 // keep only those systems which have a property, nested if necessary 
 // (we can use this to make individual lists of genres)
-// keepProp:: Array path -> String a -> Object a
+// keepProp:: [path] -> String a -> {a}
 const keepProp = (keyPath, value) =>  
   R.filter(doesPropHaveThisValue(keyPath, value)) 
 
 // remove those systems which have a property, nested if necessary 
-// removeProp:: Array path -> String a -> Object a
+// removeProp:: [path] -> String a -> {a}
 const removeProp = (keyPath, value) =>  
   R.reject(doesPropHaveThisValue(keyPath, value)) 
 
@@ -44,11 +44,11 @@ const removeProp = (keyPath, value) =>
  *   if there's no value (or falsey value) then consider it a boolean op
  *   otherwise its a property op. TODO: typing */
 
-// keepSublist:: Array path -> String a -> Object a
+// keepSublist:: [path] -> String a -> {a}
 const keepSublist = (keyPath, value) => value? 
   keepProp(keyPath, value) : keepBool(keyPath)
 
-// removeSublist:: Array path -> String a -> Object a
+// removeSublist:: [path] -> String a -> {a}
 const removeSublist = (keyPath, value) => value? 
   removeProp(keyPath, value) : removeBool(keyPath)
 

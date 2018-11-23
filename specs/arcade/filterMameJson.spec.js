@@ -77,7 +77,7 @@ describe(`FilterMameJson`, () => {
       expect(doesPropHaveThisValue(['year'], /198?/)(mockSystems[0])).to.be.true
     })
   
-    it(`when passed an path, regex and object, tell me fasle when no KV matches the regex of the key's path`, () => {
+    it(`when passed an path, regex and object, tell me false when no KV matches the regex of the key's path`, () => {
       expect(doesPropHaveThisValue(['year'], /nonsense/)(mockSystems[0])).to.be.false
     })
   

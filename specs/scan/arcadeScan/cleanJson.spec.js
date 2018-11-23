@@ -81,7 +81,7 @@ describe(`cleanJson`, () => {
  })
 
   describe(`#shortenSubObject`, () => {
-    it(`should remove the properties I decided weren't important to filtering roms from a sub object`, () => {
+    it(`should remove the properties I decided weren't important to filtering roms from a subObject`, () => {
       const shortenedMockDisplayList = shortenSubObject(`display`)(mockCleanedDollarList)
       expect(shortenedMockDisplayList[0].display).to.deep.equal( {
         tag: "screen",
