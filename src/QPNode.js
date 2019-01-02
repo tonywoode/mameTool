@@ -18,7 +18,7 @@ const {testArcadeRun}   = require('./testing')
 const {softlists}       = require('./softlists')
 
 //tee output to console and to a logfile https://stackoverflow.com/a/30578473/3536094
-const logFile           = './logfile'
+const logFile           = './mametool_logfile.txt'
 const logStream         = fs.createWriteStream(logFile)
 console.log = (...args) => {
   const text = util.format.apply(this, args) + '\n'
