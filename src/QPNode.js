@@ -4,6 +4,7 @@ const program           = require('commander')
 const fs                = require('fs')
 const path              = require('path')
 const _throw            = m => { throw new Error(m) }
+const util              = require('util')
 
 const paths             = require('./paths.js')
 //these two are used by multiple modules and are being passed in as dependecies
@@ -15,6 +16,22 @@ const {arcade}          = require('./arcade')
 const {mfm}             = require('./mfm')
 const {testArcadeRun}   = require('./testing')
 const {softlists}       = require('./softlists')
+
+//tee output to console and to a logfile https://stackoverflow.com/a/30578473/3536094
+const logFile           = './logfile'
+const logStream         = fs.createWriteStream(logFile)
+console.log = (...args) => {
+  const text = util.format.apply(this, args) + '\n'
+  logStream.write(text)
+  process.stdout.write(text)
+}
+
+console.error = (...args) => {
+  const text = util.format.apply(this, args) + '\n'
+  logStream.write(text)
+  process.stderr.write(text)
+}
+
 
 program //cmd-line options as parsed by commander
     .option('--output-dir [path]')
