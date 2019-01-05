@@ -19,7 +19,7 @@
     "basedebug": "node --inspect-brk src/QPNode.js",
     "debug": "npm run basedebug -- --output-dir $npm_package_directories_outputDir $npm_package_config_devFlags",
     "fulldebug": "trash $npm_package_directories_outputDir && npm run debug --",
-    "test": "mocha -- --require ./specs/init.js $(eval $npm_package_config_getSpecs)",
+    "test": "mocha --  ./specs/init.js $(eval $npm_package_config_getSpecs)",
     "package": "pkg src/QPNode.js -t win --out-path $npm_package_directories_binOutputDir",
     "packageParallels": "pkg src/QPNode.js -t win --out-path /Volumes/[C]\\ My\\ Boot\\ Camp/Emulators/QUICKPLAY/QuickPlayFrontend/qp/bin"
   },

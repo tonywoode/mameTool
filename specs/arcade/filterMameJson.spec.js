@@ -133,7 +133,7 @@ describe(`FilterMameJson`, () => {
   })
   
   describe(`#getUniqueProps`, () => {
-    it(`when given a non-existent key, retruns an empty set (not undefined)`, () => {
+    it(`when given a non-existent key, returns an empty set (not undefined)`, () => {
       expect(getUniqueProps("somethingSilly")(mockSystems)).to.deep.equal(new Array)
     })
   })
