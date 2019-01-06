@@ -1,6 +1,7 @@
+const mock          = require('mock-fs')
 const rewire = require(`rewire`)
 const iniReader = rewire('../../../src/scan/arcadeScan/iniReader.js')
-const { loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
+const { findIni, loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
 
 const mockBareIni =
 ` [FOLDER_SETTINGS]
@@ -53,6 +54,33 @@ invadpt2br`
 
 describe(`iniReader`, () => {
 
+  beforeEach( () => {
+    mock( { 
+      'mameFoldersDir': {
+        'firstIni.ini': '',
+        'empty-dir': {/** empty directory */}
+      } 
+    }) //create a little file system using mockfs
+  } )
+
+  afterEach( () => {
+    mock.restore()
+  })
+
+  describe.only(`#findIni`, () => {
+    it(`finds an ini by name in the root mame extras 'folders' folder`, () => {
+      const ini = 'firstIni.ini'
+      const mameFoldersFolder = 'mameFoldersDir'
+      expect(findIni(ini, mameFoldersFolder )).to.be.true
+    })
+
+    it(`finds an ini by name in a subdir of the 'folders' folder, named after the 'foldername' key supplied in inis.json`)
+    it(`finds an ini by name in a subdir of the 'folders' folder, even though there was no 'foldername' key supplied in inis.json`)
+    it(`finds an ini by name in a subdir of a subdir of the 'folders' folder, whether of not there was a 'foldername' key supplied in inis.json`)
+    it(`always prefers an ini higher up the directory tree ie: breadth not depth`)
+    it(`finds on exact name not regex`)
+    it(`returns a nothing if the file doesn't exist in the mame extras 'folders' folder`)
+  })
   describe(`#loadIni`, () => {
     const revert = iniReader.__set__(`fs`, { readFileSync: () => mockBareIni })
     const ini = loadIni(`randomdir`, { iniName: `anything`, iniType: `bare`})

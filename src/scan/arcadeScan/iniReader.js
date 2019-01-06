@@ -1,6 +1,7 @@
 'use strict'
 
 let fs               = require('fs') //rewired in test, don't try and destructure
+const path = require('path')
 const ini            = require('ini')
 const R              = require('ramda')
 const iniFlattener   = require('./iniFlattener.js')
@@ -17,6 +18,23 @@ const _throw = m => { throw new Error(m) }
  *  ...and escape dots, always (there's lots of 'Misc.' in mame ini files)....
  */
 const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
+
+const findIni = (file, folder) => {
+  //  fs.readdirSync(folder).forEach( file => {
+  //     const subPath = path.join(folder, file)
+  //    if(fs.lstatSync(subPath).isDirectory()){
+  //      findIni(file,subPath)
+  //    } else {
+      const node = path.join(folder,file)
+      if(fs.lstatSync(node).isDirectory()){
+       return false
+      }
+      else {
+      return fs.existsSync(node)
+      }
+    }
+//  })
+//}
 
 // this will load an ini file using the ini reader...
 const loadGenericIni = (iniDir, iniName) => {
@@ -53,4 +71,4 @@ const loadIni = (iniDir, ini) => {
 }
 
 // most of these for unit tests only
-module.exports = { loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni }
+module.exports = { findIni, loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni }
