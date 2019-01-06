@@ -58,7 +58,9 @@ describe(`iniReader`, () => {
     mock( { 
       'mameFoldersDir': {
         'firstIni.ini': '',
-        'empty-dir': {/** empty directory */}
+        'holdsTheSecondIni': {
+          'secondIni.ini': ''
+        }
       } 
     }) //create a little file system using mockfs
   } )
@@ -68,13 +70,21 @@ describe(`iniReader`, () => {
   })
 
   describe.only(`#findIni`, () => {
+    it(`errors if no ini is provided`, () => expect( () => findIni('', 'anything')).to.throw)
+    it(`errors if no folder is provided`, () => expect( () => findIni('anything', '')).to.throw)
+      const mameFoldersFolder = 'mameFoldersDir'
     it(`finds an ini by name in the root mame extras 'folders' folder`, () => {
       const ini = 'firstIni.ini'
-      const mameFoldersFolder = 'mameFoldersDir'
       expect(findIni(ini, mameFoldersFolder )).to.be.true
     })
 
-    it(`finds an ini by name in a subdir of the 'folders' folder, named after the 'foldername' key supplied in inis.json`)
+    it(`finds an ini by name in a subdir of the 'folders' folder, named after the 'foldername' key supplied in inis.json`, () => {
+      const ini = 'secondIni.ini'
+      const folderName = "holdsTheSecondIni"
+      expect(findIni(ini, mameFoldersFolder, folderName )) 
+
+
+    })
     it(`finds an ini by name in a subdir of the 'folders' folder, even though there was no 'foldername' key supplied in inis.json`)
     it(`finds an ini by name in a subdir of a subdir of the 'folders' folder, whether of not there was a 'foldername' key supplied in inis.json`)
     it(`always prefers an ini higher up the directory tree ie: breadth not depth`)

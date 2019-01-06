@@ -19,20 +19,25 @@ const _throw = m => { throw new Error(m) }
  */
 const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
-const findIni = (file, folder) => {
+const findIni = (file, inisFolder, folderName) => {
+  (!file || !inisFolder) && _throw(`tried to find an ini without passing file or folder`)
   //  fs.readdirSync(folder).forEach( file => {
   //     const subPath = path.join(folder, file)
   //    if(fs.lstatSync(subPath).isDirectory()){
   //      findIni(file,subPath)
   //    } else {
-      const node = path.join(folder,file)
-      if(fs.lstatSync(node).isDirectory()){
-       return false
-      }
-      else {
+  const node = path.join(inisFolder, file)
+  const folderNameNode = folderName ? path.join(inisFolder, folderName) : 'folderName not supplied'
+  if (folderName && fs.existsSync(folderNameNode) && fs.lstatSync(folderNameNode).isDirectory()) {
+    return fs.existsSync(path.join(inisFolder, folderName, file))
+  } else {
+    if (fs.lstatSync(node).isDirectory()) {
+      return false
+    } else {
       return fs.existsSync(node)
-      }
     }
+  }
+}
 //  })
 //}
 
