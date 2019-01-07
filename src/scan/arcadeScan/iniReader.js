@@ -4,6 +4,9 @@ let fs               = require('fs') //rewired in test, don't try and destructur
 const path = require('path')
 const ini            = require('ini')
 const R              = require('ramda')
+const Maybe             = require('data.maybe')
+const { Just, Nothing } = Maybe
+
 const iniFlattener   = require('./iniFlattener.js')
 
 //TODO - iniDir is static - it needs to be a lamda here
@@ -19,8 +22,10 @@ const _throw = m => { throw new Error(m) }
  */
 const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
-const findIni = (file, inisFolder, folderName) => {
-  (!file || !inisFolder) && _throw(`tried to find an ini without passing file or folder`)
+// in order of preference find the ini by being in root, being in folderName, being in folder with own name or being somewhere in path breadth first
+// getIniPath :: ( Path, Path, Path ) -> Maybe Path
+const getIniPath = (file, inisFolder, folderName) => {
+  if (!file || !inisFolder) return Nothing()
   //  fs.readdirSync(folder).forEach( file => {
   //     const subPath = path.join(folder, file)
   //    if(fs.lstatSync(subPath).isDirectory()){
@@ -31,10 +36,10 @@ const findIni = (file, inisFolder, folderName) => {
   if (folderName && fs.existsSync(folderNameNode) && fs.lstatSync(folderNameNode).isDirectory()) {
     return fs.existsSync(path.join(inisFolder, folderName, file))
   } else {
-    if (fs.lstatSync(node).isDirectory()) {
+    if (fs.lstatSync(node).isDirectory()) { //if the ini is in a folder named after itself
       return false
     } else {
-      return fs.existsSync(node)
+      return fs.existsSync(node) ? Just(node) : Nothing()
     }
   }
 }
@@ -76,4 +81,4 @@ const loadIni = (iniDir, ini) => {
 }
 
 // most of these for unit tests only
-module.exports = { findIni, loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni }
+module.exports = { getIniPath, loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni }

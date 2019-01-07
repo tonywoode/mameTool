@@ -1,7 +1,10 @@
 const mock          = require('mock-fs')
 const rewire = require(`rewire`)
 const iniReader = rewire('../../../src/scan/arcadeScan/iniReader.js')
-const { findIni, loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
+const { getIniPath, loadIni, parseIni, loadGenericIni, loadKVIni, loadBareIni, loadSectionIni } = iniReader
+const path = require('path')
+const Maybe             = require('data.maybe')
+const { Just, Nothing } = Maybe
 
 const mockBareIni =
 ` [FOLDER_SETTINGS]
@@ -69,19 +72,19 @@ describe(`iniReader`, () => {
     mock.restore()
   })
 
-  describe.only(`#findIni`, () => {
-    it(`errors if no ini is provided`, () => expect( () => findIni('', 'anything')).to.throw)
-    it(`errors if no folder is provided`, () => expect( () => findIni('anything', '')).to.throw)
+  describe.only(`#getIniPath`, () => {
+    it(`errors if no ini is provided`, () => expect(getIniPath('', 'anything')).to.deep.equal(Nothing()))
+    it(`errors if no folder is provided`, () => expect( getIniPath('anything', '')).deep.equal(Nothing()))
       const mameFoldersFolder = 'mameFoldersDir'
     it(`finds an ini by name in the root mame extras 'folders' folder`, () => {
       const ini = 'firstIni.ini'
-      expect(findIni(ini, mameFoldersFolder )).to.be.true
+      expect(getIniPath(ini, mameFoldersFolder )).to.deep.equal(Just(path.join(mameFoldersFolder, ini)))
     })
 
     it(`finds an ini by name in a subdir of the 'folders' folder, named after the 'foldername' key supplied in inis.json`, () => {
       const ini = 'secondIni.ini'
       const folderName = "holdsTheSecondIni"
-      expect(findIni(ini, mameFoldersFolder, folderName )) 
+      expect(getIniPath(ini, mameFoldersFolder, folderName )) 
 
 
     })
