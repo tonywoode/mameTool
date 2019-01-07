@@ -22,30 +22,35 @@ const _throw = m => { throw new Error(m) }
  */
 const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
+//const exists = file => fs.existsSync(file)
+const isFile = file => fs.existsSync(file) && fs.statSync(file).isFile()
+const isDir = file => fs.existsSync(file) && fs.statSync(file).isDirectory()
+
 // in order of preference find the ini by being in root, being in folderName, being in folder with own name or being somewhere in path breadth first
 // getIniPath :: ( Path, Path, Path ) -> Maybe Path
 const getIniPath = (ini, inisFolder, folderName) => {
-  if (!ini || !inisFolder) return Nothing()
   //  fs.readdirSync(folder).forEach( file => {
   //     const subPath = path.join(folder, file)
   //    if(fs.lstatSync(subPath).isDirectory()){
   //      findIni(file,subPath)
   //    } else {
-  const node = path.join(inisFolder, ini)
-  const folderNameNode = folderName ? path.join(inisFolder, folderName) : 'folderName not supplied'
-  if (folderName && fs.existsSync(folderNameNode) && fs.lstatSync(folderNameNode).isDirectory()) {
-    const iniInNamedFolder = path.join(inisFolder, folderName, ini)
-    if( fs.existsSync(iniInNamedFolder)) return Just(iniInNamedFolder) //don't return a Nothing if not, keep searching...
-  } else {
-    if (fs.lstatSync(node).isDirectory()) { //if the ini is in a folder named after itself
-      return false
+
+  if (!ini || !inisFolder) return Nothing()
+  //is the file in the root?
+  const iniInRoot = path.join(inisFolder, ini)
+  if (isFile(iniInRoot)) { return Just(iniInRoot) } else {
+  //no, so is the file in that folder we said those inis live in sometimes?
+    if(folderName) {
+      const iniInDeclaredFolder = path.join(inisFolder, folderName, ini)
+      if (isFile(iniInDeclaredFolder)) { return Just(iniInDeclaredFolder)} 
     } else {
-      return fs.existsSync(node) ? Just(node) : Nothing()
+    //no, so is the file in a folder nameed after itself?
+    const iniInOwnNamedDir = path.join(inisFolder, ini.replace(/.ini$/i, ''), ini)
+    if (isFile(iniInOwnNamedDir)) { return Just(iniInOwnNamedDir) }
     }
   }
 }
-//  })
-//}
+
 
 // this will load an ini file using the ini reader...
 const loadGenericIni = (iniDir, iniName) => {

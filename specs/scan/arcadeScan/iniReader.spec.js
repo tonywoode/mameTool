@@ -63,6 +63,9 @@ describe(`iniReader`, () => {
         'firstIni.ini': '',
         'holdsTheSecondIni': {
           'secondIni.ini': ''
+        },
+        'thirdIni': {
+          'thirdIni.ini': ''
         }
       } 
     }) //create a little file system using mockfs
@@ -88,7 +91,11 @@ describe(`iniReader`, () => {
 
 
     })
-    it(`finds an ini by name in a subdir of the 'folders' folder, even though there was no 'foldername' key supplied in inis.json`)
+    it(`finds an ini by name in a subdir of the 'folders' folder, even though there was no 'foldername' key supplied in inis.json`, () => {
+      const ini = 'thirdIni.ini'
+      expect(getIniPath(ini, inisFolder)).to.deep.equal(Just(path.join(inisFolder, ini.replace(/.ini$/i, ''), ini)))
+    })
+
     it(`finds an ini by name in a subdir of a subdir of the 'folders' folder, whether of not there was a 'foldername' key supplied in inis.json`)
     it(`always prefers an ini higher up the directory tree ie: breadth not depth`)
     it(`finds on exact name not regex`)
