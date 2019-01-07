@@ -75,16 +75,16 @@ describe(`iniReader`, () => {
   describe.only(`#getIniPath`, () => {
     it(`errors if no ini is provided`, () => expect(getIniPath('', 'anything')).to.deep.equal(Nothing()))
     it(`errors if no folder is provided`, () => expect( getIniPath('anything', '')).deep.equal(Nothing()))
-      const mameFoldersFolder = 'mameFoldersDir'
+      const inisFolder = 'mameFoldersDir'
     it(`finds an ini by name in the root mame extras 'folders' folder`, () => {
       const ini = 'firstIni.ini'
-      expect(getIniPath(ini, mameFoldersFolder )).to.deep.equal(Just(path.join(mameFoldersFolder, ini)))
+      expect(getIniPath(ini, inisFolder )).to.deep.equal(Just(path.join(inisFolder, ini)))
     })
 
     it(`finds an ini by name in a subdir of the 'folders' folder, named after the 'foldername' key supplied in inis.json`, () => {
       const ini = 'secondIni.ini'
       const folderName = "holdsTheSecondIni"
-      expect(getIniPath(ini, mameFoldersFolder, folderName )) 
+      expect(getIniPath(ini, inisFolder, folderName)).to.deep.equal(Just(path.join(inisFolder, folderName, ini)) )
 
 
     })

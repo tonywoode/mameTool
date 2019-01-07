@@ -24,17 +24,18 @@ const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
 // in order of preference find the ini by being in root, being in folderName, being in folder with own name or being somewhere in path breadth first
 // getIniPath :: ( Path, Path, Path ) -> Maybe Path
-const getIniPath = (file, inisFolder, folderName) => {
-  if (!file || !inisFolder) return Nothing()
+const getIniPath = (ini, inisFolder, folderName) => {
+  if (!ini || !inisFolder) return Nothing()
   //  fs.readdirSync(folder).forEach( file => {
   //     const subPath = path.join(folder, file)
   //    if(fs.lstatSync(subPath).isDirectory()){
   //      findIni(file,subPath)
   //    } else {
-  const node = path.join(inisFolder, file)
+  const node = path.join(inisFolder, ini)
   const folderNameNode = folderName ? path.join(inisFolder, folderName) : 'folderName not supplied'
   if (folderName && fs.existsSync(folderNameNode) && fs.lstatSync(folderNameNode).isDirectory()) {
-    return fs.existsSync(path.join(inisFolder, folderName, file))
+    const iniInNamedFolder = path.join(inisFolder, folderName, ini)
+    if( fs.existsSync(iniInNamedFolder)) return Just(iniInNamedFolder) //don't return a Nothing if not, keep searching...
   } else {
     if (fs.lstatSync(node).isDirectory()) { //if the ini is in a folder named after itself
       return false
