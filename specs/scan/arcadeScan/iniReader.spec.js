@@ -58,17 +58,23 @@ invadpt2br`
 describe(`iniReader`, () => {
 
   beforeEach( () => {
-    mock( { 
+    mock( { //create a little file system using mockfs
       'mameFoldersDir': {
         'firstIni.ini': '',
         'holdsTheSecondIni': {
-          'secondIni.ini': ''
+          'secondIni.ini': '',
+          'aSecondFileInThisFolder.ini': ''
         },
         'thirdIni': {
           'thirdIni.ini': ''
+        },
+        'randomFolderName': {
+          'nestedFolder': {
+          'fourthIni.ini': ''
+          }
         }
       } 
-    }) //create a little file system using mockfs
+    }) 
   } )
 
   afterEach( () => {
@@ -96,7 +102,14 @@ describe(`iniReader`, () => {
       expect(getIniPath(ini, inisFolder)).to.deep.equal(Just(path.join(inisFolder, ini.replace(/.ini$/i, ''), ini)))
     })
 
-    it(`finds an ini by name in a subdir of a subdir of the 'folders' folder, whether of not there was a 'foldername' key supplied in inis.json`)
+    it(`finds an ini by name in a subdir of a subdir of the 'folders' folder, whether of not there was a 'foldername' key supplied in inis.json`, () => {
+      //aka "the one where we use the 'file' module"
+      const ini = 'fourthIni.ini'
+      const randomFolder = 'randomFolderName'
+      const nestedFolder = 'nestedFolder'
+      expect(getIniPath(ini, inisFolder)).to.deep.equal(Just(path.join(inisFolder, randomFolder, nestedFolder, ini)))
+
+    })
     it(`always prefers an ini higher up the directory tree ie: breadth not depth`)
     it(`finds on exact name not regex`)
     it(`returns a nothing if the file doesn't exist in the mame extras 'folders' folder`)

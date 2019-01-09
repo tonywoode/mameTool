@@ -22,35 +22,46 @@ const _throw = m => { throw new Error(m) }
  */
 const parseIni = bufferedIni => ini.parse(bufferedIni.replace(/\./g, `\\.`) )
 
-//const exists = file => fs.existsSync(file)
 const isFile = file => fs.existsSync(file) && fs.statSync(file).isFile()
 const isDir = file => fs.existsSync(file) && fs.statSync(file).isDirectory()
 
-// in order of preference find the ini by being in root, being in folderName, being in folder with own name or being somewhere in path breadth first
-// getIniPath :: ( Path, Path, Path ) -> Maybe Path
-const getIniPath = (ini, inisFolder, folderName) => {
-  //  fs.readdirSync(folder).forEach( file => {
-  //     const subPath = path.join(folder, file)
-  //    if(fs.lstatSync(subPath).isDirectory()){
-  //      findIni(file,subPath)
-  //    } else {
-
-  if (!ini || !inisFolder) return Nothing()
-  //is the file in the root?
-  const iniInRoot = path.join(inisFolder, ini)
-  if (isFile(iniInRoot)) { return Just(iniInRoot) } else {
-  //no, so is the file in that folder we said those inis live in sometimes?
-    if(folderName) {
-      const iniInDeclaredFolder = path.join(inisFolder, folderName, ini)
-      if (isFile(iniInDeclaredFolder)) { return Just(iniInDeclaredFolder)} 
-    } else {
-    //no, so is the file in a folder nameed after itself?
-    const iniInOwnNamedDir = path.join(inisFolder, ini.replace(/.ini$/i, ''), ini)
-    if (isFile(iniInOwnNamedDir)) { return Just(iniInOwnNamedDir) }
+// last resort: find ini files the old fashioned way
+const recurseSearch = (ini, node) => { //;console.log(`node: ${node}`)
+  if (isDir(node)){ 
+    const files = fs.readdirSync(node) //;console.log(`contents of ${node} are ${files}`)
+    for (const subNode of files) { //;console.log(`entering subNode ${path.join(node, subNode)}`)
+      const found = recurseSearch(ini, path.join(node, subNode)) //;console.log(`recurse search in ${path.join(node,subNode)} - result ${found}`)
+      if (found) { //;console.log("returning " + found)
+        return found 
+      }
+    }
+  } else { //;console.log(`is ${ini} === ${path.basename(node)}`)
+    if (isFile(node) && ini === path.basename(node)) {
+      return node
     }
   }
-}
+  return false
+} 
 
+// Sometimes MAME Extra's 'folders' folder could be a flat collection of the inis, but sometimes (in the case of 
+//   progrettoSnaps combined ini download, for instance) the inis might be in subfolders.
+// In order of preference find the ini in root, in folderName, in folder with own name, or subdir of root 
+
+// getIniPath :: ( Path, Path, Path ) -> Maybe Path
+const getIniPath = (ini, inisFolder, folderName) => {
+  if (!ini || !inisFolder) return Nothing() //is the file in the root?
+  const iniInRoot = path.join(inisFolder, ini)
+  if (isFile(iniInRoot)) { return Just(iniInRoot) } //no, is it in that folder we saw progretto using?
+  if(folderName) {
+    const iniInDeclaredFolder = path.join(inisFolder, folderName, ini)
+    if (isFile(iniInDeclaredFolder)) { return Just(iniInDeclaredFolder)} //no, is it in a folder named after itself?
+  }
+  const iniInOwnNamedDir = path.join(inisFolder, ini.replace(/.ini$/i, ''), ini)
+  if (isFile(iniInOwnNamedDir)) { return Just(iniInOwnNamedDir) }
+    //it wasn't in any of those, so do a recursive search. Prob a good time to deal with cross-platform potential case insensitivity ideally should be breadth first, it'll probably come out as depth
+  const result =  recurseSearch(ini, inisFolder)//.toString()
+  return result? Just(result) : Nothing()
+}
 
 // this will load an ini file using the ini reader...
 const loadGenericIni = (iniDir, iniName) => {
