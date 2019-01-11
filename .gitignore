@@ -3,3 +3,4 @@ outputs
 node_modules/
 early_xml_scraping_tries/
 *.rc
+mametool_logfile.txt
