@@ -55,12 +55,17 @@ bsuertev
 indianbtbr
 invadpt2br`
 
+const inisFolder = 'mameFoldersDir'
+
 describe(`iniReader`, () => {
 
   beforeEach( () => {
     mock( { //create a little file system using mockfs
       'mameFoldersDir': {
         'firstIni.ini': '',
+        'mockBareIni.ini': mockBareIni,
+        'mockKVIni.ini': mockKVIni,
+        'mockSectionIni.ini': mockSectionIni,
         'holdsTheSecondIni': {
           'secondIni.ini': '',
           'aSecondFileInThisFolder.ini': ''
@@ -85,7 +90,6 @@ describe(`iniReader`, () => {
   describe(`#getIniPath`, () => {
     it(`errors if no ini is provided`, () => expect(getIniPath('', 'anything')).to.deep.equal(Nothing()))
     it(`errors if no folder is provided`, () => expect( getIniPath('anything', '')).deep.equal(Nothing()))
-      const inisFolder = 'mameFoldersDir'
     it(`finds an ini by name in the root mame extras 'folders' folder`, () => {
       const ini = 'firstIni.ini'
       expect(getIniPath(ini, inisFolder )).to.deep.equal(Just(path.join(inisFolder, ini)))
@@ -121,10 +125,8 @@ describe(`iniReader`, () => {
   })
 
   describe(`#loadIni`, () => {
-    const revert = iniReader.__set__(`fs`, { readFileSync: () => mockBareIni })
-    const ini = loadIni(`randomdir`, { iniName: `anything`, iniType: `bare`})
-    revert()
     it(`routes an ini type to the correct function to handle it`, () => {
+      const ini = loadIni(inisFolder, { iniName: `mockBareIni`, iniType: `bare`})
       expect(ini[`005`]).to.be.true
     })
     it(`throws on a non-existant ini type`, () => {
@@ -165,10 +167,10 @@ describe(`iniReader`, () => {
   })
 
 
+  //TODO: these are integration tests atm, they should be tested without real file lookup
   describe(`#loadKVIni`, () => {
     it(`when passed a KV-style ini, treat it generically and hence return an expected kv`, () => {
-      iniReader.__set__(`fs`, { readFileSync: () => mockKVIni })
-      const kvIni = loadKVIni(`randomdir`, `fakeName`, `NPlayers`)
+      const kvIni = loadKVIni(inisFolder, `mockKVIni`, `NPlayers`)
       expect(kvIni[`10yard`]).to.equal(`2P alt`)
     })
     it(`throws if you ask for a kv ini converter without specifying the name of the section header`, () => {
@@ -178,16 +180,14 @@ describe(`iniReader`, () => {
 
   describe(`#loadBareIni`, () => {
     it(`when passed a Bare-style ini, treat it generically and hence return an expected kv`, () => {
-    iniReader.__set__(`fs`, { readFileSync: () => mockBareIni })
-    const bareIni = loadBareIni(`randomdir`, `fakeName` )
+    const bareIni = loadBareIni(inisFolder, `mockBareIni` )
     expect(bareIni[`10yard`]).to.equal(true)
     })
   })
 
   describe(`#loadSectionIni`, () => {
     it(`when passed a Section-style ini, treat it generically and hence return an expected kv`, () => {
-    iniReader.__set__(`fs`, { readFileSync: () => mockSectionIni })
-    const sectionIni = loadSectionIni(`randomdir`, `fakeName`)
+    const sectionIni = loadSectionIni(inisFolder, `mockSectionIni`)
     expect(sectionIni[`bazookabr`]).to.equal(`Brazilian Portuguese`)
     })
   })
