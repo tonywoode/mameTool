@@ -64,13 +64,13 @@ const getIniPath = (ini, inisFolder, folderName) => {
 }
 
 // this will load an ini file using the ini reader...
-  // TODO: paradigmatic cleanup! 
 const loadGenericIni = (iniDir, iniName) => {
   try {
-  const justIniPath  = getIniPath(`${iniName}.ini`, iniDir)
-  justIniPath.isNothing && _throw("ini file not found")
-  const iniPath = justIniPath.get()
-  return parseIni(fs.readFileSync(iniPath, `utf-8`) ) }
+    return getIniPath(`${iniName}.ini`, iniDir)
+      .orElse( _ => _throw("inis not anywhere in that folder"))
+      .map(iniPath => parseIni(fs.readFileSync(iniPath, `utf-8`) ))
+      .get()
+  }
   catch(err) { console.error(`PROBLEM: iniReader: "${iniName}" can't be read at "${iniDir}"`); return {}  }
 }
 
