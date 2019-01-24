@@ -176,6 +176,10 @@ describe(`iniReader`, () => {
     it(`throws if you ask for a kv ini converter without specifying the name of the section header`, () => {
       expect( () => loadIni(`randomdir`, {iniName: `anything`, iniType: `kv`}) ).to.throw(`you didn't supply a section name`) 
     })
+    it(`always returns an object if you pass it a non-existent ini, so that mametool can try to carry on`, () => {
+      const kvIni = loadKVIni(`notAValidPath`, `notAValidIniName`, `NPlayers`)
+      expect(kvIni).to.be.an.instanceof(Object)
+    })
   })
 
   describe(`#loadBareIni`, () => {

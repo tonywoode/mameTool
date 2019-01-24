@@ -78,7 +78,7 @@ const loadGenericIni = (iniDir, iniName) => {
 // (sectionName is the top-level-key to remove, since its unpredictably different to the filename..sigh...)
 const loadKVIni = (
   iniDir, iniName, sectionName = _throw(`you didn't supply a section name`) 
-) => R.prop(sectionName, loadGenericIni(iniDir, iniName) )
+) => ( R.prop(sectionName, loadGenericIni(iniDir, iniName) ) || {})
 
 // OR it will have a header of only 'ROOT FOLDER' and then have just keys, this type of
 //   ini needs a boolean value, and when used the key needs to be the name of the ini (which we do anyway)
