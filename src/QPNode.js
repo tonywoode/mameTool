@@ -69,7 +69,7 @@ const jsonOutDir        = devMode? outputDir : `dats` //json will sit in the fro
 const jsonOutName       = `mame.json`
 const jsonOutPath       = `${jsonOutDir}/${jsonOutName}`
 const qpIni             = devMode? `./settings.ini`: `dats\\settings.ini` //settings from QP's ini file, or nix dev settings
-const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the above ini
+const devExtrasOverride = devMode? `/Volumes/GAMES/MAME/EXTRAs/folders` : `` //on windows its specified in the settings.ini above
 
 devMode      && console.log(`\t*** Mametool is in Dev mode ***\n`)
 program.scan && !devMode || console.log(`Output dir:             ${outputDir}`) 

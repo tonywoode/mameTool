@@ -52,7 +52,7 @@ MAME ini dir:           ${settings.iniDir}`
       )(embedded) 
 
       //post process the mess json, printing out an Efind and a refreshed systems.dat along the way
-      const mungedMessSystems =  R.pipe(
+      const mungedMessSystems = R.pipe(
            cleanSoftlists
         ,  cleanDevices
         ,  mungeCompanyAndSystemNames
@@ -69,7 +69,10 @@ MAME ini dir:           ${settings.iniDir}`
 
       //this will be the json that gets printed and used
       const newSysObj = {versionInfo, arcade: mungedArcade, messSystems: mungedMessSystems, embedded: interestingEmbedded}
-      fs.writeFileSync(jsonOutPath, JSON.stringify(newSysObj, null, `\t`))  
+      console.log(`Printing mame.json for version ${sysObj.versionInfo.mameVersion} to ${jsonOutPath}`) 
+      fs.writeFileSync(jsonOutPath, JSON.stringify(newSysObj, null, `\t`))
+
+
       log.json && console.log(fs.readFileSync(jsonOutPath, `utf-8`)) 
 
       //save the version information into quickplay's ini file, do it last then a throw will end up least contradictory
